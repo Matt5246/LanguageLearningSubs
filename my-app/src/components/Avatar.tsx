@@ -1,3 +1,4 @@
+"use client"
 import React from 'react'
 import {
 	Avatar,
@@ -12,8 +13,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useTheme } from 'next-themes'
+import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
 
 function AvatarComponent() {
+	const { setTheme, theme } = useTheme()
 	return (
 		<>
 			<DropdownMenu>
@@ -27,12 +31,18 @@ function AvatarComponent() {
 					<DropdownMenuLabel>My Account</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem>Profile</DropdownMenuItem>
-					<DropdownMenuItem>Billing</DropdownMenuItem>
-					<DropdownMenuItem>Team</DropdownMenuItem>
-					<DropdownMenuItem>Subscription</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>Theme
+						<div className=''>
+							{theme === 'dark' ? (
+								<MoonIcon className="h-[1.2rem] w-[1.2rem] ml-2" />
+							) : (
+								<SunIcon className="h-[1.2rem] w-[1.2rem] ml-2" />
+							)}
+						</div>
+					</DropdownMenuItem>
+					<DropdownMenuItem>logout</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
-
 		</>
 	)
 }

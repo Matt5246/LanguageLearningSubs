@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider"
 
+import NavBar from "@/components/NavBar";
+import { ThemeProvider } from "@/components/theme-provider"
+import AvatarComponent from '@/components/Avatar'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
 
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "LanguageLearningFromSubs",
@@ -20,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head />
-      <body className={inter.className}>
+      <body>
         <ReactQueryProvider>
           <ThemeProvider
             attribute="class"
@@ -28,7 +27,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-
+            <nav className="h-16 px-4 flex justify-between border-b shadow-md">
+              <NavBar />
+              <AvatarComponent />
+            </nav>
             {children}
           </ThemeProvider>
         </ReactQueryProvider>

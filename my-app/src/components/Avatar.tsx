@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from 'next-themes'
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
-
+import SigninButton from './SigninButton'
 function AvatarComponent() {
 	const { setTheme, theme } = useTheme()
 	return (
@@ -40,7 +40,7 @@ function AvatarComponent() {
 							)}
 						</div>
 					</DropdownMenuItem>
-					<DropdownMenuItem>logout</DropdownMenuItem>
+					<DropdownMenuItem><SigninButton /></DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</>

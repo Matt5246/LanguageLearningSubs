@@ -1,4 +1,4 @@
-import NextAuth from "next-auth/next"
+import NextAuth, { getServerSession } from "next-auth/next"
 import GoogleProvider from "next-auth/providers/google"
 import GithubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
@@ -6,7 +6,7 @@ import prisma from "../../../../lib/prismadb"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import bcrypt from "bcrypt"
 
-export const authOptions = {
+const authOptions = {
     adapter: PrismaAdapter(prisma),
     providers: [
         GithubProvider({
@@ -20,9 +20,9 @@ export const authOptions = {
         CredentialsProvider({
             name: "credentials",
             credentials: {
-                email: { label: "Email", type: "text", placeholder: "jsmith" },
+                email: { label: "Email", type: "text", placeholder: "John" },
                 password: { label: "Password", type: "password" },
-                username: { label: "Username", type: "text", placeholder: "John Smith" },
+                username: { label: "Username", type: "text", placeholder: "John Gone" },
             },
 
             async authorize(credentials: Record<"email" | "password", string> | undefined) {
@@ -59,5 +59,6 @@ export const authOptions = {
 }
 //@ts-ignore
 const handler = NextAuth(authOptions);
+
 export { handler as GET, handler as POST };
 

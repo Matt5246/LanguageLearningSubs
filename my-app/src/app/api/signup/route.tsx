@@ -1,15 +1,9 @@
 
 import bcrypt from 'bcrypt'
 import prisma from '../../../lib/prismadb'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export interface SignupRequestBody {
-    name: string;
-    email: string;
-    password: string;
-}
-
-export async function POST(req: { json: () => Promise<SignupRequestBody> }) {
+export async function POST(req: NextRequest | Request) {
     const body = await req.json();
     const { name, email, password } = body;
 

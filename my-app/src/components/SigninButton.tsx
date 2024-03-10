@@ -1,6 +1,6 @@
 "use client"
-import { signOut, signIn, useSession } from 'next-auth/react'
-
+import { signOut, useSession } from 'next-auth/react'
+import Link from "next/link"
 const SigninButton = () => {
 
     const { data: session } = useSession();
@@ -15,7 +15,8 @@ const SigninButton = () => {
         )
     }
     return (
-        <button onClick={() => signIn()} className='text-green-600 ml-auto'>Sign in</button>
+        <button className='text-green-600 ml-auto'><Link href="/auth">Sign in</Link></button>
+        
     )
 }
 

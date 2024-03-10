@@ -2,8 +2,8 @@
 import React, { ReactNode } from 'react'
 import { SessionProvider } from 'next-auth/react';
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
-
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from './theme-provider'
+import { Toaster } from "@/components/ui/toaster"
 
 interface Props {
     children: ReactNode;
@@ -19,6 +19,7 @@ const Providers = (props: Props) => {
         >
             <ReactQueryProvider>
                 <SessionProvider>{props.children}</SessionProvider>
+                <Toaster />
             </ReactQueryProvider>
         </ThemeProvider>
     )

@@ -1,11 +1,12 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from '../api/auth/[...nextauth]/route'
+
 export default async function Home() {
-  //@ts-ignore
-  const session = await getServerSession(authOptions)
+
   return (
-    <>
-      <pre>{JSON.stringify(session)}</pre>
-    </>
+    <div className="flex justify-center mt-6 text-2xl">
+      <div>
+        home screen, later there will be cards with short functionality of other route pages, or sth else.
+      </div>
+    </div>
   );
 }

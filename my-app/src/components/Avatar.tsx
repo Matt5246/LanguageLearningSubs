@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from 'next-themes'
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
+import SigninButton from './SigninButton'
+import Link from 'next/link'
 
 function AvatarComponent() {
 	const { setTheme, theme } = useTheme()
@@ -30,7 +32,7 @@ function AvatarComponent() {
 				<DropdownMenuContent>
 					<DropdownMenuLabel>My Account</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>Profile</DropdownMenuItem>
+					<DropdownMenuItem><Link href="/home/profile">Profile</Link></DropdownMenuItem>
 					<DropdownMenuItem onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>Theme
 						<div className=''>
 							{theme === 'dark' ? (
@@ -40,7 +42,7 @@ function AvatarComponent() {
 							)}
 						</div>
 					</DropdownMenuItem>
-					<DropdownMenuItem>logout</DropdownMenuItem>
+					<DropdownMenuItem><SigninButton /></DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</>

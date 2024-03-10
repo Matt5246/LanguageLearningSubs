@@ -80,11 +80,7 @@ export default function NavigationMenuDemo() {
                         </ul>
                     </NavigationMenuContent>
                 </NavigationMenuItem>
-                {/* <NavigationMenuItem>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Documentation
-                    </NavigationMenuLink>
-                </NavigationMenuItem> */}
+
             </NavigationMenuList>
         </NavigationMenu>
     )

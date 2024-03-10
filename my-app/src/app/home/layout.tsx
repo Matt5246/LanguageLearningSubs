@@ -17,24 +17,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head />
-      <body>
-        <ReactQueryProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <nav className="h-16 px-4 flex justify-between border-b shadow-md">
-              <NavBar />
-              <AvatarComponent />
-            </nav>
-            {children}
-          </ThemeProvider>
-        </ReactQueryProvider>
-      </body>
-    </html>
+    <>
+      <ReactQueryProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <nav className="h-16 px-4 flex justify-between border-b shadow-md">
+            <NavBar />
+            <AvatarComponent />
+          </nav>
+          {children}
+        </ThemeProvider>
+      </ReactQueryProvider>
+    </>
   );
 }

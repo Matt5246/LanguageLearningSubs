@@ -41,6 +41,7 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "vercel": "^33.5.3",
+    "youtube-transcript": "^1.1.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

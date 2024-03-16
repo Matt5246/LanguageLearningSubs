@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useSession } from "next-auth/react";
-
+import Image from "next/image";
 export default function UserProfile() {
 
     const session = useSession();
@@ -30,7 +30,7 @@ export default function UserProfile() {
         },
         {
             title: "Your profile image.",
-            description: `${image}`,
+            description: `${image ? <Image src={image} alt="Profile Image" width={100} height={100} /> : null}`,
         },
     ];
 

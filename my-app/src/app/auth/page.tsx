@@ -18,18 +18,21 @@ import {
 } from "@/components/ui/tabs"
 import { useState } from "react"
 import axios from "axios"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 import { FcGoogle } from "react-icons/fc";
+import { redirect } from "next/navigation"
 export default function Authorization() {
 	const [data, setData] = useState({
 		name: "",
 		email: "",
 		password: ""
 	})
-	const { toast } = useToast()
+	const { status } = useSession();
+	if (status === "authenticated") redirect("/home")
 
+	const { toast } = useToast()
 	const signupUser = async (e: React.SyntheticEvent) => {
 		e.preventDefault();
 		axios.post('/api/signup', data).then(() => (

@@ -10,7 +10,6 @@ export default function UserProfile() {
 
     const session = useSession();
 
-    console.log(session)
     if (!session) {
         return <div>You are not logged in.</div>;
     }
@@ -18,7 +17,6 @@ export default function UserProfile() {
 
     const { name, email, image } = user || {};
 
-    // Credentials data
     const Credentials = [
         {
             title: "your username credentials.",

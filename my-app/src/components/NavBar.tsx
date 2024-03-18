@@ -22,6 +22,12 @@ const components: { title: string; href: string; description: string }[] = [
             "A page where you can watch your youtube videos.",
     },
     {
+        title: "Other video type player",
+        href: "/home/video-player",
+        description:
+            "A page where you can watch your videos with subtitles.",
+    },
+    {
         title: "Flashcards",
         href: "/home/flashcards",
         description:

@@ -9,16 +9,12 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-interface Caption {
-    text: string;
-    duration: number; // Duration in milliseconds
-    offset: number; // Offset in milliseconds
-}
+
 
 export default function SubtitlesList({ captions }: { captions: Caption[] }) {
     return (
         <div className="overflow-auto h-full">
-            {captions.length > 0 ? (
+            {captions && captions.length > 0 ? (
                 <Table>
                     <TableCaption>A list of your subtitles.</TableCaption>
                     <TableHeader>

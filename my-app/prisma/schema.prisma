@@ -14,16 +14,51 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
   name           String?
-  email          String?   @unique
+  email          String?    @unique
   emailVerified  DateTime?
   image          String?
   hashedPassword String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime?  @default(now())
+  updatedAt      DateTime?  @updatedAt
+  subtitles      Subtitle[]
+  accounts       Account[]
+}
 
-  accounts Account[]
+model Subtitle {
+  SubtitleId    String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String         @db.ObjectId
+  youtubeUrl    String?        @unique
+  subtitleTitle String?
+  subtitleData  SubtitleData[]
+  hardWords     hardWords[]
+  createdAt     DateTime?      @default(now())
+  updatedAt     DateTime?      @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([subtitleTitle, userId])
+}
+
+model hardWords {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  hardWordId  String?   @db.ObjectId
+  word        String?
+  translation String?
+  pos         String? //Part of speech
+  Subtitle    Subtitle? @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
+
+  @@unique([word])
+}
+
+model SubtitleData {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  subtitleDataId String?   @db.ObjectId
+  text           String?
+  translation    String?
+  duration       Int?
+  offset         Int?
+  Subtitle       Subtitle? @relation(fields: [subtitleDataId], references: [SubtitleId], onDelete: Cascade)
 }
 
 model Account {

@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 
 
 export async function GET(req: Request) {
-    const { searchParams } = new URL(req.url);
-    const url = searchParams.get("url")!;
+    const url = req.url;
     try {
         const transcript = await YoutubeTranscript.fetchTranscript(url);
         return NextResponse.json(transcript);

@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { NextResponse, NextFetchEvent } from 'next/server';
+import { NextResponse } from 'next/server';
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {

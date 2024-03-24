@@ -28,11 +28,21 @@ const Home = () => {
     const { data, error, isLoading } = useQuery({
         queryKey: ['captions', url],
         queryFn: async () => {
-            const response = await axios.get(`/api/captions?url=${url}`);
+            const response = await axios.post('/api/captions', {
+                youtubeUrl: url
+            },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
             return response.data;
         },
         enabled: !!url,
+        retry: false,
+
     })
+
     const handleSaveSubtitles = async () => {
         try {
 
@@ -40,7 +50,7 @@ const Home = () => {
                 throw new Error('User email not found in session.');
             }
             console.log(userEmail)
-            const response = await axios.post('/api/subtitles/create', {
+            await axios.post('/api/subtitles/create', {
                 email: userEmail,
                 youtubeUrl: url,
                 subtitleTitle: 'Subtitle Title Here',

@@ -19,11 +19,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <nav className="h-16 px-4 flex justify-between border-b shadow-md">
+          <nav className="h-16 px-4 flex justify-between border-b shadow-md select-none">
             <NavBar />
             <AvatarComponent />
           </nav>
-          {children}
+          <div className="select-none">
+            {children}
+          </div>
         </ThemeProvider>
       </ReactQueryProvider>
     </>

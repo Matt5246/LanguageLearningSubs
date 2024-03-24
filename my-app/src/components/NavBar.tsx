@@ -33,6 +33,12 @@ const components: { title: string; href: string; description: string }[] = [
         description:
             "A page where you can train your knowledge.",
     },
+    {
+        title: "Books",
+        href: "/home/books",
+        description:
+            "Here you can read books in german language.",
+    },
 ]
 
 export default function NavigationMenuDemo() {

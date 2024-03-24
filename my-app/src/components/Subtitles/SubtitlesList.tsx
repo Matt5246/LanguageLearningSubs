@@ -9,14 +9,37 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import { useState } from "react";
 
 export default function SubtitlesList({ captions }: { captions: Caption[] }) {
+    const [selectedSubtitle, setSelectedSubtitle] = useState<Caption | null>(null);
+    const [selectedWord, setSelectedWord] = useState<string | null>(null);
+
+    const handleOpenPopover = (subtitle: Caption) => {
+        setSelectedSubtitle(subtitle);
+        console.log(subtitle)
+    };
+
+    const handleWordSelection = (word: string) => {
+        setSelectedWord(word);
+    };
+    const handleAddToHardWords = () => {
+        // Implement logic to send selectedWord to backend API for adding to hard words database
+        console.log('Selected Word:', selectedWord);
+
+    };
     return (
         <div className="overflow-auto h-full">
             {captions && captions.length > 0 ? (
                 <Table>
-                    <TableCaption>A list of your subtitles.</TableCaption>
                     <TableHeader>
                         <TableRow>
                             <TableHead className="w-[100px]">line</TableHead>
@@ -25,11 +48,40 @@ export default function SubtitlesList({ captions }: { captions: Caption[] }) {
                             <TableHead className="text-right">time</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody >
                         {captions.map((subtitle, key) => (
                             <TableRow key={key}>
-                                <TableCell className="font-medium">{key + 1}</TableCell>
-                                <TableCell>{subtitle.text}</TableCell>
+                                <TableCell className="font-light">{key + 1}</TableCell>
+                                <TableCell >
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <p onClick={() => handleOpenPopover(subtitle)}>{subtitle.text}</p>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80 select-none">
+                                            <h4 className="font-medium leading-none">Subtitle Line:</h4>
+                                            <p className="text-sm text-muted-foreground select-text m-1">{key + 1 + ". "}{selectedSubtitle?.text}</p>
+                                            <h3 >Select Hard Word:</h3>
+                                            <ul>
+                                                {selectedSubtitle?.text.split(' ').map((word, index) => (
+                                                    <li key={index}>
+                                                        <label>
+                                                            <input
+                                                                type="radio"
+                                                                name="hardWord"
+                                                                value={word}
+                                                                onChange={() => handleWordSelection(word)}
+                                                                checked={word === selectedWord}
+
+                                                            />
+                                                            {" " + word}
+                                                        </label>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <Button onClick={handleAddToHardWords} className="mt-2">Add to Hard Words</Button>
+                                        </PopoverContent>
+                                    </Popover>
+                                </TableCell>
                                 <TableCell></TableCell>
                                 <TableCell className="text-right">{convertTime(subtitle.offset)}</TableCell>
                             </TableRow>
@@ -44,8 +96,9 @@ export default function SubtitlesList({ captions }: { captions: Caption[] }) {
                 </Table>
             ) : (
                 <p className="flex justify-center items-center h-full">No captions available.</p>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }
 function convertTime(time: number): string {

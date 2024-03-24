@@ -46,6 +46,7 @@ model hardWords {
   word        String?
   translation String?
   pos         String? //Part of speech
+  lemma       String?
   Subtitle    Subtitle? @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
 
   @@unique([word])

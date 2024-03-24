@@ -8,7 +8,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "LanguageLearningFromSubs",
   description: "Database and platform to learn foreign language, from subititles.",
-
 };
 
 export default function RootLayout({
@@ -18,7 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head />
+      <head>
+        <link rel="icon" href="/file-text.svg" sizes="any" />
+      </head>
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>

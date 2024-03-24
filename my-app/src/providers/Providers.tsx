@@ -5,6 +5,7 @@ import ReactQueryProvider from '@/providers/ReactQueryProvider'
 import { ThemeProvider } from '../components/theme-provider'
 import { Toaster } from "@/components/ui/toaster"
 
+
 interface Props {
     children: ReactNode;
 }
@@ -18,7 +19,7 @@ const Providers = (props: Props) => {
             disableTransitionOnChange
         >
             <ReactQueryProvider>
-                <SessionProvider>{props.children}</SessionProvider>
+                <SessionProvider >{props.children}</SessionProvider>
                 <Toaster />
             </ReactQueryProvider>
         </ThemeProvider>

@@ -106,7 +106,7 @@ const Home = () => {
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={35}>
                     {isLoading ?
-                        <SubtitlesSkeleton /> : <SubtitlesList captions={data as Caption[]} />}
+                        <SubtitlesSkeleton /> : <SubtitlesList captions={data as Caption[]} url={url} userEmail={userEmail} />}
                 </ResizablePanel>
             </ResizablePanelGroup>
         </div>

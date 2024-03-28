@@ -10,16 +10,17 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { useState } from "react";
+import axios from 'axios'
 
-export default function SubtitlesList({ captions }: { captions: Caption[] }) {
+
+
+export default function SubtitlesList({ captions, url, userEmail }: { captions: Caption[], url: string, userEmail: string | null | undefined }) {
     const [selectedSubtitle, setSelectedSubtitle] = useState<Caption | null>(null);
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
 
@@ -31,10 +32,23 @@ export default function SubtitlesList({ captions }: { captions: Caption[] }) {
     const handleWordSelection = (word: string) => {
         setSelectedWord(word);
     };
-    const handleAddToHardWords = () => {
-        // Implement logic to send selectedWord to backend API for adding to hard words database
-        console.log('Selected Word:', selectedWord);
+    const handleAddToHardWords = async () => {
 
+        if (!selectedSubtitle || !selectedWord) return;
+
+        try {
+            const response = await axios.post('/api/hardWords/add', {
+                youtubeUrl: url,
+                email: userEmail,
+                hardWord: selectedWord,
+            });
+
+            // Handle success, update UI or show a message
+            console.log('Word added to hard words:', response.data);
+        } catch (error) {
+            console.error('Error adding word to hard words:', error);
+            // Handle error, show error message to the user
+        }
     };
     return (
         <div className="overflow-auto h-full">

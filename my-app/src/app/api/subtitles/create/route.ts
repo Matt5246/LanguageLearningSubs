@@ -22,8 +22,8 @@ export async function POST(req: Request) {
                     userId,
                     youtubeUrl,
                     subtitleTitle,
-                    subtitleData: { createMany: { data: subtitleData } },
-                    hardWords: {},
+                    // subtitleData: { createMany: { data: subtitleData } },
+                    // hardWords: {},
                 },
             });
             return NextResponse.json(subtitle)

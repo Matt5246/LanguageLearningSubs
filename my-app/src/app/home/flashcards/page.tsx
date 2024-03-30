@@ -58,7 +58,7 @@ export default function Home() {
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between">
-                            <Button variant="outline" onClick={handlePreviousWord}>Previous</Button>
+                            <Button variant="secondary" onClick={handlePreviousWord}>Previous</Button>
                             <Button variant="outline" onClick={handleNextWord}>Next</Button>
                         </CardFooter>
                     </Card>

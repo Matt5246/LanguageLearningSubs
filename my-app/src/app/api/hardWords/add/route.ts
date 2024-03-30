@@ -29,6 +29,7 @@ export async function POST(req: Request) {
                         userId: user.id,
                         youtubeUrl,
                         subtitleTitle: subtitleTitle || generateRandomTitle(),
+
                     },
                 });
                 return NextResponse.json(newSubtitle);

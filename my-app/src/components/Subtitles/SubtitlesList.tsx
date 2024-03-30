@@ -29,9 +29,6 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
         console.log(subtitle)
     };
 
-    const handleWordSelection = (word: string) => {
-        setSelectedWord(word);
-    };
     const handleAddToHardWords = async () => {
 
         if (!selectedSubtitle || !selectedWord) return;
@@ -41,13 +38,12 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
                 youtubeUrl: url,
                 email: userEmail,
                 hardWord: selectedWord,
+                // sentence: selectedSubtitle?.text,
             });
 
-            // Handle success, update UI or show a message
             console.log('Word added to hard words:', response.data);
         } catch (error) {
             console.error('Error adding word to hard words:', error);
-            // Handle error, show error message to the user
         }
     };
     return (
@@ -83,7 +79,7 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
                                                                 type="radio"
                                                                 name="hardWord"
                                                                 value={word}
-                                                                onChange={() => handleWordSelection(word)}
+                                                                onChange={() => (setSelectedWord(word))}
                                                                 checked={word === selectedWord}
 
                                                             />

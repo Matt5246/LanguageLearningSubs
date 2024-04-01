@@ -39,6 +39,12 @@ const components: { title: string; href: string; description: string }[] = [
         description:
             "Here you can read books in german language.",
     },
+    {
+        title: "Subtitles",
+        href: "/home/subtitles",
+        description:
+            "Here you can see your all subtitles.",
+    },
 ]
 
 export default function NavigationMenuDemo() {
@@ -51,9 +57,9 @@ export default function NavigationMenuDemo() {
                         <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                             <li className="row-span-3">
                                 <NavigationMenuLink asChild>
-                                    <a
+                                    <Link href="/"
                                         className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                                        href="/"
+
                                     >
                                         <div className="mb-2 mt-4 text-lg font-medium">
                                             Language learning from subs
@@ -61,33 +67,40 @@ export default function NavigationMenuDemo() {
                                         <p className="text-sm leading-tight text-muted-foreground">
                                             A place where you can learn a foreign language using subtitles.
                                         </p>
-                                    </a>
+
+                                    </Link>
                                 </NavigationMenuLink>
                             </li>
-                            <ListItem href="/home/docs" title="Introduction">
-                                Discover effective methods for language acquisition through subtitles.
-                            </ListItem>
-                            <ListItem href="/home/" title="Learning technics">
-                                Unlock the secrets of successful language learning.
-                            </ListItem>
-                            <ListItem href="/home/" title="About me">
-                                Learn more about the creator behind the scenes.
-                            </ListItem>
+                            <Link href="/home/docs">
+                                <ListItem title="Introduction">
+                                    Discover effective methods for language acquisition through subtitles.
+                                </ListItem>
+                            </Link>
+                            <Link href="/home/">
+                                <ListItem title="Learning technics">
+                                    Unlock the secrets of successful language learning.
+                                </ListItem>
+                            </Link>
+                            <Link href="/home/">
+                                <ListItem title="About me">
+                                    Learn more about the creator behind the scenes.
+                                </ListItem>
+                            </Link>
                         </ul>
                     </NavigationMenuContent>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                     <NavigationMenuTrigger>Components</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                        <ul className="grid  gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
                             {components.map((component) => (
-                                <ListItem
-                                    key={component.title}
-                                    title={component.title}
-                                    href={component.href}
-                                >
-                                    {component.description}
-                                </ListItem>
+                                <Link href={component.href}>
+                                    <ListItem
+                                        key={component.title}
+                                        title={component.title}
+                                    >
+                                        {component.description}
+                                    </ListItem></Link>
                             ))}
                         </ul>
                     </NavigationMenuContent>

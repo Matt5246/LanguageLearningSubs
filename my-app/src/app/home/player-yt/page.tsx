@@ -15,13 +15,16 @@ import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
-
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { addSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 
 const Home = () => {
     const [url, setUrl] = useState<string>('');
     const { toast } = useToast();
     const session = useSession();
     const userEmail = session?.data?.user?.email;
+    const dispatch = useAppDispatch();
+
     const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUrl(event.target.value);
     };
@@ -40,12 +43,18 @@ const Home = () => {
         },
         enabled: !!url,
         retry: false,
-
     })
 
     const handleSaveSubtitles = async () => {
         try {
-
+            const subtitle = {
+                email: userEmail,
+                youtubeUrl: url,
+                subtitleTitle: 'Subtitle Title Here',
+                subtitleData: data,
+                hardWords: [],
+            }
+            dispatch(addSubtitle(subtitle))
             if (!userEmail) {
                 throw new Error('User email not found in session.');
             }
@@ -68,6 +77,7 @@ const Home = () => {
                 description: e ? e.toString() : "Something went wrong while saving subtitles.",
                 variant: 'destructive',
             }));
+
         } catch (error) {
             console.error('Error saving subtitles:', error);
             toast({

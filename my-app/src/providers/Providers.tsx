@@ -4,7 +4,7 @@ import { SessionProvider } from 'next-auth/react';
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
 import { ThemeProvider } from '../components/theme-provider'
 import { Toaster } from "@/components/ui/toaster"
-
+import StoreProvider from './StoreProvider';
 
 interface Props {
     children: ReactNode;
@@ -19,7 +19,7 @@ const Providers = (props: Props) => {
             disableTransitionOnChange
         >
             <ReactQueryProvider>
-                <SessionProvider >{props.children}</SessionProvider>
+                <StoreProvider><SessionProvider >{props.children}</SessionProvider></StoreProvider>
                 <Toaster />
             </ReactQueryProvider>
         </ThemeProvider>

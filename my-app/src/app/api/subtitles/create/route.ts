@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import axios from 'axios'
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
@@ -16,16 +17,25 @@ export async function POST(req: Request) {
                 throw new Error('User not found');
             }
             const userId = user.id
+            const updatedSubtitleData = subtitleData.map((data: SubtitleData) => ({
+                ...data,
+                start: parseFloat(data.start),
+                dur: parseFloat(data.dur)
+            }));
+
 
             const subtitle = await prisma.subtitle.create({
                 data: {
                     userId,
                     youtubeUrl,
                     subtitleTitle,
-                    // subtitleData: { createMany: { data: subtitleData } },
-                    // hardWords: {},
-                },
+                    subtitleData: {
+                        createMany: { data: updatedSubtitleData },
+                        // hardWords: {},
+                    },
+                }
             });
+            console.log(subtitle)
             return NextResponse.json(subtitle)
         } catch (error) {
             console.error('Error creating subtitle:', error);

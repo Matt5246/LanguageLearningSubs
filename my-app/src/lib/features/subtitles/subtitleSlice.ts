@@ -41,6 +41,9 @@ const subtitlesSlice = createSlice({
             state.subtitles.push(action.payload);
             saveSubtitlesToStorage(state.subtitles);
         },
+        deleteSubtitle(state, action: PayloadAction<string>) {
+            state.subtitles = state.subtitles.filter(subtitle => subtitle.SubtitleId !== action.payload);
+        },
         clearSubtitles(state) {
             state.subtitles = [];
             saveSubtitlesToStorage([]);
@@ -75,7 +78,7 @@ const updateDataPeriodically = () => (dispatch: any) => {
 };
 
 export const subtitles = (state: SubtitlesState) => state.subtitles;
-export const { addSubtitle, clearSubtitles, getSubtitle, updateSubtitle, initializeSubtitles } = subtitlesSlice.actions;
+export const { addSubtitle, clearSubtitles, getSubtitle, updateSubtitle, initializeSubtitles, deleteSubtitle } = subtitlesSlice.actions;
 
 
 function loadSubtitlesFromStorage(): Subtitle[] {

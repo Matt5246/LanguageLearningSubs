@@ -5,12 +5,12 @@ export async function POST(req: Request) {
     const { youtubeUrl } = await req.json();
 
     try {
-        const videoID = await extractVideoId(youtubeUrl)
-        const subtitles = await getSubtitles({ videoID }); // call this if you only need the subtitles
-        const videoDetails = await getVideoDetails({ videoID });
+        const videoID = await extractVideoId(youtubeUrl);
+        const enSubtitles = await getSubtitles({ videoID: videoID as string, lang: 'en' });
+        const deSubtitles = await getSubtitles({ videoID: videoID as string, lang: 'de' });
+        const videoDetails = await getVideoDetails({ videoID: videoID as string, lang: 'en' });
 
-        // call this if you need the video title and description, along with the subtitles
-        return NextResponse.json({ subtitles, videoDetails });
+        return NextResponse.json({ enSubtitles, deSubtitles, videoDetails });
     } catch (error) {
         return NextResponse.json({ error: error });
     }

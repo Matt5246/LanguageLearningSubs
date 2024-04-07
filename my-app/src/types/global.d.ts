@@ -3,6 +3,8 @@ interface Caption {
     text: string;
     duration: number;
     offset: number; //time of appearance
+    start?: number;
+    translation?: string;
 }
 
 type Subtitle = {
@@ -14,8 +16,8 @@ type Subtitle = {
 type SubtitleData = {
     text?: string;
     translation?: string;
-    duration?: number;
-    offset?: number;
+    dur?: number | float;
+    start?: number | float;
 }
 
 type SubtitlesDropDownProps = {

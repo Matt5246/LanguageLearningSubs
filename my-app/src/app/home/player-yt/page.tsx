@@ -29,8 +29,9 @@ const Home = () => {
 
     const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUrl(event.target.value);
+        refetch();
     };
-    const { data, error, isLoading } = useQuery({
+    const { data, error, isLoading, refetch } = useQuery({
         queryKey: ['captions', url],
         queryFn: async () => {
             const response = await axios.post('/api/captions', {
@@ -41,8 +42,16 @@ const Home = () => {
                         'Content-Type': 'application/json'
                     }
                 });
+
             setTitle(response.data.videoDetails.title)
-            return response.data.subtitles;
+            if (response.data.deSubtitles.length !== 0) {
+                return response.data.deSubtitles;
+            } else if (response.data.enSubtitles) {
+                return response.data.enSubtitles;
+            } else {
+                throw new Error('No subtitles found');
+            }
+
         },
         enabled: !!url,
         retry: false,
@@ -56,11 +65,10 @@ const Home = () => {
                 subtitleData: data,
                 hardWords: [],
             }
-            dispatch(addSubtitle(subtitle))
+
             if (!userEmail) {
                 throw new Error('User email not found in session.');
             }
-            console.log(userEmail)
             await axios.post('/api/subtitles/create', {
                 email: userEmail,
                 youtubeUrl: url,
@@ -79,7 +87,8 @@ const Home = () => {
                 description: e ? e.toString() : "Something went wrong while saving subtitles.",
                 variant: 'destructive',
             }));
-
+            dispatch(addSubtitle(subtitle))
+            console.log("success")
         } catch (error) {
             console.error('Error saving subtitles:', error);
             toast({
@@ -108,7 +117,7 @@ const Home = () => {
                     <div className="flex flex-col h-full p-2">
                         <div className="flex">
                             <Input type="text" value={url} onChange={handleUrlChange} placeholder="Enter YouTube URL" className="mr-2" />
-                            <Button onClick={handleSaveSubtitles}>Save Subtitles</Button>
+                            <Button onClick={handleSaveSubtitles} disabled={isLoading}> {isLoading ? 'Loading...' : 'Save Subtitles'}</Button>
                         </div>
                         <div className="p-2 h-full">
                             <VideoPlayer url={url} />

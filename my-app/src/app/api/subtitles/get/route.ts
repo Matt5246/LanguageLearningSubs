@@ -29,7 +29,6 @@ export async function POST(req: Request) {
                     hardWords: true,
                 },
             });
-            console.log(subtitles);
             return NextResponse.json(subtitles);
         } catch (error) {
             console.error('Error fetching subtitles:', error);

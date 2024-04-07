@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
                 const userId = user.id;
             }
-            // Check if the subtitle already exists for the user and YouTube URL
+
             const existingSubtitle = await prisma.subtitle.findFirst({
                 where: { userId, youtubeUrl },
             });

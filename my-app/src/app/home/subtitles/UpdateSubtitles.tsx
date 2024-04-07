@@ -9,7 +9,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import SubtitlesList from '@/components/Subtitles/SubtitlesList';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -26,8 +25,20 @@ function UpdateSubtitles(selectedSubtitle: any) {
         subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
         hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
     });
+    const translateSubtitle = async () => {
+        try {
+            const translationResponse = await axios.post('/api/subtitles/translate', updatedSubtitle, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
-    // Function to handle update subtitle
+            const translatedSubtitleData = translationResponse.data.translated_subtitle_data;
+            setUpdatedSubtitle({ ...updatedSubtitle, subtitleData: translatedSubtitleData });
+        } catch (error) {
+            console.error('Error translating subtitle:', error);
+        }
+    };
     const { isLoading, isError, error, data, refetch } = useQuery({
         queryKey: ['updateSubtitle', updatedSubtitle],
         queryFn: async () => {
@@ -85,8 +96,19 @@ function UpdateSubtitles(selectedSubtitle: any) {
                 <DialogDescription>{selectedSubtitle?.selectedSubtitle?.youtubeUrl}</DialogDescription>
                 <DialogDescription>{selectedSubtitle?.selectedSubtitle?.email}</DialogDescription>
                 <DialogFooter>
+                    <Button variant="default" onClick={translateSubtitle} disabled={isLoading}>
+                        Translate
+                    </Button>
                     <Button
                         variant="default"
+                        onClick={() => {
+                            refetch(); // Trigger the query execution
+                        }}
+                    >
+                        Update
+                    </Button>
+                    <Button
+                        variant="outline"
                         onClick={() => {
                             setUpdatedSubtitle({
                                 email: selectedSubtitle?.selectedSubtitle?.email,
@@ -100,14 +122,7 @@ function UpdateSubtitles(selectedSubtitle: any) {
                     >
                         Cancel
                     </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => {
-                            refetch(); // Trigger the query execution
-                        }}
-                    >
-                        Update
-                    </Button>
+
                 </DialogFooter>
             </DialogContent>
         </Dialog>

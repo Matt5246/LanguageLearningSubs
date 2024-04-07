@@ -96,8 +96,8 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
                                         </PopoverContent>
                                     </Popover>
                                 </TableCell>
-                                <TableCell></TableCell>
-                                <TableCell className="text-right">{convertTime(subtitle.start)}</TableCell>
+                                <TableCell>{subtitle?.translation}</TableCell>
+                                <TableCell className="text-right">{subtitle.start !== undefined ? convertTime(subtitle.start) : ''}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -123,14 +123,3 @@ function convertTime(time: number): string {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-
-
-// function convertTime(time: number): string {
-//     const seconds = Math.floor(time / 1000);
-//     const minutes = Math.floor(seconds / 60);
-//     const remainingSeconds = seconds % 60;
-//     const hours = Math.floor(minutes / 60);
-//     const remainingMinutes = minutes % 60;
-
-//     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-// }

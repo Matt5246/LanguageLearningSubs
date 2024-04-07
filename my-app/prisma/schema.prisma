@@ -57,8 +57,8 @@ model SubtitleData {
   subtitleDataId String?   @db.ObjectId
   text           String?
   translation    String?
-  duration       Int?
-  offset         Int?
+  dur            Float? //duration
+  start          Float? //offset
   Subtitle       Subtitle? @relation(fields: [subtitleDataId], references: [SubtitleId], onDelete: Cascade)
 }
 

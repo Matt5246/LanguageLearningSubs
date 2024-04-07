@@ -2,6 +2,9 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useDispatch } from 'react-redux';
+import { useSession } from 'next-auth/react';
+import { login, logout } from '@/lib/features/user/userSlice';
 
 import { cn } from "@/lib/utils"
 import {
@@ -13,6 +16,9 @@ import {
     NavigationMenuTrigger,
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
+import axios from "axios"
+import { initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'; // Import the action creator
+
 
 const components: { title: string; href: string; description: string }[] = [
     {
@@ -47,7 +53,33 @@ const components: { title: string; href: string; description: string }[] = [
     },
 ]
 
-export default function NavigationMenuDemo() {
+export default function Navigation() {
+    const dispatch = useDispatch();
+    const { data: session, status } = useSession();
+    const email = session?.user?.email;
+
+    React.useEffect(() => {
+
+        if (status === 'authenticated' && session) {
+            dispatch(login({
+                name: session.user?.name ?? '',
+                email: email ?? '',
+            }));
+
+        } else {
+            dispatch(logout());
+        }
+        if (status === 'authenticated' && session) {
+            getSubs(email ?? "")
+                .then((subtitles) => {
+                    dispatch(initializeSubtitles(subtitles));
+                })
+                .catch((error) => {
+                    console.error('Error fetching subtitles:', error);
+                });
+        }
+
+    }, [status]);
     return (
         <NavigationMenu>
             <NavigationMenuList>
@@ -93,8 +125,8 @@ export default function NavigationMenuDemo() {
                     <NavigationMenuTrigger>Components</NavigationMenuTrigger>
                     <NavigationMenuContent>
                         <ul className="grid  gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                            {components.map((component) => (
-                                <Link href={component.href}>
+                            {components.map((component, index) => (
+                                <Link href={component.href} key={index}>
                                     <ListItem
                                         key={component.title}
                                         title={component.title}
@@ -136,3 +168,18 @@ const ListItem = React.forwardRef<
     )
 })
 ListItem.displayName = "ListItem"
+async function getSubs(email: String) {
+    try {
+
+
+        if (email) {
+
+            const response = await axios.post('/api/subtitles/get', { email });
+            return response.data;
+        } else {
+            throw new Error('User is not authenticated');
+        }
+    } catch (error: any) {
+        return error.message
+    }
+}

@@ -12,10 +12,10 @@ type Subtitle = {
 }
 
 type SubtitleData = {
-    text: string;
-    translation: string;
-    duration: number;
-    offset: number;
+    text?: string;
+    translation?: string;
+    duration?: number;
+    offset?: number;
 }
 
 type SubtitlesDropDownProps = {

@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import subtitleSlice from './features/subtitles/subtitleSlice'
+import userSlice from './features/user/userSlice'
 
 export const makeStore = () => {
     return configureStore({
         reducer: {
-            subtitle: subtitleSlice
+            subtitle: subtitleSlice,
+            user: userSlice
         }
     })
 }

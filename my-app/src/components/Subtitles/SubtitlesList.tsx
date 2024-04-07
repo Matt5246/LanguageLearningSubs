@@ -17,29 +17,25 @@ import {
 } from "@/components/ui/popover"
 import { useState } from "react";
 import axios from 'axios'
-
+import { useLocalStorage } from "@/hooks/useLocalStorage"
 
 
 export default function SubtitlesList({ captions, url, userEmail }: { captions: Caption[], url: string, userEmail: string | null | undefined }) {
     const [selectedSubtitle, setSelectedSubtitle] = useState<Caption | null>(null);
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
-
-    const handleOpenPopover = (subtitle: Caption) => {
-        setSelectedSubtitle(subtitle);
-        console.log(subtitle)
-    };
+    const [fontWeight, setFontWeight] = useLocalStorage("fontWeight", "font-light");
 
     const handleAddToHardWords = async () => {
 
         if (!selectedSubtitle || !selectedWord) return;
-
+        const data = {
+            youtubeUrl: url,
+            email: userEmail,
+            hardWord: selectedWord,
+            //sentence: selectedSubtitle?.text,
+        }
         try {
-            const response = await axios.post('/api/hardWords/add', {
-                youtubeUrl: url,
-                email: userEmail,
-                hardWord: selectedWord,
-                // sentence: selectedSubtitle?.text,
-            });
+            const response = await axios.post('/api/hardWords/add', data);
 
             console.log('Word added to hard words:', response.data);
         } catch (error) {
@@ -48,6 +44,13 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
     };
     return (
         <div className="overflow-auto h-full">
+            {/* <Button onClick={() =>
+                setFontWeight((prevWeight: string) =>
+                    prevWeight === "font-light" ? "font-bold" : "font-light"
+                )
+            } className="mb-4 float-right">
+                Toggle Font Weight
+            </Button> */}
             {captions && captions.length > 0 ? (
                 <Table>
                     <TableHeader>
@@ -60,12 +63,13 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
                     </TableHeader>
                     <TableBody >
                         {captions.map((subtitle, key) => (
-                            <TableRow key={key}>
-                                <TableCell className="font-light">{key + 1}</TableCell>
+
+                            <TableRow key={key} className={fontWeight}>
+                                <TableCell >{key + 1}</TableCell>
                                 <TableCell >
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <p onClick={() => handleOpenPopover(subtitle)}>{subtitle.text}</p>
+                                            <p onClick={() => setSelectedSubtitle(subtitle)} className="cursor-pointer p-1">{subtitle.text}</p>
                                         </PopoverTrigger>
                                         <PopoverContent className="w-80 select-none">
                                             <h4 className="font-medium leading-none">Subtitle Line:</h4>
@@ -93,7 +97,7 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
                                     </Popover>
                                 </TableCell>
                                 <TableCell></TableCell>
-                                <TableCell className="text-right">{convertTime(subtitle.offset)}</TableCell>
+                                <TableCell className="text-right">{convertTime(subtitle.start)}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -112,11 +116,21 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
     );
 }
 function convertTime(time: number): string {
-    const seconds = Math.floor(time / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = Math.floor(time % 60);
 
-    return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
+
+
+
+// function convertTime(time: number): string {
+//     const seconds = Math.floor(time / 1000);
+//     const minutes = Math.floor(seconds / 60);
+//     const remainingSeconds = seconds % 60;
+//     const hours = Math.floor(minutes / 60);
+//     const remainingMinutes = minutes % 60;
+
+//     return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+// }

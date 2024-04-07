@@ -24,6 +24,8 @@ const Home = () => {
     const session = useSession();
     const userEmail = session?.data?.user?.email;
     const dispatch = useAppDispatch();
+    const [title, setTitle] = useState<string>('Subtitle Title');
+
 
     const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUrl(event.target.value);
@@ -39,18 +41,18 @@ const Home = () => {
                         'Content-Type': 'application/json'
                     }
                 });
-            return response.data;
+            setTitle(response.data.videoDetails.title)
+            return response.data.subtitles;
         },
         enabled: !!url,
         retry: false,
     })
-
     const handleSaveSubtitles = async () => {
         try {
             const subtitle = {
                 email: userEmail,
                 youtubeUrl: url,
-                subtitleTitle: 'Subtitle Title Here',
+                subtitleTitle: title,
                 subtitleData: data,
                 hardWords: [],
             }
@@ -62,7 +64,7 @@ const Home = () => {
             await axios.post('/api/subtitles/create', {
                 email: userEmail,
                 youtubeUrl: url,
-                subtitleTitle: 'Subtitle Title Here',
+                subtitleTitle: title,
                 subtitleData: data,
                 hardWords: [],
             },

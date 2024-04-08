@@ -1,7 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { fetchSubtitlesFromDB, updateSubtitleInDB } from '../../prismadb';
-import { RootState } from '../../store';
-
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Subtitle {
     SubtitleId?: string;
@@ -27,10 +24,12 @@ export interface HardWord {
 
 export interface SubtitlesState {
     subtitles: Subtitle[];
+    selectedSubtitles: Subtitle | null;
 }
 
 const initialState: SubtitlesState = {
     subtitles: loadSubtitlesFromStorage(),
+    selectedSubtitles: null
 };
 
 const subtitlesSlice = createSlice({
@@ -58,6 +57,9 @@ const subtitlesSlice = createSlice({
                 state.subtitles[index] = action.payload;
             }
         },
+        setSelectedSubtitle(state, action: PayloadAction<Subtitle>) {
+            state.selectedSubtitles = action.payload;
+        },
         initializeSubtitles(state, action: PayloadAction<Subtitle[]>) {
             state.subtitles = action.payload;
             saveSubtitlesToStorage(state.subtitles)
@@ -65,20 +67,9 @@ const subtitlesSlice = createSlice({
     },
 });
 
-export const startPeriodicUpdates = () => (dispatch: any) => {
-    const interval = setInterval(() => {
-        dispatch(updateDataPeriodically());
-    }, 10 * 60000); //x * 60s
-
-    return () => clearInterval(interval);
-};
-
-const updateDataPeriodically = () => (dispatch: any) => {
-    console.log('Updating or adding data periodically...');
-};
 
 export const subtitles = (state: SubtitlesState) => state.subtitles;
-export const { addSubtitle, clearSubtitles, getSubtitle, updateSubtitle, initializeSubtitles, deleteSubtitle } = subtitlesSlice.actions;
+export const { addSubtitle, clearSubtitles, getSubtitle, updateSubtitle, initializeSubtitles, deleteSubtitle, setSelectedSubtitle } = subtitlesSlice.actions;
 
 
 function loadSubtitlesFromStorage(): Subtitle[] {
@@ -98,6 +89,17 @@ function saveSubtitlesToStorage(subtitles: Subtitle[]): void {
     localStorage.setItem('subtitles', JSON.stringify(subtitles));
 }
 
+export const startPeriodicUpdates = () => (dispatch: any) => {
+    const interval = setInterval(() => {
+        dispatch(updateDataPeriodically());
+    }, 10 * 60000); //x * 60s
+
+    return () => clearInterval(interval);
+};
+
+const updateDataPeriodically = () => (dispatch: any) => {
+    console.log('Updating or adding data periodically...');
+};
 
 export default subtitlesSlice.reducer;
 

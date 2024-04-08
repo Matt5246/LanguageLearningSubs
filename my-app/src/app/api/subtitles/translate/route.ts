@@ -11,15 +11,12 @@ export async function POST(req: Request) {
             const data = await req.json();
             const { userId, youtubeUrl, subtitleTitle, subtitleData } = data;
 
-            // Check if subtitleData is an array
             if (!Array.isArray(subtitleData)) {
                 throw new Error('Subtitle data is not in the expected format');
             }
 
-            // Extract texts to translate
             const textsToTranslate = subtitleData.map(subtitle => subtitle.text);
 
-            // Call translation API
             const translationResponse = await axios.post('http://localhost:5000/translate', {
                 data: textsToTranslate,
             });
@@ -41,18 +38,16 @@ export async function POST(req: Request) {
             }));
             console.log(combinedSubtitles)
 
-            // Find existing subtitle
             const existingSubtitle = await prisma.subtitle.findFirst({
                 where: { userId, youtubeUrl },
             });
 
-            // Delete old subtitle data if exists
             if (existingSubtitle) {
                 await prisma.subtitleData.deleteMany({
                     where: { subtitleDataId: existingSubtitle.SubtitleId },
                 });
             }
-            // Create or update subtitle
+
             if (existingSubtitle) {
                 const updatedSubtitle = await prisma.subtitle.update({
                     where: { SubtitleId: existingSubtitle.SubtitleId },

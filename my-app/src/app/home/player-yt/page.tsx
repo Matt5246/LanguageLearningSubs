@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { addSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
+import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice'
 
 const Home = () => {
     const [url, setUrl] = useState<string>('');
@@ -44,9 +46,15 @@ const Home = () => {
                 });
 
             setTitle(response.data.videoDetails.title)
+            const selectedSub = {
+                youtubeUrl: url,
+                subtitleTitle: title,
+            }
+            dispatch(setSelectedSubtitle(selectedSub));
             if (response.data.deSubtitles.length !== 0) {
                 return response.data.deSubtitles;
             } else if (response.data.enSubtitles) {
+
                 return response.data.enSubtitles;
             } else {
                 throw new Error('No subtitles found');
@@ -126,8 +134,13 @@ const Home = () => {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={35}>
-                    {isLoading ?
-                        <SubtitlesSkeleton /> : <SubtitlesList captions={data as Caption[]} url={url} userEmail={userEmail} />}
+                    {isLoading ? (
+                        <SubtitlesSkeleton />
+                    ) : (
+                        data ? (
+                            <DataTable captions={data as Caption[]} height="1000px" />
+                        ) : null
+                    )}
                 </ResizablePanel>
             </ResizablePanelGroup>
         </div>

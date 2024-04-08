@@ -9,24 +9,29 @@ function generateRandomTitle() {
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { email, youtubeUrl, hardWord, subtitleTitle } = await req.json();
+            const { email, youtubeUrl, hardWord, subtitleTitle, userId } = await req.json();
 
-            if (!email) {
+            if (!email && !userId) {
                 throw new Error('Email is required');
             }
 
-            const user = await prisma.user.findUnique({ where: { email } });
-            if (!user) {
-                throw new Error('User not found');
+            if (email) {
+
+                const user = await prisma.user.findUnique({ where: { email } });
+                if (!user && !userId) {
+                    throw new Error('User not found');
+                }
             }
+            //@ts-ignore
+            const selectedUserId = userId || user.id;
 
             const subtitle = await prisma.subtitle.findFirst({
-                where: { userId: user.id, youtubeUrl },
+                where: { userId: selectedUserId, youtubeUrl },
             });
             if (!subtitle) {
                 const newSubtitle = await prisma.subtitle.create({
                     data: {
-                        userId: user.id,
+                        userId: selectedUserId,
                         youtubeUrl,
                         subtitleTitle: subtitleTitle || generateRandomTitle(),
 
@@ -36,7 +41,7 @@ export async function POST(req: Request) {
             }
 
             const existingHardWord = await prisma.hardWords.findFirst({
-                where: { Subtitle: { userId: user.id }, word: hardWord },
+                where: { Subtitle: { userId: selectedUserId }, word: hardWord },
             });
             if (existingHardWord) {
                 throw new Error('Word already exists in user\'s other subtitles');
@@ -48,7 +53,7 @@ export async function POST(req: Request) {
                     Subtitle: { connect: { SubtitleId: subtitle.SubtitleId } },
                 },
             });
-
+            console.log("successfully added hardword:", hardWord)
             return NextResponse.json(createdHardWord);
         } catch (error) {
             console.error('Error creating/updating subtitle:', error);

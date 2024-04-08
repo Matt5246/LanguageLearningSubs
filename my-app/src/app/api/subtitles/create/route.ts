@@ -35,7 +35,7 @@ export async function POST(req: Request) {
                     },
                 }
             });
-            console.log(subtitle)
+            console.log("successfully added:", subtitle)
             return NextResponse.json(subtitle)
         } catch (error) {
             console.error('Error creating subtitle:', error);

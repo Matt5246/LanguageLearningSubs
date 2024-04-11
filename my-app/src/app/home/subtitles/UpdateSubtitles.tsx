@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux';
 import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 
 
-function UpdateSubtitles(selectedSubtitle: any) {
+function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
     const dispatch = useDispatch();
     const [updatedSubtitle, setUpdatedSubtitle] = useState({
         email: selectedSubtitle?.selectedSubtitle?.email,
@@ -27,14 +27,44 @@ function UpdateSubtitles(selectedSubtitle: any) {
     });
     const translateSubtitle = async () => {
         try {
-            const translationResponse = await axios.post('/api/subtitles/translate', updatedSubtitle, {
+            const text = await updatedSubtitle.subtitleData.map((data: any) => (data.text))
+
+            const translationResponse = await axios.post('/api/subtitles/translate', {
+                text: text, email: selectedSubtitle?.selectedSubtitle?.email,
+                userId: selectedSubtitle?.selectedSubtitle?.userId,
+                youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
+                subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
+                subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
+                target: 'de',
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
 
-            const translatedSubtitleData = translationResponse.data.translated_subtitle_data;
-            setUpdatedSubtitle({ ...updatedSubtitle, subtitleData: translatedSubtitleData });
+            const translatedSubtitleData = translationResponse.data.map((translatedText: string, index: number) => ({
+                ...updatedSubtitle.subtitleData[index],
+                translation: translatedText,
+            }));
+
+
+
+            setUpdatedSubtitle({
+                email: selectedSubtitle?.selectedSubtitle?.email,
+                userId: selectedSubtitle?.selectedSubtitle?.userId,
+                youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
+                subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
+                subtitleData: await translatedSubtitleData,
+                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+            });
+            console.log(translatedSubtitleData)
+            dispatch(updateSubtitle({
+                SubtitleId: SubtitleId,
+                youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
+                subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
+                subtitleData: await translatedSubtitleData,
+                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+            }));
         } catch (error) {
             console.error('Error translating subtitle:', error);
         }

@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import axios from 'axios'
 import { useSelector } from "react-redux";
-
+import { PopoverClose } from "@radix-ui/react-popover";
+import { Cross1Icon } from "@radix-ui/react-icons";
 const RenderMiddlePopoverContent = (row: any) => {
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const selectedSubtitle: any = useSelector((state: { subtitle: any }) => state.subtitle.selectedSubtitles);
     console.log('selectedSubtitle:', selectedSubtitle.youtubeUrl)
     return (
         <>
+
             <h4 className="font-medium leading-none">Subtitle Line:</h4>
             <p className="text-sm text-muted-foreground select-text m-1">{row.row as string}</p>
             <h3>Select Hard Word:</h3>
@@ -30,8 +32,12 @@ const RenderMiddlePopoverContent = (row: any) => {
                     </li>
                 ))}
             </ul>
-
             <Button className="mt-2" onClick={() => handleAddToHardWords(selectedWord, row.row, selectedSubtitle.youtubeUrl, selectedSubtitle.userId)}>Add to Hard Words</Button>
+            <PopoverClose asChild className="absolute right-0 top-0 cursor-pointer">
+                <button className="p-3">
+                    <Cross1Icon className="w-4 h-4" />
+                </button>
+            </PopoverClose>
         </>
     );
 };

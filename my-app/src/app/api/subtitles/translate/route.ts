@@ -1,62 +1,68 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
-import axios from 'axios';
-
 const prisma = new PrismaClient();
+const primaryTranslationServiceURL = "http://127.0.0.1:5000/translate";
+const fallbackTranslationServiceURL = "https://translate.terraprint.co/translate";
 
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
             const data = await req.json();
-            const { userId, youtubeUrl, subtitleTitle, subtitleData } = data;
+            const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target } = data;
+            let translatedSubtitleData;
+            try {
+                const translationResponse = await fetch(primaryTranslationServiceURL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        q: text,
+                        source: "auto",
+                        target: "en" || target,
+                        format: "text"
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                });
+                const result = await translationResponse.json();
+                translatedSubtitleData = result.translatedText;
+            } catch (primaryTranslationError) {
+                console.error('Error from primary translation service:', primaryTranslationError);
+                console.log('Falling back to the alternative translation service...');
 
-            if (!Array.isArray(subtitleData)) {
-                throw new Error('Subtitle data is not in the expected format');
+                // Fallback to the alternative translation service
+                const fallbackTranslationResponse = await fetch(fallbackTranslationServiceURL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        q: text,
+                        source: "auto",
+                        target: "en" || target,
+                        format: "text"
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                });
+                const fallbackResult = await fallbackTranslationResponse.json();
+                translatedSubtitleData = fallbackResult.translatedText;
             }
 
-            const textsToTranslate = subtitleData.map(subtitle => subtitle.text);
-
-            const translationResponse = await axios.post('http://localhost:5000/translate', {
-                data: textsToTranslate,
-            });
-
-            // Handle translation response
-            if (translationResponse.status !== 200 || !translationResponse.data.data) {
-                throw new Error('Failed to translate subtitles');
-            }
-
-            const translatedSubtitleData = translationResponse.data.data;
-            // console.log(translatedSubtitleData)
-
-            const combinedSubtitles = subtitleData.map((subtitle, index) => ({
-                id: subtitle.id,
-                text: subtitle.text,
-                translation: translatedSubtitleData[index],
-                dur: parseFloat(subtitle.dur),
-                start: parseFloat(subtitle.start),
-            }));
-            console.log(combinedSubtitles)
 
             const existingSubtitle = await prisma.subtitle.findFirst({
                 where: { userId, youtubeUrl },
             });
 
+            const combinedSubtitles = subtitleData.map((subtitle: SubtitleData, index: number) => ({
+                text: subtitle.text,
+                translation: translatedSubtitleData[index],
+                dur: parseFloat(subtitle.dur),
+                start: parseFloat(subtitle.start),
+            }));
             if (existingSubtitle) {
-                await prisma.subtitleData.deleteMany({
-                    where: { subtitleDataId: existingSubtitle.SubtitleId },
-                });
-            }
-
-            if (existingSubtitle) {
-                const updatedSubtitle = await prisma.subtitle.update({
+                const createdSubtitleData = await prisma.subtitle.update({
                     where: { SubtitleId: existingSubtitle.SubtitleId },
                     data: {
                         subtitleData: { createMany: { data: combinedSubtitles } },
                     },
                 });
-
-                return NextResponse.json({ updatedSubtitle });
+                console.log("successfully added translation to subtitle.")
+                return NextResponse.json({ createdSubtitleData });
             } else {
                 const newSubtitle = await prisma.subtitle.create({
                     data: {
@@ -71,6 +77,7 @@ export async function POST(req: Request) {
             }
         } catch (error) {
             console.error('Error creating or updating subtitle:', error);
+            console.log("successfully added translation to subtitle.")
             return NextResponse.json({ error: error });
         }
     } else {

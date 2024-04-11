@@ -82,7 +82,7 @@ export function DataTable<TData, TValue>({ captions, height }: { captions: Capti
     });
 
     const { rows } = table.getRowModel();
-    console.log(rows)
+
     return (
         <div className="rounded-md border ">
             <TableVirtuoso

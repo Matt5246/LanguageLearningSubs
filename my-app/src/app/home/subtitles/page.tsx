@@ -25,7 +25,7 @@ export default function Home() {
         {selectedSub && (
           <div className='space-x-2'>
             <DeleteSubtitle SubtitleId={selectedSub?.SubtitleId} />
-            <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} />
+            <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} />
           </div>
         )}
       </div>

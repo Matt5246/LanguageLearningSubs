@@ -31,8 +31,9 @@ export async function POST(req: Request) {
                     subtitleTitle,
                     subtitleData: {
                         createMany: { data: updatedSubtitleData },
-                        // hardWords: {},
+
                     },
+                    // hardWords: {},
                 }
             });
             console.log("successfully added:", subtitle)

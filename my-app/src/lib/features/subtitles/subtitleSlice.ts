@@ -24,12 +24,12 @@ export interface HardWord {
 
 export interface SubtitlesState {
     subtitles: Subtitle[];
-    selectedSubtitles: Subtitle | null;
+    selectedSubtitle: string | null;
 }
 
 const initialState: SubtitlesState = {
     subtitles: loadSubtitlesFromStorage(),
-    selectedSubtitles: null
+    selectedSubtitle: null
 };
 
 const subtitlesSlice = createSlice({
@@ -54,11 +54,11 @@ const subtitlesSlice = createSlice({
             const { SubtitleId } = action.payload;
             const index = state.subtitles.findIndex(sub => sub.SubtitleId === SubtitleId);
             if (index !== -1) {
-                state.subtitles[index] = action.payload;
+                state.subtitles[index] = { ...state.subtitles[index], ...action.payload };
             }
         },
-        setSelectedSubtitle(state, action: PayloadAction<Subtitle>) {
-            state.selectedSubtitles = action.payload;
+        setSelectedSubtitle(state, action: PayloadAction<string | null>) {
+            state.selectedSubtitle = action.payload;
         },
         initializeSubtitles(state, action: PayloadAction<Subtitle[]>) {
             state.subtitles = action.payload;

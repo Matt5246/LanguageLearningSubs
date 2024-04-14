@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         const videoID = await extractVideoId(youtubeUrl);
         const enSubtitles = await getSubtitles({ videoID: videoID as string, lang: 'en' });
         const deSubtitles = await getSubtitles({ videoID: videoID as string, lang: 'de' });
-        const videoDetails = await getVideoDetails({ videoID: videoID as string, lang: 'en' });
+        const videoDetails = await getVideoDetails({ videoID: videoID as string, lang: '' });
 
         return NextResponse.json({ enSubtitles, deSubtitles, videoDetails });
     } catch (error) {

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
                 dur: parseFloat(data.dur)
             }));
 
-
+            console.log(updatedSubtitleData)
             const subtitle = await prisma.subtitle.create({
                 data: {
                     userId,
@@ -33,7 +33,6 @@ export async function POST(req: Request) {
                         createMany: { data: updatedSubtitleData },
 
                     },
-                    // hardWords: {},
                 }
             });
             console.log("successfully added:", subtitle)

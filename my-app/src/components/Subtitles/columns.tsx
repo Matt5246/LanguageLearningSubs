@@ -6,24 +6,25 @@ import axios from 'axios'
 import { useSelector } from "react-redux";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Cross1Icon } from "@radix-ui/react-icons";
+
 const RenderMiddlePopoverContent = (row: any) => {
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
-    const selectedSubtitle: any = useSelector((state: { subtitle: any }) => state.subtitle.selectedSubtitles);
-    console.log('selectedSubtitle:', selectedSubtitle.youtubeUrl)
+    const selectedSubtitle: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle)); // new way of getting into it
+    const fullRow = (row.row.row.original as Caption)
     return (
         <>
-
             <h4 className="font-medium leading-none">Subtitle Line:</h4>
-            <p className="text-sm text-muted-foreground select-text m-1">{row.row as string}</p>
+            <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
+            <h4 className="font-medium leading-none">Translation:</h4>
+            <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
             <h3>Select Hard Word:</h3>
             <ul>
-                {row?.row.replace(/[,.]/g, '').split(' ').map((word: string, index: number) => (
+                {fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '').map((word: string, index: number) => (
                     <li key={index} onChange={() => setSelectedWord(word)}>
                         <label className={word === selectedWord ? "text-green-500" : ""}>
                             <input
                                 type="radio"
                                 name="hardWord"
-
                                 value={word}
                                 checked={word === selectedWord}
                             />
@@ -32,7 +33,7 @@ const RenderMiddlePopoverContent = (row: any) => {
                     </li>
                 ))}
             </ul>
-            <Button className="mt-2" onClick={() => handleAddToHardWords(selectedWord, row.row, selectedSubtitle.youtubeUrl, selectedSubtitle.userId)}>Add to Hard Words</Button>
+            <Button className="mt-2" onClick={() => handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}>Add to Hard Words</Button>
             <PopoverClose asChild className="absolute right-0 top-0 cursor-pointer">
                 <button className="p-3">
                     <Cross1Icon className="w-4 h-4" />
@@ -42,7 +43,7 @@ const RenderMiddlePopoverContent = (row: any) => {
     );
 };
 
-async function handleAddToHardWords(word: string | null, sentence: string, url: string, userId: string) {
+async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, url: string, userId: string) {
     console.log("hardWord", word)
     if (!word || !url || !userId) return;
     const data = {
@@ -50,6 +51,7 @@ async function handleAddToHardWords(word: string | null, sentence: string, url: 
         userId: userId,
         hardWord: word,
         //sentence: sentence,
+        //sentenceTranslation: 
     }
     try {
         const response = await axios.post('/api/hardWords/add', data);
@@ -71,12 +73,13 @@ export const columns: ColumnDef<Caption>[] = [
         accessorKey: "text",
         header: "Captions",
         cell: (row) => (
+
             <Popover>
                 <PopoverTrigger asChild>
                     <p className="cursor-pointer p-1">{row.getValue() as string}</p>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 select-none">
-                    <RenderMiddlePopoverContent row={row.getValue()} />
+                    <RenderMiddlePopoverContent row={row} />
                 </PopoverContent>
             </Popover>
         ),

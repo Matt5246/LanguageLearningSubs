@@ -18,57 +18,13 @@ import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
     const dispatch = useDispatch();
     const [updatedSubtitle, setUpdatedSubtitle] = useState({
-        email: selectedSubtitle?.selectedSubtitle?.email,
         userId: selectedSubtitle?.selectedSubtitle?.userId,
         youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
         subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
         subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
         hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
     });
-    const translateSubtitle = async () => {
-        try {
-            const text = await updatedSubtitle.subtitleData.map((data: any) => (data.text))
 
-            const translationResponse = await axios.post('/api/subtitles/translate', {
-                text: text, email: selectedSubtitle?.selectedSubtitle?.email,
-                userId: selectedSubtitle?.selectedSubtitle?.userId,
-                youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
-                subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-                subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
-                target: 'de',
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const translatedSubtitleData = translationResponse.data.map((translatedText: string, index: number) => ({
-                ...updatedSubtitle.subtitleData[index],
-                translation: translatedText,
-            }));
-
-
-
-            setUpdatedSubtitle({
-                email: selectedSubtitle?.selectedSubtitle?.email,
-                userId: selectedSubtitle?.selectedSubtitle?.userId,
-                youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
-                subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-                subtitleData: await translatedSubtitleData,
-                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
-            });
-            console.log(translatedSubtitleData)
-            dispatch(updateSubtitle({
-                SubtitleId: SubtitleId,
-                youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
-                subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-                subtitleData: await translatedSubtitleData,
-                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
-            }));
-        } catch (error) {
-            console.error('Error translating subtitle:', error);
-        }
-    };
     const { isLoading, isError, error, data, refetch } = useQuery({
         queryKey: ['updateSubtitle', updatedSubtitle],
         queryFn: async () => {
@@ -88,7 +44,6 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
     useEffect(() => {
         if (selectedSubtitle) {
             setUpdatedSubtitle({
-                email: selectedSubtitle?.selectedSubtitle?.email,
                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
@@ -97,7 +52,6 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
             });
         }
     }, [selectedSubtitle]);
-
 
     return (
         <Dialog>
@@ -120,28 +74,23 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
                 <input
                     type="text"
                     value={updatedSubtitle?.youtubeUrl}
+                    disabled
                     onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, youtubeUrl: e.target.value })}
                 />
-                <DialogDescription>{selectedSubtitle?.selectedSubtitle?.subtitleTitle}</DialogDescription>
-                <DialogDescription>{selectedSubtitle?.selectedSubtitle?.youtubeUrl}</DialogDescription>
-                <DialogDescription>{selectedSubtitle?.selectedSubtitle?.email}</DialogDescription>
+
                 <DialogFooter>
-                    <Button variant="default" onClick={translateSubtitle} disabled={isLoading}>
-                        Translate
-                    </Button>
                     <Button
-                        variant="default"
+                        variant="default" className='mt-2'
                         onClick={() => {
-                            refetch(); // Trigger the query execution
+                            refetch();
                         }}
                     >
                         Update
                     </Button>
                     <Button
-                        variant="outline"
+                        variant="outline" className='mt-2'
                         onClick={() => {
                             setUpdatedSubtitle({
-                                email: selectedSubtitle?.selectedSubtitle?.email,
                                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,

@@ -7,10 +7,11 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { useDispatch } from "react-redux";
 
-
-
-export function SubtitlesDropDown({ data, setSelectedSubtitle }: SubtitlesDropDownProps) {
+export function SubtitlesDropDown({ data }: { data: Subtitle[] }) {
+    const dispatch = useDispatch()
     const [open, setOpen] = React.useState(false);
 
     return (
@@ -22,17 +23,17 @@ export function SubtitlesDropDown({ data, setSelectedSubtitle }: SubtitlesDropDo
                         Choose subtitles
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="p-0">
+                <DropdownMenuContent className="p-1 w-[290px] md:w-[400px]">
                     {data.length > 0 ? (
-                        data.map((subtitle, index) => (
+                        data.map((subtitle, index: number) => (
                             <DropdownMenuItem
                                 key={index}
                                 onClick={() => {
-                                    setSelectedSubtitle(subtitle);
+                                    dispatch(setSelectedSubtitle(subtitle?.SubtitleId || null));
                                     setOpen(false);
                                 }}
                             >
-                                {subtitle.subtitleTitle}
+                                {subtitle?.subtitleTitle}
                             </DropdownMenuItem>
                         ))
                     ) : (
@@ -41,7 +42,7 @@ export function SubtitlesDropDown({ data, setSelectedSubtitle }: SubtitlesDropDo
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                         onClick={() => {
-                            setSelectedSubtitle(null);
+                            dispatch(setSelectedSubtitle(null));
                             setOpen(false);
                         }}
                     >

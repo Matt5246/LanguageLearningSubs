@@ -22,6 +22,7 @@ const TableComponent = forwardRef<
     <table
         ref={ref}
         className={cn("w-full caption-bottom text-sm", className)}
+
         {...props}
     />
 ));
@@ -36,13 +37,12 @@ const TableRowComponent = <TData,>(rows: Row<TData>[]) =>
 
         return (
             <TableRow
-
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
                 {...props}
             >
                 {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} >
+                    <TableCell key={cell.id}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                 ))}

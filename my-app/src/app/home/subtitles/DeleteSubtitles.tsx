@@ -54,12 +54,12 @@ function DeleteSubtitle({ SubtitleId }: any) {
                 </DialogHeader>
                 <p>Are you sure you want to delete this subtitle?</p>
                 <DialogFooter>
-                    <Button variant="default" onClick={() => {
+                    <Button variant="default" className='mt-2' onClick={() => {
                         refetch();
                     }}>
                         Confirm
                     </Button>
-                    <Button variant="outline">Cancel</Button>
+                    <Button variant="outline" className='mt-2'>Cancel</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

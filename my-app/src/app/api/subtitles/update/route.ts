@@ -5,22 +5,8 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { email, youtubeUrl, subtitleTitle, subtitleData, userId } = await req.json();
+            const { youtubeUrl, subtitleTitle, subtitleData, userId } = await req.json();
 
-            if (!userId) {
-
-
-                if (!email) {
-                    throw new Error('Email is required');
-                }
-
-                const user = await prisma.user.findUnique({ where: { email } });
-                if (!user) {
-                    throw new Error('User not found');
-                }
-
-                const userId = user.id;
-            }
 
             const existingSubtitle = await prisma.subtitle.findFirst({
                 where: { userId, youtubeUrl },
@@ -32,7 +18,6 @@ export async function POST(req: Request) {
                     where: { SubtitleId: existingSubtitle.SubtitleId },
                     data: {
                         subtitleTitle: subtitleTitle,
-                        // subtitleData: { set: subtitleData }, // Update the subtitle data
                     },
                 });
 
@@ -44,7 +29,6 @@ export async function POST(req: Request) {
                         userId,
                         youtubeUrl,
                         subtitleTitle,
-                        // hardWords: {},
                     },
                 });
 

@@ -9,15 +9,15 @@ export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
             const data = await req.json();
-            const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target } = data;
+            const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target, source } = data;
             let translatedSubtitleData;
             try {
                 const translationResponse = await fetch(primaryTranslationServiceURL, {
                     method: "POST",
                     body: JSON.stringify({
                         q: text,
-                        source: "auto",
-                        target: "en" || target,
+                        source: source || "auto",
+                        target: target || "en",
                         format: "text"
                     }),
                     headers: { "Content-Type": "application/json" }
@@ -33,8 +33,8 @@ export async function POST(req: Request) {
                     method: "POST",
                     body: JSON.stringify({
                         q: text,
-                        source: "auto",
-                        target: "en" || target,
+                        source: source || "auto",
+                        target: target || "en",
                         format: "text"
                     }),
                     headers: { "Content-Type": "application/json" }
@@ -48,12 +48,18 @@ export async function POST(req: Request) {
                 where: { userId, youtubeUrl },
             });
 
+            const subtitleDataId = existingSubtitle?.SubtitleId
+            await prisma.subtitleData.deleteMany({
+                where: { subtitleDataId },
+            });
+
             const combinedSubtitles = subtitleData.map((subtitle: SubtitleData, index: number) => ({
                 text: subtitle.text,
                 translation: translatedSubtitleData[index],
                 dur: parseFloat(subtitle.dur),
                 start: parseFloat(subtitle.start),
             }));
+            console.log(combinedSubtitles)
             if (existingSubtitle) {
                 const createdSubtitleData = await prisma.subtitle.update({
                     where: { SubtitleId: existingSubtitle.SubtitleId },
@@ -62,7 +68,7 @@ export async function POST(req: Request) {
                     },
                 });
                 console.log("successfully added translation to subtitle.")
-                return NextResponse.json({ createdSubtitleData });
+                return NextResponse.json({ createdSubtitleData, combinedSubtitles });
             } else {
                 const newSubtitle = await prisma.subtitle.create({
                     data: {
@@ -77,7 +83,6 @@ export async function POST(req: Request) {
             }
         } catch (error) {
             console.error('Error creating or updating subtitle:', error);
-            console.log("successfully added translation to subtitle.")
             return NextResponse.json({ error: error });
         }
     } else {

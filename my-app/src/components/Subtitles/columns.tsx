@@ -15,7 +15,7 @@ const RenderMiddlePopoverContent = (row: any) => {
         <>
             <h4 className="font-medium leading-none">Subtitle Line:</h4>
             <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
-            <h4 className="font-medium leading-none">Translation:</h4>
+            <h4 className="font-medium leading-none">{fullRow?.translation ? "Translation:" : null}</h4>
             <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
             <h3>Select Hard Word:</h3>
             <ul>

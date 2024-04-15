@@ -90,6 +90,8 @@ const Home = () => {
                     youtubeUrl: url,
                     subtitleTitle: title,
                     subtitleData: data,
+                    sourceLang: sourceLanguage || null,
+                    targetLang: targetLanguage || null,
                     hardWords: [],
                 }
 
@@ -97,26 +99,20 @@ const Home = () => {
                     throw new Error('User email not found in session.');
                 }
                 const res = await axios.post('/api/subtitles/create', {
-                    email: userEmail,
-                    youtubeUrl: url,
-                    subtitleTitle: title,
-                    subtitleData: data,
-                    hardWords: [],
+                    ...subtitle
                 },
                     {
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     }
-                ).then(response => console.log(response)
+                ).then(() => dispatch(addSubtitle(subtitle))
                 ).catch((e) => toast({
                     title: "Error saving subtitles",
                     description: e ? e.toString() : "Something went wrong while saving subtitles.",
                     variant: 'destructive',
                 }));
-                dispatch(addSubtitle(subtitle))
 
-                console.log("responseSubtitle", res)
                 //dispatch(setSelectedSubtitle(res?.subtitle?.SubtitleId || null))
 
                 console.log("success")

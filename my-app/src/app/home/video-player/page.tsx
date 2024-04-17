@@ -1,69 +1,78 @@
 'use client'
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import VideoPlayer from "@/components/VideoPlayer";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 
-const TranslationComponent = () => {
-  const [text, setText] = useState('');
-  const [language, setLanguage] = useState('en');
-  const [formality, setFormality] = useState('more');
-  const [translatedText, setTranslatedText] = useState('');
-  const [error, setError] = useState('');
+const Home = () => {
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [url, setUrl] = useState<string>('');
 
-  const handleTranslate = async () => {
-    try {
-      const response = await axios.post('/api/translate', {
-        text,
-        language,
-        formality
-      });
-      console.log(response.data)
-      setTranslatedText(response.data);
-      setError('');
-    } catch (error) {
-      console.error('Error translating:', error);
-      setError('Error translating text. Please try again.');
-    }
-  };
+    const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        if (file.type.startsWith('video/')) {
+            setVideoFile(file);
+            setUrl(URL.createObjectURL(file));
+        } else {
+            alert('Please drop a video file.');
+        }
+    };
 
-  return (
-    <div className='center'>
-      <div>
-        <label htmlFor="text">Enter text to translate:</label>
-        <textarea
-          id="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-      </div>
-      <div>
-        <label htmlFor="language">Select language:</label>
-        <select
-          id="language"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        >
-          <option value="de">German</option>
-          <option value="en-GB">English</option>
-          <option value="fr">French</option>
-          {/* Add more languages here */}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="formality">Select formality:</label>
-        <select
-          id="formality"
-          value={formality}
-          onChange={(e) => setFormality(e.target.value)}
-        >
-          <option value="more">More formal</option>
-          <option value="less">Less formal</option>
-        </select>
-      </div>
-      <button onClick={handleTranslate}>Translate</button>
-      {error && <p>{error}</p>}
-      {translatedText && <p>Translated text: {translatedText}</p>}
-    </div>
-  );
+    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+        event.preventDefault();
+    };
+
+    const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setUrl(event.target.value);
+    };
+
+    const handleSaveSubtitles = () => {
+        // Implement logic to save subtitles for the local video file
+        alert('Subtitles saved!');
+    };
+    return (
+        <div className="flex flex-col h-full p-2">
+            <div
+               
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+            >
+                {!videoFile && (
+                    <>
+                        <p className="mb-4 text-gray-600">Drop your video here</p>
+                        <input
+                            type="file"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    setVideoFile(file);
+                                    setUrl(URL.createObjectURL(file));
+                                }
+                            }}
+                        />
+                    </>
+                )}
+                {videoFile && (
+                    <>
+                        <VideoPlayer url={url} />
+                        <Popover>
+                            <PopoverTrigger>
+                                <Button className="mt-4">Add Subtitles</Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="p-4 bg-white rounded-lg shadow-md">
+                                <div>
+                                    <Input type="text" placeholder="Enter subtitle text" className="mb-2" />
+                                    <Button onClick={handleSaveSubtitles}>Save Subtitles</Button>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </>
+                )}
+            </div>
+        </div>
+    );
 };
 
-export default TranslationComponent;
+export default Home;

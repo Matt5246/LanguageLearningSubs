@@ -33,40 +33,52 @@ export default function Home() {
     };
     console.log(currentSubtitle)
     return (
-        <>
-
-            <div className="flex items-center justify-center">
-
-                {data?.userHardWords?.length > 0 ? (<>
-                    <Card className="w-[350px] mt-60">
+        <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center">
+                {data?.userHardWords?.length > 0 ? (
+                    <Card className="min-w-[350px] w-[550px] m-3">
                         <CardHeader>
-                            <CardTitle>{currentSubtitle?.Subtitle?.subtitleTitle}</CardTitle>
-
+                            <CardTitle className="text-xl">{currentSubtitle?.Subtitle?.subtitleTitle}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="grid w-full items-center gap-4">
                                 <div className="flex flex-col space-y-1.5">
                                     <CardDescription>Word</CardDescription>
-                                    <CardTitle>
-                                        {currentSubtitle?.word}
-                                    </CardTitle>
+                                    <CardTitle>{currentSubtitle?.word}</CardTitle>
                                 </div>
                                 <div className="flex flex-col space-y-1.5">
-                                    <CardDescription>Translation</CardDescription>
-                                    <CardTitle>{currentSubtitle?.translation}</CardTitle>
+                                    {currentSubtitle?.translation ? (
+                                        <>
+                                            <CardDescription>Translation</CardDescription>
+                                            <CardTitle>{currentSubtitle?.translation}</CardTitle>
+                                        </>
+                                    ) : null}
+                                    {currentSubtitle?.sentences.map((data: any) => (
+                                        <>
+                                            <CardDescription>Sentence</CardDescription>
+                                            {data?.sentence}
+                                            <CardDescription>Sentence Translation</CardDescription>
+                                            {data?.translation}
+                                        </>
+                                    ))}
                                 </div>
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between">
-                            <Button variant="secondary" onClick={handlePreviousWord}>Previous</Button>
-                            <Button variant="outline" onClick={handleNextWord}>Next</Button>
+                            <Button variant="secondary" onClick={handlePreviousWord}>
+                                Previous
+                            </Button>
+                            <Button variant="outline" onClick={handleNextWord}>
+                                Next
+                            </Button>
                         </CardFooter>
                     </Card>
-                </>
                 ) : (
-                    <div className="mt-12 text-center text-gray-500">Add your hard words to the database first, to use this component.</div>
+                    <div className="mt-12 text-center text-gray-500">
+                        Add your hard words to the database first to use this component.
+                    </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }

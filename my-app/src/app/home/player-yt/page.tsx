@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import VideoPlayer from "@/components/VideoPlayer";
 import { Input } from "@/components/ui/input";
 import {
@@ -7,7 +7,6 @@ import {
     ResizablePanel,
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import SubtitlesList from "@/components/Subtitles/SubtitlesList"
 import axios from 'axios';
 import SubtitlesSkeleton from "@/components/Subtitles/SubtitlesSkeleton"
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -15,7 +14,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { useAppDispatch } from '@/lib/hooks';
 import { addSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
 import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice'
@@ -50,6 +49,7 @@ const Home = () => {
 
     const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUrl(event.target.value);
+        console.log("refetch")
         refetch();
     };
     const { data, error, isLoading, refetch } = useQuery({
@@ -79,7 +79,7 @@ const Home = () => {
 
         },
         enabled: !!url,
-        retry: false,
+        retry: true,
     })
     const { isFetching, refetch: refetch2 } = useQuery({
         queryKey: ['saveCaptions', url],
@@ -126,7 +126,7 @@ const Home = () => {
             }
         },
         enabled: false,
-        retry: false,
+        retry: true,
     })
 
     if (error) {
@@ -156,6 +156,7 @@ const Home = () => {
     return (
         <div className="m-4 h-[1000px]" >
             <Drawer>
+
                 {isMobile ?
                     <>
                         <div className="rounded-lg border min-h-[300px]">

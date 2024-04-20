@@ -34,24 +34,12 @@ model Subtitle {
   sourceLang    String?
   targetLang    String?
   subtitleData  SubtitleData[]
-  hardWords     hardWords[]
+  hardWords     HardWord[]
   createdAt     DateTime?      @default(now())
   updatedAt     DateTime?      @updatedAt
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([youtubeUrl, userId])
-}
-
-model hardWords {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  hardWordId  String?   @db.ObjectId
-  word        String?
-  translation String?
-  pos         String? //Part of speech
-  lemma       String?
-  Subtitle    Subtitle? @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
-
-  @@unique([word])
 }
 
 model SubtitleData {
@@ -64,6 +52,27 @@ model SubtitleData {
   Subtitle       Subtitle? @relation(fields: [subtitleDataId], references: [SubtitleId], onDelete: Cascade)
 
   @@unique([text, start, subtitleDataId])
+}
+
+model HardWord {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  hardWordId  String?    @db.ObjectId
+  word        String?
+  translation String?
+  pos         String? //Part of speech
+  lemma       String?
+  sentences   Sentence[]
+  Subtitle    Subtitle?  @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
+
+  @@unique([word])
+}
+
+model Sentence {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  sentenceId  String   @db.ObjectId
+  sentence    String
+  translation String?
+  hardWords   HardWord @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
 }
 
 model Account {

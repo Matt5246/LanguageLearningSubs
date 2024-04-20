@@ -1,4 +1,4 @@
-import { PrismaClient, hardWords } from '@prisma/client';
+import { PrismaClient, HardWord } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
@@ -17,13 +17,13 @@ export async function POST(req: Request) {
                 throw new Error('User not found');
             }
 
-            const userHardWords = await prisma.hardWords.findMany({
+            const userHardWords = await prisma.hardWord.findMany({
                 where: { Subtitle: { userId: user.id } },
-                include: { Subtitle: { select: { subtitleTitle: true } } },
+                include: { Subtitle: { select: { subtitleTitle: true } }, sentences: { select: { sentence: true, translation: true } } },
             });
 
 
-            let subtitleHardWords: hardWords[] = [];
+            let subtitleHardWords: HardWord[] = [];
             if (youtubeUrl) {
                 const subtitle = await prisma.subtitle.findFirst({
                     where: { userId: user.id, youtubeUrl },
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
                 if (!subtitle) {
                     throw new Error('Subtitle not found');
                 }
-                subtitleHardWords = await prisma.hardWords.findMany({
+                subtitleHardWords = await prisma.hardWord.findMany({
                     where: { Subtitle: { SubtitleId: subtitle.SubtitleId } },
                 });
             }

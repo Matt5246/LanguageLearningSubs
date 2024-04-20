@@ -137,7 +137,6 @@ export default function Navigation() {
                         </ul>
                     </NavigationMenuContent>
                 </NavigationMenuItem>
-
             </NavigationMenuList>
         </NavigationMenu>
     )
@@ -170,10 +169,7 @@ const ListItem = React.forwardRef<
 ListItem.displayName = "ListItem"
 async function getSubs(email: String) {
     try {
-
-
         if (email) {
-
             const response = await axios.post('/api/subtitles/get', { email });
             return response.data;
         } else {

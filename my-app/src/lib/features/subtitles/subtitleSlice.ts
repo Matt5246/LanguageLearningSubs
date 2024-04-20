@@ -1,4 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { logout, login, getUser } from '../user/userSlice';
+import axios from 'axios';
 
 export interface Subtitle {
     SubtitleId?: string;
@@ -20,8 +22,12 @@ export interface HardWord {
     translation?: string;
     pos?: string; // Part of speech
     lemma?: string;
+    sentences?: sentences[]
 }
-
+export interface sentences {
+    sentence: String
+    translation?: String
+}
 export interface SubtitlesState {
     subtitles: Subtitle[];
     selectedSubtitle: string | null;
@@ -71,7 +77,6 @@ const subtitlesSlice = createSlice({
 export const subtitles = (state: SubtitlesState) => state.subtitles;
 export const { addSubtitle, clearSubtitles, getSubtitle, updateSubtitle, initializeSubtitles, deleteSubtitle, setSelectedSubtitle } = subtitlesSlice.actions;
 
-
 function loadSubtitlesFromStorage(): Subtitle[] {
     if (typeof window !== 'undefined') {
         const storedSubtitles = localStorage.getItem('subtitles');
@@ -85,6 +90,7 @@ function loadSubtitlesFromStorage(): Subtitle[] {
     }
     return [];
 }
+
 function saveSubtitlesToStorage(subtitles: Subtitle[]): void {
     localStorage.setItem('subtitles', JSON.stringify(subtitles));
 }

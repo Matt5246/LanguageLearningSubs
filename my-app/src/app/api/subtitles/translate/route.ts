@@ -2,8 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
-const primaryTranslationServiceURL = "http://127.0.0.1:5000/translate";
-const fallbackTranslationServiceURL = "https://translate.terraprint.co/translate";
+export const primaryTranslationServiceURL = "http://127.0.0.1:5000/translate";
+export const fallbackTranslationServiceURL = "https://translate.terraprint.co/translate";
 
 export async function POST(req: Request) {
     if (req.method === 'POST') {

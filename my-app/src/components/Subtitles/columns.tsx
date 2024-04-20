@@ -6,8 +6,10 @@ import axios from 'axios'
 import { useSelector } from "react-redux";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Cross1Icon } from "@radix-ui/react-icons";
+import { toast } from "sonner"
 
 const RenderMiddlePopoverContent = (row: any) => {
+
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const selectedSubtitle: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle)); // new way of getting into it
     const fullRow = (row.row.row.original as Caption)
@@ -33,7 +35,9 @@ const RenderMiddlePopoverContent = (row: any) => {
                     </li>
                 ))}
             </ul>
-            <Button className="mt-2" onClick={() => handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}>Add to Hard Words</Button>
+            <Button className="mt-2" onClick={() =>
+                handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
+            >Add to Hard Words</Button>
             <PopoverClose asChild className="absolute right-0 top-0 cursor-pointer">
                 <button className="p-3">
                     <Cross1Icon className="w-4 h-4" />
@@ -44,18 +48,27 @@ const RenderMiddlePopoverContent = (row: any) => {
 };
 
 async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, url: string, userId: string) {
+
     console.log("hardWord", word)
     if (!word || !url || !userId) return;
     const data = {
         youtubeUrl: url,
         userId: userId,
         hardWord: word,
-        //sentence: sentence,
-        //sentenceTranslation: 
+        sentence,
+        sentenceTranslation,
     }
     try {
         const response = await axios.post('/api/hardWords/add', data);
-
+        if (response.data.error) {
+            toast("Event has been Blocked", {
+                description: response.data.error,
+                action: {
+                    label: "Close",
+                    onClick: () => console.log("Closed"),
+                },
+            })
+        }
         console.log('Word added to hard words:', response.data);
     } catch (error) {
         console.error('Error adding word to hard words:', error);

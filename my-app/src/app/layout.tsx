@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/Providers";
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,9 @@ export default function RootLayout({
         <link rel="icon" href="/file-text.svg" sizes="any" />
       </head>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>{children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

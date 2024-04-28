@@ -1,4 +1,5 @@
 "use client"
+import React from 'react'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
@@ -17,7 +18,6 @@ export default function Home() {
     const [progress, setProgress] = useState(0);
     const [subtitles, setSubtitles] = useState<any[]>([]);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
-    const [learnedWords, setLearnedWords] = useState<any[]>([]);
     const currentSubtitle = subtitles[currentWordIndex] || null;
     const filteredSubtitles = subtitles.filter(subtitle => subtitle.learnState !== 100);
 
@@ -34,21 +34,33 @@ export default function Home() {
         enabled: !!userEmail,
         retry: true,
     });
+    const findNextUnlearnedWordIndex = () => {
+        if (filteredSubtitles.length > 0) {
+            for (let i = currentWordIndex + 1; i < subtitles.length; i++) {
+                if (subtitles[i].learnState !== 100) {
+                    setCurrentWordIndex(i);
+                    return;
+                }
+            }
+            for (let i = 0; i < currentWordIndex; i++) {
+                if (subtitles[i].learnState !== 100) {
+                    setCurrentWordIndex(i);
+                    return;
+                }
+            }
+        }
+    };
 
     const handleNextWord = () => {
         setShowAllData(false);
-        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % subtitles.length);
-        updateProgress();
+        findNextUnlearnedWordIndex();
     };
 
     const handleEasy = () => {
         setShowAllData(false);
         const updatedSubtitles = subtitles.map(subtitle => {
-            if (subtitle.word === currentSubtitle.word) {
+            if (subtitle.word === currentSubtitle?.word) {
                 const updatedLearnState = Math.min(subtitle.learnState + 34, 100);
-                if (updatedLearnState === 100) {
-                    updateProgress();
-                }
                 return {
                     ...subtitle,
                     learnState: updatedLearnState
@@ -58,13 +70,13 @@ export default function Home() {
         });
 
         setSubtitles(updatedSubtitles);
-        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % subtitles.length);
+        findNextUnlearnedWordIndex();
     };
 
     const handleHard = () => {
         setShowAllData(false);
         const updatedSubtitles = subtitles.map(subtitle => {
-            if (subtitle.word === currentSubtitle.word) {
+            if (subtitle?.word === currentSubtitle?.word) {
                 return {
                     ...subtitle,
                     learnState: Math.max(subtitle.learnState - 40, 0)
@@ -74,26 +86,30 @@ export default function Home() {
         });
 
         setSubtitles(updatedSubtitles);
-        setCurrentWordIndex((prevIndex) => (prevIndex + 1) % subtitles.length);
-        updateProgress();
+        findNextUnlearnedWordIndex();
     };
 
 
     const handlePreviousWord = () => {
         setShowAllData(false);
-        setCurrentWordIndex((prevIndex) => (prevIndex - 1 + subtitles.length) % subtitles.length);
-        updateProgress();
+        setCurrentWordIndex((prevIndex) => (prevIndex - 1 + filteredSubtitles.length) % filteredSubtitles.length);
     };
 
     const handleShowTranslation = () => {
         setShowAllData(true)
     };
 
-    const updateProgress = () => {
-        const remainingSubtitles = subtitles.filter(subtitle => !learnedWords.some(wordObject => wordObject.word === subtitle.word && wordObject.learnState === 100));
-        const progressValue = 100 - (remainingSubtitles.length / subtitles.length) * 100;
-        setProgress(progressValue);
-    };
+    React.useEffect(() => {
+        if (subtitles.length > 0) {
+            const completedSubtitles = subtitles.filter(subtitle => subtitle.learnState === 100).length;
+            const currentSubtitleState = currentSubtitle?.learnState === 100 ? 1 : 0;
+            const progressValue = ((completedSubtitles + currentSubtitleState) / subtitles.length) * 100;
+            setProgress(progressValue);
+        }
+        if (filteredSubtitles.length === 0) { setProgress(100) }
+
+    }, [subtitles, currentSubtitle]);
+
     useOnKeyPress(handlePreviousWord, ['1', 'z']);
     useOnKeyPress(handleHard, ['2', 'x']);
     useOnKeyPress(handleNextWord, ['3', 'c']);
@@ -177,7 +193,7 @@ export default function Home() {
                             Add your hard words to the database first to use this component.{isLoading && <Spinner />}{error && <p className="text-red-500">Error fetching data.</p>}
                         </div>
                     )}
-                    {subtitles.length > 0 && (
+                    {/* {subtitles.length > 0 && (
                         <div className="mt-6">
                             <h2 className="text-xl font-bold">Learned Words:</h2>
                             {subtitles.map((wordObject, index) => (
@@ -188,7 +204,7 @@ export default function Home() {
                             ))}
 
                         </div>
-                    )}
+                    )} */}
                 </div>
             </div>
         </>

@@ -77,9 +77,9 @@ export async function POST(req: Request) {
             if (existingHardWord) {
                 return NextResponse.json({ error: 'Word already exists in user\'s other subtitles' })
             }
-            const existingSentence = await prisma.sentence.findFirst({
-                where: { sentence: sentence },
-            });
+            // const existingSentence = await prisma.sentence.findFirst({
+            //     where: { sentence: sentence },
+            // });
             const sentenceData = {
                 sentence,
                 translation: sentenceTranslation,
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
                 Subtitle: { connect: { SubtitleId: subtitle.SubtitleId } },
             }
             const { lemma, pos } = await fetchLemmaAndPOS(hardWord);
-            const translation = await fetchTranslation(lemma || hardWord, subtitle?.sourceLang || "auto", subtitle?.targetLang || 'en');
+            const translation = await fetchTranslation(lemma ? lemma : hardWord, subtitle?.sourceLang || "auto", subtitle?.targetLang || 'en');
 
             if (lemma) {
                 hardWordData = {

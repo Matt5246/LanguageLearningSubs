@@ -80,6 +80,9 @@ function translateSubtitle(selectedSubtitle: any) {
                 <DialogHeader>
                     <DialogTitle>Translate Subtitle</DialogTitle>
                 </DialogHeader>
+
+                <DialogDescription>Subtitle title:</DialogDescription>
+                {selectedSubtitle?.selectedSubtitle?.subtitleTitle}
                 <DialogDescription>Target language: </DialogDescription>
                 <Select onValueChange={setTargetLanguage}>
                     <SelectTrigger className="w-[180px]">
@@ -117,8 +120,6 @@ function translateSubtitle(selectedSubtitle: any) {
                 <DialogDescription>Subtitles row number: </DialogDescription>
                 {selectedSubtitle?.selectedSubtitle?.subtitleData?.length}
 
-                <DialogDescription>Subtitle title:</DialogDescription>
-                {selectedSubtitle?.selectedSubtitle?.subtitleTitle}
                 <DialogDescription>Subtitle URL:</DialogDescription>
                 {selectedSubtitle?.selectedSubtitle?.youtubeUrl}
                 <DialogFooter>

@@ -1,4 +1,5 @@
 interface Caption {
+    id?: number,
     subtitleDataId?: string,
     text: string;
     duration: number;

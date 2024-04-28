@@ -74,7 +74,7 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
                 <input
                     type="text"
                     value={updatedSubtitle?.youtubeUrl}
-                    disabled
+
                     onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, youtubeUrl: e.target.value })}
                 />
 

@@ -61,6 +61,7 @@ model HardWord {
   translation String?
   pos         String? //Part of speech
   lemma       String?
+  learnState  Int        @default(0)
   sentences   Sentence[]
   Subtitle    Subtitle?  @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
 

@@ -52,6 +52,32 @@ const Home = () => {
         console.log("refetch")
         refetch();
     };
+
+    useEffect(() => {
+        navigator.clipboard.readText()
+            .then(text => {
+                if (isYouTubeLink(text) && text !== url) {
+                    toast({
+                        title: "Found YouTube url",
+                        description: "use url from clipboard.",
+                        action: (
+                            <ToastAction altText="Use url" onClick={() => setUrl(text)}>use</ToastAction>
+                        ),
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+
+        const isYouTubeLink = (text: string) => {
+            const youtubeRegex = /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+/;
+            return youtubeRegex.test(text);
+        };
+    }, [url]);
+
+
+
     const { data, error, isLoading, refetch } = useQuery({
         queryKey: ['captions', url],
         queryFn: async () => {
@@ -74,12 +100,14 @@ const Home = () => {
                 console.log("captions returned", response.data.videoDetails.subtitles)
                 return response.data.videoDetails.subtitles;
             } else {
+
                 throw new Error('No subtitles found');
             }
 
         },
         enabled: !!url,
         retry: true,
+        staleTime: 60000,
     })
     const { isFetching, refetch: refetch2 } = useQuery({
         queryKey: ['saveCaptions', url],
@@ -162,13 +190,16 @@ const Home = () => {
                         <div className="rounded-lg border min-h-[300px]">
                             <VideoPlayerBlock />
                         </div>
-                        {isLoading ? (
-                            <SubtitlesSkeleton />
-                        ) : (
-                            data ? (
-                                <DataTable captions={data as Caption[]} height="1000px" />
-                            ) : null
+                        {!isLoading && !error && data && (
+                            <DataTable captions={data as Caption[]} height="1000px" />
                         )}
+                        {!isLoading && !error && !data && (
+                            <SubtitlesSkeleton />
+                        )}
+                        <div className="flex justify-center items-center h-full">
+                            <p className="text-center">No subtitles detected.</p>
+                        </div>
+
                     </>
 
                     : <ResizablePanelGroup
@@ -180,13 +211,19 @@ const Home = () => {
                         </ResizablePanel>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={35} >
-                            {isLoading ? (
-                                <SubtitlesSkeleton />
-                            ) : (
-                                data ? (
-                                    <DataTable captions={data as Caption[]} height="1000px" />
-                                ) : null
+                            {!isLoading && !error && data && (
+                                <DataTable captions={data as Caption[]} height="1000px" />
                             )}
+                            {!isLoading && !error && !data && url && (
+                                <SubtitlesSkeleton />
+                            )}
+
+
+                            <div className="flex justify-center items-center h-full">
+                                <p className="text-center">No subtitles detected.</p>
+                            </div>
+
+
                         </ResizablePanel>
                     </ResizablePanelGroup>
                 }
@@ -256,7 +293,6 @@ const Home = () => {
                             <Button variant="default">save</Button>
                         </DrawerClose>
                         <DrawerClose asChild>
-
                             <Button variant="outline">Cancel</Button>
                         </DrawerClose>
                     </DrawerFooter>

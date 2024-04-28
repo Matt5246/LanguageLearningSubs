@@ -8,45 +8,14 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { toast } from "sonner"
 
-const RenderMiddlePopoverContent = (row: any) => {
 
-    const [selectedWord, setSelectedWord] = useState<string | null>(null);
-    const selectedSubtitle: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle)); // new way of getting into it
-    const fullRow = (row.row.row.original as Caption)
-    return (
-        <>
-            <h4 className="font-medium leading-none">Subtitle Line:</h4>
-            <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
-            <h4 className="font-medium leading-none">{fullRow?.translation ? "Translation:" : null}</h4>
-            <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
-            <h3>Select Hard Word:</h3>
-            <ul>
-                {fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '').map((word: string, index: number) => (
-                    <li key={index} onChange={() => setSelectedWord(word)}>
-                        <label className={word === selectedWord ? "text-green-500" : ""}>
-                            <input
-                                type="radio"
-                                name="hardWord"
-                                value={word}
-                                checked={word === selectedWord}
-                            />
-                            {" " + word}
-                        </label>
-                    </li>
-                ))}
-            </ul>
-            <Button className="mt-2" onClick={() =>
-                handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
-            >Add to Hard Words</Button>
-            <PopoverClose asChild className="absolute right-0 top-0 cursor-pointer">
-                <button className="p-3">
-                    <Cross1Icon className="w-4 h-4" />
-                </button>
-            </PopoverClose>
-        </>
-    );
-};
+function convertTime(time: number): string {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = Math.floor(time % 60);
 
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
 async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, url: string, userId: string) {
 
     console.log("hardWord", word)
@@ -74,12 +43,16 @@ async function handleAddToHardWords(word: string | null, sentence: string, sente
         console.error('Error adding word to hard words:', error);
     }
 }
+async function handleEditSentence(id: number, sentence: string, sentenceTranslation: string, url: string, userId: string) {
+
+
+}
 
 export const columns: ColumnDef<Caption>[] = [
     {
         accessorKey: "ID",
         header: "Line",
-        cell: (x) => x.row.index + 1,
+        cell: (x) => (<p className="ml-2">{x.row.index + 1}</p>),
         size: 10,
     },
     {
@@ -111,10 +84,45 @@ export const columns: ColumnDef<Caption>[] = [
     },
 ];
 
-function convertTime(time: number): string {
-    const hours = Math.floor(time / 3600);
-    const minutes = Math.floor((time % 3600) / 60);
-    const seconds = Math.floor(time % 60);
+const RenderMiddlePopoverContent = (row: any) => {
 
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
+    const [selectedWord, setSelectedWord] = useState<string | null>(null);
+    const selectedSubtitle: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle)); // new way of getting into it
+    const fullRow = (row.row.row.original as Caption)
+
+    return (
+        <>
+            <h4 className="font-medium leading-none">Subtitle Line:</h4>
+            <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
+            <h4 className="font-medium leading-none">{fullRow?.translation ? "Translation:" : null}</h4>
+            <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
+            <h3>Select Hard Word:</h3>
+            <ul>
+                {fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '').map((word: string, index: number) => (
+                    <li key={index} onChange={() => setSelectedWord(word)}>
+                        <label className={word === selectedWord ? "text-green-500" : ""}>
+                            <input
+                                type="radio"
+                                name="hardWord"
+                                value={word}
+                                checked={word === selectedWord}
+                            />
+                            {" " + word}
+                        </label>
+                    </li>
+                ))}
+            </ul>
+            <Button className="mt-2" onClick={() =>
+                handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
+            >Add to Hard Words</Button>
+            <Button className="mt-2 absolute right-4" onClick={() => handleEditSentence(fullRow?.id as number, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')
+            }
+            >Edit</Button>
+            <PopoverClose asChild className="absolute right-0 top-0 cursor-pointer">
+                <button className="p-3">
+                    <Cross1Icon className="w-4 h-4" />
+                </button>
+            </PopoverClose>
+        </>
+    );
+};

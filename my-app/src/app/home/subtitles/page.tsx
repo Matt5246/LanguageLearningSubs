@@ -15,7 +15,7 @@ export default function Home() {
     <div className='m-5'>
       <div className='flex flex-col md:flex-row justify-between items-start'>
         <div className="mb-4 md:mb-0">
-          <SubtitlesDropDown data={subtitlesData} />
+          <SubtitlesDropDown data={subtitlesData as any[]} />
         </div>
         {selectedSub && (
           <div className='flex space-x-2'>

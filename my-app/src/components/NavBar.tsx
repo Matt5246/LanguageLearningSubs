@@ -51,6 +51,12 @@ const components: { title: string; href: string; description: string }[] = [
         description:
             "Here you can see your all subtitles.",
     },
+    {
+        title: "Word Bank",
+        href: "/home/wordBank",
+        description:
+            "Your saved words are listed here.",
+    },
 ]
 
 export default function Navigation() {

@@ -26,7 +26,11 @@ export async function POST(req: Request) {
                 },
                 include: {
                     subtitleData: true,
-                    hardWords: true,
+                    hardWords: {
+                        include: {
+                            sentences: true,
+                        },
+                    },
                 },
             });
             return NextResponse.json(subtitles);

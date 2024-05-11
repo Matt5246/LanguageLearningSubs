@@ -33,7 +33,6 @@ import {
 import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import { useSelector } from 'react-redux'
 import TranslateSubtitle from "../subtitles/TranslateSubtitle";
-import { Separator } from "@radix-ui/react-select";
 
 const Home = () => {
     const [url, setUrl] = useState<string>('');
@@ -49,7 +48,6 @@ const Home = () => {
 
     const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setUrl(event.target.value);
-        console.log("refetch")
         refetch();
     };
 
@@ -93,6 +91,7 @@ const Home = () => {
             setTitle(response.data.videoDetails.title)
 
             if (response.data.deSubtitles.length !== 0) {
+                console.log(response.data.deSubtitles)
                 return response.data.deSubtitles;
             } else if (response.data.enSubtitles.length !== 0) {
                 return response.data.enSubtitles;

@@ -33,7 +33,7 @@ interface Subtitle {
 }
 
 interface SubtitleData {
-    text?: string;
+    word?: string;
     translation?: string;
     dur?: number | float;
     start?: number | float;
@@ -44,4 +44,9 @@ interface HardWord {
     translation?: string;
     pos?: string; // Part of speech
     lemma?: string;
+    senteces?: senteces[];
+}
+interface senteces {
+    sentence: String
+    translation?: String
 }

@@ -1,36 +1,40 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { logout, login, getUser } from '../user/userSlice';
-import axios from 'axios';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+import { createSelector } from '@reduxjs/toolkit';
 
 export interface Subtitle {
-    SubtitleId?: string;
-    youtubeUrl?: string;
-    subtitleTitle?: string;
+    SubtitleId?: String;
+    youtubeUrl?: String;
+    subtitleTitle?: String;
     subtitleData?: SubtitleData[];
     hardWords?: HardWord[];
 }
 
 export interface SubtitleData {
-    text: string;
-    translation?: string;
-    duration?: number;
-    offset?: number;
+    text: String;
+    translation?: String;
+    duration?: Number;
+    offset?: Number;
 }
 
 export interface HardWord {
-    word: string;
-    translation?: string;
-    pos?: string; // Part of speech
-    lemma?: string;
+    id?: String
+    hardWordId: String
+    word: String;
+    translation?: String;
+    pos?: String; // Part of speech
+    lemma?: String;
+    learnState?: Number;
     sentences?: sentences[]
 }
 export interface sentences {
+    id?: String
     sentence: String
     translation?: String
 }
 export interface SubtitlesState {
-    subtitles: Subtitle[];
-    selectedSubtitle: string | null;
+    subtitles: Subtitle[]
+    selectedSubtitle: String | null
 }
 
 const initialState: SubtitlesState = {
@@ -76,6 +80,17 @@ const subtitlesSlice = createSlice({
 
 export const subtitles = (state: SubtitlesState) => state.subtitles;
 export const { addSubtitle, clearSubtitles, getSubtitle, updateSubtitle, initializeSubtitles, deleteSubtitle, setSelectedSubtitle } = subtitlesSlice.actions;
+
+export const selectFlashCardData = createSelector(
+    (state: any) => state.subtitle.subtitles,
+    (subtitles) => {
+        return subtitles.map((subtitle: Subtitle) => ({
+            SubtitleId: subtitle.SubtitleId,
+            subtitleTitle: subtitle.subtitleTitle,
+            hardWords: subtitle.hardWords,
+        }));
+    }
+);
 
 function loadSubtitlesFromStorage(): Subtitle[] {
     if (typeof window !== 'undefined') {

@@ -230,7 +230,7 @@ const Home = () => {
                     <DrawerHeader className="text-left">
                         <DrawerTitle className="text-center">Edit subtitle profile</DrawerTitle>
                         <DrawerDescription className="text-center">
-                            Make changes to your subtitle profile here. Click save when you're done.
+                            Make changes to your subtitle profile here. Click save when you are done.
                         </DrawerDescription>
                         <DrawerTitle>Edit preferences</DrawerTitle>
                         <DrawerDescription>

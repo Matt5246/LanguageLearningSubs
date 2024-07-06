@@ -1,8 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-import { primaryTranslationServiceURL } from '../../subtitles/translate/route';
-
+import { primaryTranslationServiceURL, fallbackTranslationServiceURL } from '@/lib/utils'
 
 const prisma = new PrismaClient();
 function generateRandomTitle() {

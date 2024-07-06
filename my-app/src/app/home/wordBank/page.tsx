@@ -15,8 +15,8 @@ const Home = () => {
                 <ul>
 
                     {flashCardData.map((data) => (
-                        data?.hardWords.map((row: any) =>
-                            (<li><strong>{row.word}</strong> - {row.translation}</li>))
+                        data?.hardWords.map((row: any, index: number) =>
+                            (<li key={index}><strong>{row.word}</strong> - {row.translation}</li>))
                     ))}
 
                 </ul>

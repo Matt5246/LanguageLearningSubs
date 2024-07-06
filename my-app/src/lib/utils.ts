@@ -5,6 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export const primaryTranslationServiceURL = "http://127.0.0.1:5000/translate";
+export const fallbackTranslationServiceURL = "https://translate.terraprint.co/translate";
+
 export const EuropeLanguages = [
   { value: "cs", label: "Czech" },
   { value: "de", label: "German" },

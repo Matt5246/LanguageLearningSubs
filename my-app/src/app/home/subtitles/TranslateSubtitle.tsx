@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +26,7 @@ import { useDispatch } from 'react-redux';
 import { updateSubtitle, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 
 
-function translateSubtitle(selectedSubtitle: any) {
+function TranslateSubtitle(selectedSubtitle: any) {
     const [targetLanguage, setTargetLanguage] = useState('de'); // Default target language
     const [sourceLanguage, setSourceLanguage] = useState('auto'); // Default target language
     const dispatch = useDispatch()
@@ -140,4 +141,4 @@ function translateSubtitle(selectedSubtitle: any) {
     );
 }
 
-export default translateSubtitle;
+export default TranslateSubtitle;

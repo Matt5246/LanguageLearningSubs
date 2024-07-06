@@ -25,7 +25,7 @@ export async function DELETE(req: Request) {
             }
 
             // Find and delete the hard word associated with the subtitle
-            const deletedHardWord = await prisma.hardWords.deleteMany({
+            const deletedHardWord = await prisma.hardWord.deleteMany({
                 where: { Subtitle: { SubtitleId: subtitle.SubtitleId }, word: hardWord },
             });
 

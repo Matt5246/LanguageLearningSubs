@@ -34,6 +34,7 @@ interface Subtitle {
 
 interface SubtitleData {
     word?: string;
+    text?: string;
     translation?: string;
     dur?: number | float;
     start?: number | float;

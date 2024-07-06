@@ -56,7 +56,7 @@ export async function POST(req: Request) {
 }
 async function translateSubtitleData(subtitleData: SubtitleData[], sourceLang: string, targetLang: string) {
     try {
-        const texts = subtitleData.map(subtitle => subtitle.text);
+        const texts = subtitleData.map(subtitle => subtitle?.text);
         const response = await axios.post("http://127.0.0.1:5000/translate", {
             q: texts,
             source: sourceLang || "auto",

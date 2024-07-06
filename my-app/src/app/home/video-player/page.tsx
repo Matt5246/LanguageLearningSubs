@@ -39,6 +39,7 @@ import { useSelector } from 'react-redux'
 import TranslateSubtitle from "../subtitles/TranslateSubtitle";
 import SubsEditor from "@/services/subtitleConverter";
 import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown";
+import mkvExtract from "@/lib/mkvExtract"
 
 const Home = () => {
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
@@ -61,10 +62,25 @@ const Home = () => {
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
-        console.log('file', file.path)
+        console.log('file', file)
         if (file.type.startsWith('video/')) {
             setVideoFile(file);
             setUrl(URL.createObjectURL(file));
+            mkvExtract(file, (error: any, files: any) => {
+                let subtitle;
+                const fonts = [];
+                for (let f of files) {
+                    if ((f.name.endsWith(".ass") || f.name.endsWith(".ssa")) && !subtitle)
+                        subtitle = URL.createObjectURL(new Blob([f.data]));
+                    else if (f.name.endsWith(".ttf"))
+                        fonts.push(URL.createObjectURL(new Blob([f.data])));
+                }
+                console.log(
+                    // 'file prev:', file.preview,
+                    'subtitle', subtitle,
+                    'fonts', fonts
+                );
+            })
         } else {
             toast({
                 title: "Error!",
@@ -163,11 +179,13 @@ const Home = () => {
         }
     }, [selectedSub]);
 
+    const memorizedUrl = useMemo(() => url, [url]);
+
     const VideoPlayerBlock = () => {
         return <div className="flex flex-col h-full p-2">
             <div className="flex">
                 <SubtitlesDropDown data={subtitlesData as any[]} />
-                <Input type="text" value={url} disabled placeholder="Enter YouTube URL" className="mx-2" />
+                <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" />
                 {userEmail ?
                     <>
                         {selectedSub ? null : <>
@@ -202,8 +220,7 @@ const Home = () => {
                         />
                     </div>
                 )}
-
-                <VideoPlayer url={url} />
+                {memorizedUrl && <VideoPlayer url={memorizedUrl} />}
             </div>
         </div>;
     }
@@ -245,7 +262,7 @@ const Home = () => {
                         <DrawerHeader className="text-left">
                             <DrawerTitle className="text-center">Edit subtitle profile</DrawerTitle>
                             <DrawerDescription className="text-center">
-                                Make changes to your subtitle profile here. Click save when you're done.
+                                Make changes to your subtitle profile here. Click save when you are done.
                             </DrawerDescription>
                             <DrawerTitle>Edit preferences</DrawerTitle>
                             <DrawerDescription>

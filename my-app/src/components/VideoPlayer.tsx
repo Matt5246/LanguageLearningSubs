@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player/lazy';
 
@@ -14,15 +14,32 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url }) => {
     useEffect(() => {
         if (isReady) {
             const savedTime = localStorage.getItem(`videoCurrentTime-${url}`);
+            const savedPlaying = localStorage.getItem(`videoPlaying-${url}`);
+
             if (savedTime && playerRef.current) {
                 playerRef.current.seekTo(parseFloat(savedTime), 'seconds');
-                setPlaying(true);
+            }
+            console.log("savedPlaying", savedPlaying)
+            if (savedPlaying === 'true') {
+                setPlaying(savedPlaying === 'true');
+            } else {
+                setPlaying(false);
             }
         }
     }, [url, isReady]);
 
     const handleProgress = (state: { playedSeconds: number }) => {
         localStorage.setItem(`videoCurrentTime-${url}`, state.playedSeconds.toString());
+    };
+
+    const handlePlay = () => {
+        setPlaying(true);
+        localStorage.setItem(`videoPlaying-${url}`, 'true');
+    };
+
+    const handlePause = () => {
+        setPlaying(false);
+        localStorage.setItem(`videoPlaying-${url}`, 'false');
     };
 
     const handleReady = () => {
@@ -35,13 +52,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url }) => {
                 playerRef.current = player;
                 if (player) {
                     handleReady();
-                    console.log(playerRef);
                 }
             }}
             controls
             url={url}
             height="100%"
             width="100%"
+            onPlay={handlePlay}
+            onPause={handlePause}
             onProgress={handleProgress}
             playing={playing}
         />

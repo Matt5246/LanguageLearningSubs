@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import VideoPlayer from "@/components/VideoPlayer";
 import { Input } from "@/components/ui/input";
 import {
@@ -46,33 +46,35 @@ const Home = () => {
     const [sourceLanguage, setSourceLanguage] = useState("");
     const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
 
-    const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setUrl(event.target.value);
-        refetch();
-    };
-
     useEffect(() => {
-        navigator.clipboard.readText()
-            .then(text => {
+        const readClipboardText = async () => {
+            try {
+                const text = await navigator.clipboard.readText();
                 if (isYouTubeLink(text) && text !== url) {
                     toast({
-                        title: "Found YouTube url",
-                        description: "use url from clipboard.",
+                        title: "Found YouTube URL",
+                        description: "Use URL from clipboard.",
                         action: (
-                            <ToastAction altText="Use url" onClick={() => setUrl(text)}>use</ToastAction>
+                            <ToastAction altText="Use URL" onClick={() => setUrl(text)}>Use</ToastAction>
                         ),
                     });
                 }
-            })
-            .catch(err => {
+            } catch (err) {
                 console.error(err);
-            });
+            }
+        };
+
+        readClipboardText();
 
         const isYouTubeLink = (text: string) => {
             const youtubeRegex = /^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+/;
             return youtubeRegex.test(text);
         };
-    }, [url]);
+
+        if (isYouTubeLink(url)) {
+            refetch();
+        }
+    }, [url, toast]);
 
 
 
@@ -125,6 +127,9 @@ const Home = () => {
                 if (!userEmail) {
                     throw new Error('User email not found in session.');
                 }
+                if (!url) {
+                    throw new Error('Youtube url not found in session.');
+                }
                 const res = await axios.post('/api/subtitles/create', {
                     ...subtitle
                 },
@@ -164,22 +169,30 @@ const Home = () => {
             variant: 'destructive',
         })
     }
-    const VideoPlayerBlock = () => {
-        return <div className="flex flex-col h-full p-2">
+    const VideoPlayerBlock = useMemo(() => (
+        <div className="flex flex-col h-full p-2">
             <div className="flex">
-                <Input type="text" value={url} onChange={handleUrlChange} placeholder="Enter YouTube URL" className="mr-2" />
-                {userEmail ?
-                    <><Button onClick={() => refetch2()} disabled={isLoading || isFetching}> {isLoading || isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
-                        <DrawerTrigger asChild><Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button></DrawerTrigger>
+                <Input type="text" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="Enter YouTube URL" className="mr-2" />
+                {userEmail ? (
+                    <>
+                        <Button onClick={() => refetch2()} disabled={isLoading || isFetching}>
+                            {isLoading || isFetching ? 'Loading...' : 'Save Subtitles'}
+                        </Button>
+                        <DrawerTrigger asChild>
+                            <Button variant="secondary" className="p-2 ml-2">
+                                <GearIcon className="w-5 h-5" />
+                            </Button>
+                        </DrawerTrigger>
                     </>
-                    : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
-
+                ) : (
+                    <span className="text-nowrap m-2 font-bold">Log in to save subs</span>
+                )}
             </div>
             <div className="p-2 h-full">
                 <VideoPlayer url={url} />
             </div>
-        </div>;
-    }
+        </div>
+    ), [url, userEmail, isLoading, isFetching, refetch2]);
     return (
         <div className="m-4 h-[1000px]" >
             <Drawer>
@@ -187,7 +200,7 @@ const Home = () => {
                 {isMobile ?
                     <>
                         <div className="rounded-lg border min-h-[300px]">
-                            <VideoPlayerBlock />
+                            {VideoPlayerBlock}
                         </div>
                         {!isLoading && !error && data && (
                             <DataTable captions={data as Caption[]} height="1000px" />
@@ -206,7 +219,7 @@ const Home = () => {
                         className="rounded-lg border"
                     >
                         <ResizablePanel defaultSize={65}>
-                            <VideoPlayerBlock />
+                            {VideoPlayerBlock}
                         </ResizablePanel>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={35} >

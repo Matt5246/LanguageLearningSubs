@@ -28,10 +28,10 @@ const components: { title: string; href: string; description: string }[] = [
             "A page where you can watch your youtube videos.",
     },
     {
-        title: "Other video type player",
+        title: "Saved video player",
         href: "/home/video-player",
         description:
-            "A page where you can watch your videos with subtitles.",
+            "A page where you can watch your saved videos with subtitles, and from your drive.",
     },
     {
         title: "Flashcards",

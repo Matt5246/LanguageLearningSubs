@@ -47,6 +47,7 @@
     "libass-wasm": "https://github.com/Dador/JavascriptSubtitlesOctopus#4.0.0",
     "lucide-react": "^0.344.0",
     "mongodb": "^6.4.0",
+    "my-app": "file:",
     "next": "^14.2.3",
     "next-auth": "^4.24.7",
     "next-themes": "^0.2.1",

@@ -5,13 +5,15 @@ const { PHASE_DEVELOPMENT_SERVER } = require('next/constants')
 module.exports = (phase, { defaultConfig }) => {
     if (phase === PHASE_DEVELOPMENT_SERVER) {
         return {
-            devServer: {
-                fastRefresh: false
-            }
+            experimental: {
+                serverComponentsExternalPackages: ['sharp', 'onnxruntime-node'],
+            },
         };
     }
 
     return {
-        /* config options for all phases except development here */
+        experimental: {
+            serverComponentsExternalPackages: ['sharp', 'onnxruntime-node'],
+        },
     }
 }

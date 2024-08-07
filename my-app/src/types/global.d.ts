@@ -41,6 +41,7 @@ interface SubtitleData {
 }
 
 interface HardWord {
+    learnState: number;
     word: string;
     translation?: string;
     pos?: string; // Part of speech
@@ -51,3 +52,5 @@ interface senteces {
     sentence: String
     translation?: String
 }
+
+type GroupedSubtitles = Record<string, Subtitle[]>;

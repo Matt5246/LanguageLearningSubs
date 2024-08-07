@@ -25,7 +25,7 @@ const components: { title: string; href: string; description: string }[] = [
         title: "YOUTUBE video player",
         href: "/home/player-yt",
         description:
-            "A page where you can watch your youtube videos.",
+            "A page where you can watch your youTube videos.",
     },
     {
         title: "Saved video player",
@@ -56,6 +56,12 @@ const components: { title: string; href: string; description: string }[] = [
         href: "/home/wordBank",
         description:
             "Your saved words are listed here.",
+    },
+    {
+        title: "Progress tracking",
+        href: "/home/progress",
+        description:
+            "Here you can see the progress you've made.",
     },
 ]
 

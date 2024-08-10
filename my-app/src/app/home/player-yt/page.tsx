@@ -169,30 +169,7 @@ const Home = () => {
             variant: 'destructive',
         })
     }
-    const VideoPlayerBlock = useMemo(() => (
-        <div className="flex flex-col h-full p-2">
-            <div className="flex">
-                <Input type="text" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="Enter YouTube URL" className="mr-2" />
-                {userEmail ? (
-                    <>
-                        <Button onClick={() => refetch2()} disabled={isLoading || isFetching}>
-                            {isLoading || isFetching ? 'Loading...' : 'Save Subtitles'}
-                        </Button>
-                        <DrawerTrigger asChild>
-                            <Button variant="secondary" className="p-2 ml-2">
-                                <GearIcon className="w-5 h-5" />
-                            </Button>
-                        </DrawerTrigger>
-                    </>
-                ) : (
-                    <span className="text-nowrap m-2 font-bold">Log in to save subs</span>
-                )}
-            </div>
-            <div className="p-2 h-full">
-                <VideoPlayer url={url} />
-            </div>
-        </div>
-    ), [url, userEmail, isLoading, isFetching, refetch2]);
+
     return (
         <div className="m-4 h-[1000px]" >
             <Drawer>
@@ -200,7 +177,28 @@ const Home = () => {
                 {isMobile ?
                     <>
                         <div className="rounded-lg border min-h-[300px]">
-                            {VideoPlayerBlock}
+                            <div className="flex flex-col h-full p-2">
+                                <div className="flex">
+                                    <Input type="text" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="Enter YouTube URL" className="mr-2" />
+                                    {userEmail ? (
+                                        <>
+                                            <Button onClick={() => refetch2()} disabled={isLoading || isFetching}>
+                                                {isLoading || isFetching ? 'Loading...' : 'Save Subtitles'}
+                                            </Button>
+                                            <DrawerTrigger asChild>
+                                                <Button variant="secondary" className="p-2 ml-2">
+                                                    <GearIcon className="w-5 h-5" />
+                                                </Button>
+                                            </DrawerTrigger>
+                                        </>
+                                    ) : (
+                                        <span className="text-nowrap m-2 font-bold">Log in to save subs</span>
+                                    )}
+                                </div>
+                                <div className="p-2 h-full">
+                                    <VideoPlayer url={url} />
+                                </div>
+                            </div>
                         </div>
                         {!isLoading && !error && data && (
                             <DataTable captions={data as Caption[]} height="1000px" />
@@ -219,7 +217,28 @@ const Home = () => {
                         className="rounded-lg border"
                     >
                         <ResizablePanel defaultSize={65}>
-                            {VideoPlayerBlock}
+                            <div className="flex flex-col h-full p-2">
+                                <div className="flex">
+                                    <Input type="text" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="Enter YouTube URL" className="mr-2" />
+                                    {userEmail ? (
+                                        <>
+                                            <Button onClick={() => refetch2()} disabled={isLoading || isFetching}>
+                                                {isLoading || isFetching ? 'Loading...' : 'Save Subtitles'}
+                                            </Button>
+                                            <DrawerTrigger asChild>
+                                                <Button variant="secondary" className="p-2 ml-2">
+                                                    <GearIcon className="w-5 h-5" />
+                                                </Button>
+                                            </DrawerTrigger>
+                                        </>
+                                    ) : (
+                                        <span className="text-nowrap m-2 font-bold">Log in to save subs</span>
+                                    )}
+                                </div>
+                                <div className="p-2 h-full">
+                                    <VideoPlayer url={url} />
+                                </div>
+                            </div>
                         </ResizablePanel>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={35} >

@@ -76,6 +76,12 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
         }
 
         return subsArray;
+    } else if (selectedOption === "ass") {
+        // const lines = fileString.split("\n");
+        // const subsArray = [];
+
+
+        // return subsArray;
     }
     return [];
 }

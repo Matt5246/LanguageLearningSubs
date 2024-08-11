@@ -77,11 +77,36 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
 
         return subsArray;
     } else if (selectedOption === "ass") {
-        // const lines = fileString.split("\n");
-        // const subsArray = [];
+        const lines = fileString.split("\n");
+        const subsArray = [];
+        const dialoguePrefix = "Dialogue: ";
 
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
 
-        // return subsArray;
+            if (line.startsWith(dialoguePrefix)) {
+                const dialogueContent = line.slice(dialoguePrefix.length).split(",");
+                if (dialogueContent[3] === "Signs") {
+                    continue;
+                }
+
+                const startTime = convertAssTimeToSeconds(dialogueContent[1]);
+                const endTime = convertAssTimeToSeconds(dialogueContent[2]);
+                let text = dialogueContent.slice(9).join(",");
+                text = text.replace(/{[^}]*}/g, "").trim();
+
+                const dur = endTime - startTime;
+                if (text.length > 0) {
+                    const subsObject = {
+                        start: startTime,
+                        dur: dur,
+                        text: text,
+                    };
+                    subsArray.push(subsObject);
+                }
+            }
+        }
+        return subsArray;
     }
     return [];
 }
@@ -89,4 +114,10 @@ function convertTimeToMilliseconds(time: string): number {
     const [hhmmss, ms] = time.split(",");
     const [hh, mm, ss] = hhmmss.split(":").map(Number);
     return ((hh * 3600 + mm * 60 + ss) * 1000) + Number(ms);
+}
+
+function convertAssTimeToSeconds(time: string): number {
+    const [h, m, s] = time.split(":");
+    const [seconds, centiseconds] = s.split(".");
+    return parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(seconds) + parseInt(centiseconds) / 100;
 }

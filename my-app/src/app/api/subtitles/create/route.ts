@@ -18,11 +18,11 @@ export async function POST(req: Request) {
             }
             const userId = user.id
 
-            const translatedSubtitleData = targetLang ? await translateSubtitleData(subtitleData, sourceLang, targetLang) : subtitleData;
+            // const translatedSubtitleData = targetLang ? await translateSubtitleData(subtitleData, sourceLang, targetLang) : subtitleData;
 
             const updatedSubtitleData = subtitleData.map((data: SubtitleData, index: number) => ({
                 ...data,
-                translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,
+                // translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,
                 start: parseFloat(data.start),
                 dur: parseFloat(data.dur)
             }));

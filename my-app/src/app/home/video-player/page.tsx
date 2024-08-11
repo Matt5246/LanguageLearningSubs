@@ -108,12 +108,11 @@ const Home = () => {
             })
             return;
         }
-        const youtubeSubtitleText = SubsEditor(subtitleText, selectedFileType);
+        const SubtitleText = SubsEditor(subtitleText, selectedFileType);
 
-        console.log("youtubeSubtitleText", youtubeSubtitleText);
+        console.log("SubtitleText", SubtitleText);
 
-        setSubtitleConverted(youtubeSubtitleText)
-        console.log(subtitleConverted);
+        setSubtitleConverted(SubtitleText)
         toast({
             title: "Success!",
             description: "Subtitles added succesfully!",
@@ -128,7 +127,6 @@ const Home = () => {
                 }
                 const subtitle = {
                     email: userEmail,
-                    youtubeUrl: url,
                     subtitleTitle: title,
                     subtitleData: subtitleConverted,
                     sourceLang: sourceLanguage || null,
@@ -170,7 +168,7 @@ const Home = () => {
         retry: true,
     })
     useEffect(() => {
-        if (selectedSub?.youtubeUrl) {
+        if (selectedSub?.subtitleData) {
             setUrl(selectedSub?.youtubeUrl as string);
             setSubtitleConverted(selectedSub?.subtitleData)
         } else {
@@ -369,7 +367,7 @@ const Home = () => {
                     <PopoverContent className="p-4 ml-4 rounded-lg shadow-md ">
                         <div>
                             <p className="mb-2">Subtitle title:</p>
-                            <Input type="text" className="mb-2" placeholder="set title" onChange={(e: any) => setTitle(e)} />
+                            <Input type="text" className="mb-2" placeholder="set title" onChange={(e) => setTitle(e.target.value)} />
                             <p >Subtitle text:</p>
                             <Textarea
                                 placeholder="Enter subtitle text"

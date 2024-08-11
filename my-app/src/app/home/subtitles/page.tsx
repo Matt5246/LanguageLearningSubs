@@ -29,8 +29,8 @@ export default function Home() {
         <div >
           <p className="text-sm text-muted-foreground mt-2">Subtitles Title</p>
           <p className='m-1 select-text'>{selectedSub?.subtitleTitle}</p>
-          <p className="text-sm text-muted-foreground">Youtube url</p>
-          <p className='m-1 select-text mb-3'>{selectedSub?.youtubeUrl}</p>
+          <p className="text-sm text-muted-foreground">Video url</p>
+          <p className='m-1 select-text mb-3'>{selectedSub?.youtubeUrl ? selectedSub?.youtubeUrl : 'Video from user drive'}</p>
 
           {selectedSub?.subtitleData && selectedSub?.subtitleData?.length > 0 && (
             <DataTable captions={selectedSub?.subtitleData as Caption[]} height="1000px" />

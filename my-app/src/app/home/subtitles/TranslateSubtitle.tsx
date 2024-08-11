@@ -121,7 +121,7 @@ function TranslateSubtitle(selectedSubtitle: any) {
                 <DialogDescription>Subtitles row number: </DialogDescription>
                 {selectedSubtitle?.selectedSubtitle?.subtitleData?.length}
 
-                <DialogDescription>Subtitle URL:</DialogDescription>
+                {selectedSubtitle?.selectedSubtitle?.youtubeUrl && <DialogDescription>Subtitle URL:</DialogDescription>}
                 {selectedSubtitle?.selectedSubtitle?.youtubeUrl}
                 <DialogFooter>
 

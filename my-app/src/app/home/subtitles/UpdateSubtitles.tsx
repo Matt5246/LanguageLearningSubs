@@ -18,6 +18,7 @@ import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
     const dispatch = useDispatch();
     const [updatedSubtitle, setUpdatedSubtitle] = useState({
+        SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
         userId: selectedSubtitle?.selectedSubtitle?.userId,
         youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
         subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
@@ -44,6 +45,7 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
     useEffect(() => {
         if (selectedSubtitle) {
             setUpdatedSubtitle({
+                SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
@@ -93,6 +95,7 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
                         variant="outline" className='mt-2'
                         onClick={() => {
                             setUpdatedSubtitle({
+                                SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
                                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,

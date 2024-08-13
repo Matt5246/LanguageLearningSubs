@@ -11,8 +11,9 @@ interface SubtitleData {
 }
 
 interface RequestData {
+    SubtitleId: string,
     userId: string;
-    youtubeUrl: string;
+    youtubeUrl?: string;
     subtitleTitle: string;
     subtitleData: SubtitleData[];
     text: string;
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
     try {
         const data: RequestData = await req.json();
 
-        const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target, source } = data;
+        const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target, source, SubtitleId } = data;
 
         let translatedSubtitleData: string[];
 
@@ -63,8 +64,9 @@ export async function POST(req: Request) {
         }
 
         const existingSubtitle = await prisma.subtitle.findFirst({
-            where: { userId, youtubeUrl },
+            where: { userId, SubtitleId },
         });
+
 
         const subtitleDataId = existingSubtitle?.SubtitleId;
 
@@ -94,11 +96,19 @@ export async function POST(req: Request) {
             console.log("Successfully updated subtitle with translation.");
             return NextResponse.json({ updatedSubtitle, combinedSubtitles });
         } else {
+            const data: any = {
+                userId,
+                subtitleTitle,
+            };
+
+            if (youtubeUrl) {
+                data.youtubeUrl = youtubeUrl;
+            }
+
+
             const newSubtitle = await prisma.subtitle.create({
                 data: {
-                    userId,
-                    youtubeUrl,
-                    subtitleTitle,
+                    ...data,
                     subtitleData: { createMany: { data: combinedSubtitles } },
                 },
             });

@@ -62,6 +62,8 @@ model HardWord {
   pos         String? //Part of speech
   lemma       String?
   learnState  Int        @default(0)
+  createdAt   DateTime?  @default(now())
+  learnedAt   DateTime?
   sentences   Sentence[]
   Subtitle    Subtitle?  @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
 

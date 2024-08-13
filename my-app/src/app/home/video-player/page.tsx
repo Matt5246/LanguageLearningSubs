@@ -119,7 +119,7 @@ const Home = () => {
         })
     };
     const { isFetching, refetch: refetch2 } = useQuery({
-        queryKey: ['saveCaptions', url],
+        queryKey: ['saveCaptions'],
         queryFn: async () => {
             try {
                 if (subtitleConverted.length === 0) {

@@ -62,7 +62,7 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
                 const dur = (end - start) / 1000; // Calculate duration in seconds
                 const subsObject = {
                     start: start / 1000,
-                    dur: dur,
+                    dur: end / 1000,
                     text: subtitle.trim(),
                 };
                 subsArray.push(subsObject);
@@ -98,8 +98,8 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
                 const dur = endTime - startTime;
                 if (text.length > 0) {
                     const subsObject = {
-                        start: startTime,
-                        dur: dur,
+                        start: startTime / 1000,
+                        dur: endTime / 1000,
                         text: text,
                     };
                     subsArray.push(subsObject);

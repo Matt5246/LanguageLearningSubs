@@ -28,19 +28,23 @@ export async function POST(req: Request) {
             }));
 
 
+            const data: any = {
+                userId,
+                subtitleTitle,
+            };
+            console.log("data:", data)
 
-
+            // if (youtubeUrl) {
+            //     data.youtubeUrl = youtubeUrl;
+            // }
             console.log(updatedSubtitleData)
             const subtitle = await prisma.subtitle.create({
                 data: {
-                    userId,
-                    youtubeUrl,
-                    subtitleTitle,
+                    ...data,
                     sourceLang,
                     targetLang,
                     subtitleData: {
                         createMany: { data: updatedSubtitleData },
-
                     },
                 }
             });

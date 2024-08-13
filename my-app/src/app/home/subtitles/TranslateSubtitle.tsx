@@ -28,7 +28,7 @@ import { updateSubtitle, setSelectedSubtitle } from '@/lib/features/subtitles/su
 
 function TranslateSubtitle(selectedSubtitle: any) {
     const [targetLanguage, setTargetLanguage] = useState('de'); // Default target language
-    const [sourceLanguage, setSourceLanguage] = useState('auto'); // Default target language
+    const [sourceLanguage, setSourceLanguage] = useState('auto'); // Default source language
     const dispatch = useDispatch()
     const { isFetching, refetch } = useQuery({
         queryKey: ['translate', selectedSubtitle?.selectedSubtitle?.SubtitleId],
@@ -36,6 +36,7 @@ function TranslateSubtitle(selectedSubtitle: any) {
             const text = await selectedSubtitle?.selectedSubtitle?.subtitleData.map((data: any) => (data.text))
 
             const translationResponse = await axios.post('/api/subtitles/translate', {
+                SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
                 text: text,
                 email: selectedSubtitle?.selectedSubtitle?.email,
                 userId: selectedSubtitle?.selectedSubtitle?.userId,

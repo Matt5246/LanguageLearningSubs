@@ -5,13 +5,20 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { youtubeUrl, subtitleTitle, subtitleData, userId } = await req.json();
+            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId } = await req.json();
+            const data: any = {
+                userId,
+                subtitleTitle,
+            };
 
+            if (youtubeUrl) {
+                data.youtubeUrl = youtubeUrl;
+            }
 
             const existingSubtitle = await prisma.subtitle.findFirst({
-                where: { userId, youtubeUrl },
+                where: { userId, SubtitleId },
             });
-            console.log(existingSubtitle)
+
             if (existingSubtitle) {
                 // If the subtitle already exists, update it
                 const updatedSubtitle = await prisma.subtitle.update({
@@ -26,9 +33,7 @@ export async function POST(req: Request) {
                 // If the subtitle does not exist, create a new one
                 const newSubtitle = await prisma.subtitle.create({
                     data: {
-                        userId,
-                        youtubeUrl,
-                        subtitleTitle,
+                        ...data
                     },
                 });
 

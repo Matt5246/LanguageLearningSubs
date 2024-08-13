@@ -19,8 +19,8 @@ export default function Home() {
         </div>
         {selectedSub && (
           <div className='flex space-x-2'>
-            <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} />
-            <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} />
+            <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} />
+            <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} />
             <DeleteSubtitle SubtitleId={selectedSub?.SubtitleId} />
           </div>
         )}
@@ -30,7 +30,7 @@ export default function Home() {
           <p className="text-sm text-muted-foreground mt-2">Subtitles Title</p>
           <p className='m-1 select-text'>{selectedSub?.subtitleTitle}</p>
           <p className="text-sm text-muted-foreground">Video url</p>
-          <p className='m-1 select-text mb-3'>{selectedSub?.youtubeUrl ? selectedSub?.youtubeUrl : 'Video from user drive'}</p>
+          <p className='m-1 select-text mb-3'>{selectedSub?.youtubeUrl ? selectedSub?.youtubeUrl : 'Video from private storage'}</p>
 
           {selectedSub?.subtitleData && selectedSub?.subtitleData?.length > 0 && (
             <DataTable captions={selectedSub?.subtitleData as Caption[]} height="1000px" />

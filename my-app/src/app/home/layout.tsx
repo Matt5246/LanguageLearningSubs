@@ -1,8 +1,6 @@
 
 import NavBar from "@/components/NavBar";
-import { ThemeProvider } from "@/components/theme-provider"
 import AvatarComponent from '@/components/Avatar'
-import ReactQueryProvider from '@/providers/ReactQueryProvider'
 
 
 export default function RootLayout({
@@ -11,6 +9,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+<<<<<<< Updated upstream
     <>
       <ReactQueryProvider>
         <ThemeProvider
@@ -29,5 +28,17 @@ export default function RootLayout({
         </ThemeProvider>
       </ReactQueryProvider>
     </>
+=======
+    <html lang="en">
+      <head />
+      <body>
+        <nav className="h-16 px-4 flex justify-between border-b shadow-md">
+          <NavBar />
+          <AvatarComponent />
+        </nav>
+        {children}
+      </body>
+    </html>
+>>>>>>> Stashed changes
   );
 }

@@ -93,7 +93,11 @@ export default function Authorization() {
 						<CardHeader>
 							<CardTitle>Sign Up</CardTitle>
 							<CardDescription>
+<<<<<<< Updated upstream
 								Enter your information to sign up. Click sign up when you&apos;re ready.
+=======
+								Make changes to your account here. Click save when you&apos;re done.
+>>>>>>> Stashed changes
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-2">
@@ -124,7 +128,11 @@ export default function Authorization() {
 						<CardHeader>
 							<CardTitle>Sign In</CardTitle>
 							<CardDescription>
+<<<<<<< Updated upstream
 								Enter your credentials to sign in. Click sign in when you&apos;re ready.
+=======
+								Change your password here. After saving, you&apos;ll be logged out.
+>>>>>>> Stashed changes
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-2">

@@ -34,9 +34,9 @@ export async function POST(req: Request) {
             };
             console.log("data:", data)
 
-            // if (youtubeUrl) {
-            //     data.youtubeUrl = youtubeUrl;
-            // }
+            if (youtubeUrl) {
+                data.youtubeUrl = youtubeUrl;
+            }
             console.log(updatedSubtitleData)
             const subtitle = await prisma.subtitle.create({
                 data: {

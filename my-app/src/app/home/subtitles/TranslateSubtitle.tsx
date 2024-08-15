@@ -51,7 +51,6 @@ function TranslateSubtitle(selectedSubtitle: any) {
                 },
             });
             if (translationResponse?.data?.combinedSubtitles) {
-                console.log(translationResponse?.data?.combinedSubtitles)
                 await dispatch(updateSubtitle({
                     SubtitleId: translationResponse?.data?.createdSubtitleData?.SubtitleId,
                     youtubeUrl: translationResponse?.data?.createdSubtitleData?.youtubeUrl,

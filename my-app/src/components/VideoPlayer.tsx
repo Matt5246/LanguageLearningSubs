@@ -12,6 +12,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
     const [isReady, setIsReady] = useState(false);
     const [playing, setPlaying] = useState(false);
     const playerRef = useRef<any>(null);
+    const isBlobUrl = (url: string) => url.startsWith('blob:');
 
     let vttUrl
     if (track) {
@@ -19,6 +20,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
     } else {
         vttUrl = convertToVTT([{ start: 0, dur: 2, text: "No subtitles available" }]);
     }
+
     useEffect(() => {
         if (isReady) {
             const savedTime = localStorage.getItem(`videoCurrentTime-${url}`);
@@ -27,7 +29,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
             if (savedTime && playerRef.current) {
                 playerRef.current.seekTo(parseFloat(savedTime), 'seconds');
             }
-            console.log("savedPlaying", savedPlaying)
             if (savedPlaying === 'true') {
                 setPlaying(savedPlaying === 'true');
             } else {
@@ -37,17 +38,23 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
     }, [url, isReady]);
 
     const handleProgress = (state: { playedSeconds: number }) => {
-        localStorage.setItem(`videoCurrentTime-${url}`, state.playedSeconds.toString());
+        if (!isBlobUrl(url)) {
+            localStorage.setItem(`videoCurrentTime-${url}`, state.playedSeconds.toString());
+        }
     };
 
     const handlePlay = () => {
+        if (!isBlobUrl(url)) {
+            localStorage.setItem(`videoPlaying-${url}`, 'true');
+        }
         setPlaying(true);
-        localStorage.setItem(`videoPlaying-${url}`, 'true');
     };
 
     const handlePause = () => {
+        if (!isBlobUrl(url)) {
+            localStorage.setItem(`videoPlaying-${url}`, 'false');
+        }
         setPlaying(false);
-        localStorage.setItem(`videoPlaying-${url}`, 'false');
     };
 
     const handleReady = () => {
@@ -72,7 +79,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
             playing={playing}
             config={{
                 file: {
-
                     tracks: [
                         { kind: 'subtitles', src: vttUrl, srcLang: 'en', label: 'Subtitles', default: true }
                     ]

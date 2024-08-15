@@ -46,7 +46,6 @@ const Home = () => {
     const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const { toast } = useToast();
     const session = useSession();
-    const [track, setTrack] = useState<string>('')
     const [subtitleText, setSubtitleText] = useState("");
     const [subtitleConverted, setSubtitleConverted] = useState<any>([]);
     const [selectedFileType, setSelectedFileType] = useState("srt");
@@ -114,8 +113,6 @@ const Home = () => {
         console.log("SubtitleText", SubtitleText);
 
         setSubtitleConverted(SubtitleText)
-        // const vttBlob = convertToVTT(SubtitleText);
-        // setTrack(vttBlob);
 
         toast({
             title: "Success!",
@@ -177,19 +174,12 @@ const Home = () => {
                 setUrl(selectedSub?.youtubeUrl as string);
             }
             setSubtitleConverted(selectedSub?.subtitleData)
-            console.log(selectedSub?.subtitleData)
-            // const vttBlob = convertToVTT(selectedSub?.subtitleData);
-            // const vttBlob = new Blob([vttText], { type: 'text/vtt' });
-            // setTrack(vttBlob);
-            // setTrack(URL.createObjectURL(vttBlob));
-            // console.log('track:', vttBlob)
-
         } else {
             setUrl("")
+            setVideoFile(null)
             setSubtitleConverted(null)
         }
     }, [selectedSub]);
-
 
 
     return (

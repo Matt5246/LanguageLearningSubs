@@ -41,16 +41,16 @@ interface SubtitleData {
 }
 
 interface HardWord {
-    learnState: number;
-    word: string;
+    learnState?: number;
+    word: string | undefined;
     translation?: string;
     pos?: string; // Part of speech
     lemma?: string;
     senteces?: senteces[];
 }
 interface senteces {
-    sentence: String
-    translation?: String
+    sentence: string
+    translation?: string
 }
 
 type GroupedSubtitles = Record<string, Subtitle[]>;

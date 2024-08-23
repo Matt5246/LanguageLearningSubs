@@ -58,8 +58,6 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
                     subtitle += currentLine + " ";
                 }
             } else if (id !== "" && start !== 0 && subtitle !== "") {
-                // Empty line indicates the end of a subtitle
-                const dur = (end - start) / 1000; // Calculate duration in seconds
                 const subsObject = {
                     start: start / 1000,
                     dur: end / 1000,
@@ -95,11 +93,10 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
                 let text = dialogueContent.slice(9).join(",");
                 text = text.replace(/{[^}]*}/g, "").trim();
 
-                const dur = endTime - startTime;
                 if (text.length > 0) {
                     const subsObject = {
-                        start: startTime / 1000,
-                        dur: endTime / 1000,
+                        start: startTime,
+                        dur: endTime,
                         text: text,
                     };
                     subsArray.push(subsObject);

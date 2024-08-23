@@ -16,21 +16,30 @@ function convertTime(time: number): string {
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
-async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, url: string, userId: string) {
+async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, subtitleTitle: string, url: string, userId: string) {
 
     console.log("hardWord", word)
-    if (!word || !url || !userId) return;
+    if (!word || (!url && !subtitleTitle) || !userId) return;
     const data = {
-        youtubeUrl: url,
+        youtubeUrl: url || null,
+        subtitleTitle: subtitleTitle || null,
         userId: userId,
         hardWord: word,
         sentence,
         sentenceTranslation,
-    }
+    };
     try {
         const response = await axios.post('/api/hardWords/add', data);
         if (response.data.error) {
             toast("Event has been Blocked", {
+                description: response.data.error,
+                action: {
+                    label: "Close",
+                    onClick: () => console.log("Closed"),
+                },
+            })
+        } else if (response.data.success) {
+            toast("Success", {
                 description: response.data.error,
                 action: {
                     label: "Close",
@@ -113,7 +122,7 @@ const RenderMiddlePopoverContent = (row: any) => {
                 ))}
             </ul>
             <Button className="mt-2" onClick={() =>
-                handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
+                handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.subtitleTitle || '', selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
             >Add to Hard Words</Button>
             <Button className="mt-2 absolute right-4" onClick={() => handleEditSentence(fullRow?.id as number, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')
             }

@@ -65,7 +65,9 @@ model HardWord {
   createdAt   DateTime?  @default(now())
   learnedAt   DateTime?
   sentences   Sentence[]
-  Subtitle    Subtitle?  @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
+
+  Subtitle Subtitle? @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
+  userId   String?   @db.ObjectId
 
   @@unique([word])
 }

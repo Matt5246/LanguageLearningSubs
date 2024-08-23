@@ -21,7 +21,8 @@ const Home = () => {
             acc[subtitle.subtitleTitle!].push(subtitle);
             return acc;
         }, {});
-        setGroupedSubtitles(grouped);
+
+        setGroupedSubtitles({ ...groupedSubtitles, ...grouped });
     }, [flashCardData]);
 
     function handleLearnButtonClick(SubtitleId: string) {
@@ -30,26 +31,28 @@ const Home = () => {
     };
 
     return (
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-6 mx-5">
             {Object.keys(groupedSubtitles).length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                     {Object.entries(groupedSubtitles).map(([subtitleTitle, data]) => (
                         data.some(subtitle => subtitle.hardWords!.length > 0) && (
-                            <Card className="m-3" key={subtitleTitle}>
+                            <Card className="m-3 flex flex-col " key={subtitleTitle}>
                                 <CardHeader>
                                     <CardTitle className="text-xl">{subtitleTitle}</CardTitle>
                                 </CardHeader>
-                                <CardContent>
-                                    <p>Word count: {data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0)}</p>
-                                    {data.map((subtitle, index) => (
-                                        <div key={index}>
-                                            {subtitle.hardWords!.map((hardWord, idx) => (
-                                                <p key={idx}>
-                                                    {hardWord.word} <a className="text-gray-500">{'->'}</a> {hardWord.translation} {hardWord.learnState === 100 && <a className="text-green-500">✓</a>}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    ))}
+                                <CardContent className="flex-grow overflow-auto">
+                                    <p className='pb-3'>Word count: {data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0)}</p>
+                                    <div className={`space-y-2 ${data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0) > 10 ? 'h-[250px] overflow-y-auto' : ''}`}>
+                                        {data.map((subtitle, index) => (
+                                            <div key={index}>
+                                                {subtitle.hardWords!.map((hardWord, idx) => (
+                                                    <p key={idx}>
+                                                        {hardWord.word} <a className="text-gray-500">{'->'}</a> {hardWord.translation} {hardWord.learnState === 100 && <a className="text-green-500">✓</a>}
+                                                    </p>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </CardContent>
                                 <CardFooter>
                                     <Button variant="secondary" onClick={() => handleLearnButtonClick(data[0].SubtitleId!)}>

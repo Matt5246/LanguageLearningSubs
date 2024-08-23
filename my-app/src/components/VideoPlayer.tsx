@@ -14,12 +14,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
     const playerRef = useRef<any>(null);
     const isBlobUrl = (url: string) => url.startsWith('blob:');
 
-    let vttUrl
-    if (track) {
-        vttUrl = convertToVTT(track);
-    } else {
-        vttUrl = convertToVTT([{ start: 0, dur: 2, text: "No subtitles available" }]);
-    }
+    const { originalVTTUrl, translationVTTUrl, mixedVTTUrl } = convertToVTT(track || [{ start: 0, dur: 2, text: "No subtitles available" }]);
+
+    const subtitleTracks = [
+        { kind: 'subtitles', src: originalVTTUrl, srcLang: 'en', label: 'Original' },
+        { kind: 'subtitles', src: translationVTTUrl, srcLang: 'en', label: 'Translation' },
+        { kind: 'subtitles', src: mixedVTTUrl, srcLang: 'en', label: 'Both', default: true }
+    ].filter(track => track.src);
 
     useEffect(() => {
         if (isReady) {
@@ -79,9 +80,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
             playing={playing}
             config={{
                 file: {
-                    tracks: [
-                        { kind: 'subtitles', src: vttUrl, srcLang: 'en', label: 'Subtitles', default: true }
-                    ]
+                    tracks: subtitleTracks
                 }
             }}
         />
@@ -90,14 +89,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
 
 export default VideoPlayer;
 
-const convertToVTT = (subtitles: any) => {
+const convertToVTT = (subtitles: { start: number, dur: number, text: string, translation?: string }) => {
     if (!Array.isArray(subtitles)) {
         throw new TypeError("Expected an array of subtitles");
     }
 
     const formatTime = (time: any) => {
         const date = new Date(0);
-        date.setSeconds(time); // set seconds into date object
+        date.setSeconds(time);
 
         const hours = String(date.getUTCHours()).padStart(2, '0');
         const minutes = String(date.getUTCMinutes()).padStart(2, '0');
@@ -107,24 +106,33 @@ const convertToVTT = (subtitles: any) => {
         return `${hours}:${minutes}:${seconds}.${milliseconds}`;
     };
 
-    let vtt = 'WEBVTT\n';
+    const createVTT = (getText: (subtitle: { start: number, dur: number, text: string, translation?: string }) => string) => {
+        let vtt = 'WEBVTT\n';
+        subtitles.forEach((subtitle, index) => {
+            const startTime = subtitle.start;
+            const endTime = subtitle.dur;
+            const text = getText(subtitle);
 
-    subtitles.forEach((subtitle, index) => {
-        const startTime = subtitle.start;
-        const endTime = subtitle.dur;
+            if (typeof startTime !== 'number' || typeof endTime !== 'number') {
+                console.error(`Invalid start or end time at subtitle ${index}`, subtitle);
+                return;
+            }
 
-        // Check if startTime and endTime are valid numbers
-        if (typeof startTime !== 'number' || typeof endTime !== 'number') {
-            console.error(`Invalid start or end time at subtitle ${index}`, subtitle);
-            return; // Skip this subtitle if the values are invalid
-        }
+            const startFormatted = formatTime(startTime);
+            const endFormatted = formatTime(endTime);
 
-        const startFormatted = formatTime(startTime);
-        const endFormatted = formatTime(endTime);
+            vtt += `${startFormatted} --> ${endFormatted}\n${text}\n`;
+        });
 
-        vtt += `${startFormatted} --> ${endFormatted}\n${subtitle.text}\n`;
-    });
-    const vttBlob = new Blob([vtt], { type: 'text/vtt' });
+        const vttBlob = new Blob([vtt], { type: 'text/vtt' });
+        return URL.createObjectURL(vttBlob);
+    };
 
-    return URL.createObjectURL(vttBlob);
+    const originalVTTUrl = createVTT(subtitle => subtitle.text);
+    const translationVTTUrl = subtitles.some(sub => sub.translation) ? createVTT(subtitle => subtitle.translation || '') : '';
+    const mixedVTTUrl = subtitles.some(sub => sub.translation) ? createVTT(subtitle => subtitle.translation ? `${subtitle.text}\n(${subtitle.translation})` : subtitle.text) : '';
+
+
+    return { originalVTTUrl, translationVTTUrl, mixedVTTUrl };
 };
+

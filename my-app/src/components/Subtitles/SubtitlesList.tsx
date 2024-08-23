@@ -20,7 +20,7 @@ import axios from 'axios'
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 
 
-export default function SubtitlesList({ captions, url, userEmail }: { captions: Caption[], url: string, userEmail: string | null | undefined }) {
+export default function SubtitlesList({ captions, url, userEmail }: { captions: Caption[], url: string | null | undefined, userEmail: string | null | undefined }) {
     const [selectedSubtitle, setSelectedSubtitle] = useState<Caption | null>(null);
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const [fontWeight, setFontWeight] = useLocalStorage("fontWeight", "font-light");
@@ -32,6 +32,7 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
             youtubeUrl: url,
             email: userEmail,
             hardWord: selectedWord,
+
             //sentence: selectedSubtitle?.text,
         }
         try {

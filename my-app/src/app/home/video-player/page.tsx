@@ -18,7 +18,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { useSession } from "next-auth/react";
 import { useAppDispatch } from '@/lib/hooks';
-import { SubtitlesState, addSubtitle, Subtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { SubtitlesState, addSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
 import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice'
 import { useIsMobile } from '@/hooks/useMobile'
@@ -91,7 +91,7 @@ const Home = () => {
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
     };
-    const handleSaveSubtitles = () => {
+    const handleAddSubtitles = () => {
         if (!subtitleText.trim()) {
             toast({
                 title: "Enter subtitle text",
@@ -388,7 +388,7 @@ const Home = () => {
                                     <Label htmlFor="option-ass">.ass</Label>
                                 </div>
                             </RadioGroup>
-                            <Button className="mt-4 absolute right-3 bottom-3" onClick={handleSaveSubtitles}>Submit</Button>
+                            <Button className="mt-4 absolute right-3 bottom-3" onClick={handleAddSubtitles}>Submit</Button>
                         </div>
                     </PopoverContent>
                 </Popover>

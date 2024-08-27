@@ -2,7 +2,7 @@ interface Caption {
     id?: number,
     subtitleDataId?: string,
     text: string;
-    duration: number;
+    end: number;
     offset: number; //time of appearance
     start?: number;
     translation?: string;
@@ -36,7 +36,7 @@ interface SubtitleData {
     word?: string;
     text?: string;
     translation?: string;
-    dur?: number | float;
+    end?: number | float;
     start?: number | float;
 }
 
@@ -48,6 +48,7 @@ interface HardWord {
     lemma?: string;
     sentences?: sentences[];
 }
+
 interface sentences {
     sentence: string
     translation?: string

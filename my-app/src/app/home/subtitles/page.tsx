@@ -1,6 +1,6 @@
 'use client'
 import { useSelector } from 'react-redux';
-import { SubtitlesState, Subtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { SubtitlesState } from '@/lib/features/subtitles/subtitleSlice';
 import * as React from "react";
 import { SubtitlesDropDown } from './SubtitlesDropDown';
 import { DataTable } from '@/components/Subtitles/SubtitlesListTanstack';

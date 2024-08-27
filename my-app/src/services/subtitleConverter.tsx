@@ -60,7 +60,7 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
             } else if (id !== "" && start !== 0 && subtitle !== "") {
                 const subsObject = {
                     start: start / 1000,
-                    dur: end / 1000,
+                    end: end / 1000,
                     text: subtitle.trim(),
                 };
                 subsArray.push(subsObject);
@@ -96,7 +96,7 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
                 if (text.length > 0) {
                     const subsObject = {
                         start: startTime,
-                        dur: endTime,
+                        end: endTime,
                         text: text,
                     };
                     subsArray.push(subsObject);

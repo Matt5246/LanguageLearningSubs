@@ -20,7 +20,6 @@ export async function POST(req: Request) {
             });
 
             if (existingSubtitle) {
-                // If the subtitle already exists, update it
                 const updatedSubtitle = await prisma.subtitle.update({
                     where: { SubtitleId: existingSubtitle.SubtitleId },
                     data: {
@@ -30,7 +29,6 @@ export async function POST(req: Request) {
 
                 return NextResponse.json(updatedSubtitle);
             } else {
-                // If the subtitle does not exist, create a new one
                 const newSubtitle = await prisma.subtitle.create({
                     data: {
                         ...data

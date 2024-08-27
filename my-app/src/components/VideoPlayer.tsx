@@ -14,7 +14,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
     const playerRef = useRef<any>(null);
     const isBlobUrl = (url: string) => url.startsWith('blob:');
 
-    const { originalVTTUrl, translationVTTUrl, mixedVTTUrl } = convertToVTT(track || [{ start: 0, dur: 2, text: "No subtitles available" }]);
+    const { originalVTTUrl, translationVTTUrl, mixedVTTUrl } = convertToVTT(track || [{ start: 0, end: 2, text: "No subtitles available" }]);
 
     const subtitleTracks = [
         { kind: 'subtitles', src: originalVTTUrl, srcLang: 'en', label: 'Original' },
@@ -106,11 +106,11 @@ const convertToVTT = (subtitles: { start: number, dur: number, text: string, tra
         return `${hours}:${minutes}:${seconds}.${milliseconds}`;
     };
 
-    const createVTT = (getText: (subtitle: { start: number, dur: number, text: string, translation?: string }) => string) => {
+    const createVTT = (getText: (subtitle: { start: number, end: number, text: string, translation?: string }) => string) => {
         let vtt = 'WEBVTT\n';
         subtitles.forEach((subtitle, index) => {
             const startTime = subtitle.start;
-            const endTime = subtitle.dur;
+            const endTime = subtitle.end;
             const text = getText(subtitle);
 
             if (typeof startTime !== 'number' || typeof endTime !== 'number') {

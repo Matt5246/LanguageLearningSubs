@@ -47,8 +47,8 @@ model SubtitleData {
   subtitleDataId String?   @db.ObjectId
   text           String?
   translation    String?
-  dur            Float? //duration
-  start          Float? //offset
+  end            Float?
+  start          Float?
   Subtitle       Subtitle? @relation(fields: [subtitleDataId], references: [SubtitleId], onDelete: Cascade)
 
   @@unique([text, start, subtitleDataId])

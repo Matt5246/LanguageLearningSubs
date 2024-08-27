@@ -2,36 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { createSelector } from '@reduxjs/toolkit';
 
-export interface Subtitle {
-    SubtitleId?: String;
-    youtubeUrl?: String;
-    subtitleTitle?: String;
-    subtitleData?: SubtitleData[];
-    hardWords?: HardWord[];
-}
 
-export interface SubtitleData {
-    text: String;
-    translation?: String;
-    duration?: Number;
-    offset?: Number;
-}
 
-export interface HardWord {
-    id?: String
-    hardWordId: String
-    word: String;
-    translation?: String;
-    pos?: String; // Part of speech
-    lemma?: String;
-    learnState?: Number;
-    sentences?: sentences[]
-}
-export interface sentences {
-    id?: String
-    sentence: String
-    translation?: String
-}
+
+
 export interface SubtitlesState {
     subtitles: Subtitle[]
     selectedSubtitle: String | null

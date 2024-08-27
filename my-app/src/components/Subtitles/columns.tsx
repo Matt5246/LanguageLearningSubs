@@ -18,6 +18,13 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 function convertTime(time: number): string {
     const hours = Math.floor(time / 3600);
@@ -105,95 +112,140 @@ const RenderMiddlePopoverContent = (row: any) => {
     const [sentence, setSentence] = useState(fullRow.text);
     const [sentenceTranslation, setSentenceTranslation] = useState(fullRow.translation);
     const selectedSubtitle: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
-
+    const [start, setStart] = useState(fullRow.start);
+    const [end, setEnd] = useState(fullRow.end);
 
     const handleEditSentence = async () => {
-        if (!selectedSubtitle?.userId || !selectedSubtitle?.youtubeUrl) return;
-
+        console.log(sentenceTranslation);
         try {
-            await axios.post('/api/sentences/edit', {
+            await axios.post('/api/subtitles/subtitleData/update', {
                 id: fullRow?.id,
-                sentence,
-                sentenceTranslation,
-                url: selectedSubtitle?.youtubeUrl,
-                userId: selectedSubtitle?.userId,
+                subtitleDataId: fullRow?.subtitleDataId,
+                text: sentence,
+                translation: sentenceTranslation,
+                start,
+                end,
             });
-
             toast("Sentence updated successfully");
         } catch (error) {
             console.error('Error editing sentence:', error);
             toast("Error updating sentence");
         }
     };
+    const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, setValue: (value: number) => void) => {
+        const value = parseFloat(e.target.value);
+        if (!isNaN(value)) {
+            setValue(parseFloat(value.toFixed(2)));
+        }
+    };
 
     return (
         <>
-            <Drawer>
-                <DrawerContent>
-                    <DrawerHeader>
-                        <DrawerTitle>Edit Sentence</DrawerTitle>
-                        <DrawerDescription>Change the sentence and its translation</DrawerDescription>
-                    </DrawerHeader>
-                    <div className="p-4">
-                        <label className="block mb-2">
-                            Sentence:
-                            <Textarea
-                                value={sentence}
-                                onChange={(e) => setSentence(e.target.value)}
-                                className="mt-1 p-2 border rounded w-full"
-                            />
-                        </label>
-                        <label className="block mb-2">
-                            Translation:
-                            <Textarea
-                                value={sentenceTranslation}
-                                onChange={(e) => setSentenceTranslation(e.target.value)}
-                                className="mt-1 p-2 border rounded w-full"
-                            />
-                        </label>
-                    </div>
-                    <DrawerFooter>
-                        <Button onClick={handleEditSentence}>Save</Button>
-                        <DrawerClose>
-                            <Button variant="outline" className="w-full">Cancel</Button>
-                        </DrawerClose>
-                    </DrawerFooter>
-                </DrawerContent>
+            <TooltipProvider>
+                <Drawer>
+                    <DrawerContent>
+                        <DrawerHeader>
+                            <DrawerTitle>Edit Sentence</DrawerTitle>
+                            <DrawerDescription>Here you can edit the chosen subtitle line</DrawerDescription>
+                        </DrawerHeader>
+                        <div className="flex justify-between p-4">
+                            <div className="w-3/4 mr-4">
+                                <label className="block mb-2">
+                                    Sentence:
+                                    <Textarea
+                                        value={sentence}
+                                        onChange={(e) => setSentence(e.target.value)}
+                                        className="mt-1 p-2 border rounded w-full"
+                                    />
+                                </label>
+                                <label className="block mb-2">
+                                    Translation:
+                                    <Textarea
+                                        value={sentenceTranslation}
+                                        onChange={(e) => setSentenceTranslation(e.target.value)}
+                                        className="mt-1 p-2 border rounded w-full"
+                                    />
+                                </label>
+                            </div>
+                            <div className="w-1/4">
+                                <label className="block mb-2">
+                                    Start:
+                                    <Input
+                                        type="number"
+                                        value={start}
+                                        onChange={(e) => handleNumberChange(e, setStart)}
+                                        className="mt-1 p-2 border rounded w-full"
+                                    />
+                                </label>
+                                <label className="block mb-2">
+                                    End:
+                                    <Input
+                                        type="number"
+                                        value={end}
+                                        onChange={(e) => handleNumberChange(e, setEnd)}
+                                        className="mt-1 p-2 border rounded w-full"
+                                    />
+                                </label>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant='destructive' className="w-full">Delete</Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Delete this sentence</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
+                        </div>
+                        <DrawerFooter>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button onClick={handleEditSentence}>Save</Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>save changes</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <DrawerClose>
+                                <Button variant="outline" className="w-full">Cancel</Button>
+                            </DrawerClose>
+                        </DrawerFooter>
+                    </DrawerContent>
 
 
-                <h4 className="font-medium leading-none">Subtitle Line:</h4>
-                <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
-                <h4 className="font-medium leading-none">{fullRow?.translation ? "Translation:" : null}</h4>
-                <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
-                <h3>Select Hard Word:</h3>
-                <ul>
-                    {fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '').map((word: string, index: number) => (
-                        <li key={index} onChange={() => setSelectedWord(word)}>
-                            <label className={word === selectedWord ? "text-green-500" : ""}>
-                                <input
-                                    type="radio"
-                                    name="hardWord"
-                                    value={word}
-                                    checked={word === selectedWord}
-                                    onChange={() => setSelectedWord(word)}
-                                />
-                                {" " + word}
-                            </label>
-                        </li>
-                    ))}
-                </ul>
-                <Button className="mt-2" onClick={() =>
-                    handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.subtitleTitle || '', selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
-                >Add to Hard Words</Button>
-                <DrawerTrigger asChild>
-                    <Button className="mt-2 absolute right-4">Edit</Button>
-                </DrawerTrigger>
-                <PopoverClose asChild className="absolute right-0 top-0 cursor-pointer">
-                    <button className="p-3">
-                        <Cross1Icon className="w-4 h-4" />
-                    </button>
-                </PopoverClose>
-            </Drawer>
+                    <h4 className="font-medium leading-none">Subtitle Line:</h4>
+                    <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
+                    <h4 className="font-medium leading-none">{fullRow?.translation ? "Translation:" : null}</h4>
+                    <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
+                    <h3>Select Hard Word:</h3>
+                    <ul>
+                        {fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '').map((word: string, index: number) => (
+                            <li key={index} onChange={() => setSelectedWord(word)}>
+                                <label className={word === selectedWord ? "text-green-500" : ""}>
+                                    <input
+                                        type="radio"
+                                        name="hardWord"
+                                        value={word}
+                                        checked={word === selectedWord}
+                                        onChange={() => setSelectedWord(word)}
+                                    />
+                                    {" " + word}
+                                </label>
+                            </li>
+                        ))}
+                    </ul>
+                    <Button className="mt-2" onClick={() =>
+                        handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.subtitleTitle || '', selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
+                    >Add to Hard Words</Button>
+                    <DrawerTrigger asChild>
+                        <Button className="mt-2 absolute right-4">Edit</Button>
+                    </DrawerTrigger>
+                    <PopoverClose asChild className="absolute right-0 top-0 cursor-pointer">
+                        <button className="p-3">
+                            <Cross1Icon className="w-4 h-4" />
+                        </button>
+                    </PopoverClose>
+                </Drawer>
+            </TooltipProvider>
         </>
     );
 };

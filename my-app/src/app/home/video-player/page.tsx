@@ -23,23 +23,13 @@ import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
 import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice'
 import { useIsMobile } from '@/hooks/useMobile'
 import { GearIcon } from '@radix-ui/react-icons';
-import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from "@/components/ui/drawer";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 import { Textarea } from "@/components/ui/textarea"
-import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import { useSelector } from 'react-redux'
-import TranslateSubtitle from "../subtitles/TranslateSubtitle";
 import SubsEditor from "@/services/subtitleConverter";
 import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown";
 import mkvExtract from "@/lib/mkvExtract"
+import SettingsDrawerContent from "@/components/SettingsDrawer";
 
 const Home = () => {
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
@@ -58,7 +48,7 @@ const Home = () => {
     //const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [url, setUrl] = useState<string>('');
-
+    console.log(targetLanguage, sourceLanguage)
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
@@ -297,76 +287,7 @@ const Home = () => {
                                 </div>
                             </ResizablePanel>
                         </ResizablePanelGroup>}
-                    <DrawerContent>
-                        <DrawerHeader className="text-left">
-                            <DrawerTitle className="text-center">Edit subtitle profile</DrawerTitle>
-                            <DrawerDescription className="text-center">
-                                Make changes to your subtitle profile here. Click save when you are done.
-                            </DrawerDescription>
-                            <DrawerTitle>Edit preferences</DrawerTitle>
-                            <DrawerDescription>
-                                Pick your prefered language to translate to.
-                            </DrawerDescription>
-                            <Select onValueChange={setTargetLanguage}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Select language" />
-                                </SelectTrigger>
-                                <SelectContent >
-                                    <SelectGroup>
-                                        <SelectLabel className="font-bold text-md">Europe</SelectLabel>
-                                        {EuropeLanguages.map((language) => (
-                                            <SelectItem key={language.value} value={language.value}>
-                                                {language.label}
-                                            </SelectItem>
-                                        ))}
-
-                                        <SelectLabel className="font-bold text-md">Asia</SelectLabel>
-                                        {AsiaLanguages.map((language) => (
-                                            <SelectItem key={language.value} value={language.value}>
-                                                {language.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            <DrawerDescription>
-                                Optional, pick your subtitles language you want to get from youtube, if exists.
-                            </DrawerDescription>
-                            <Select onValueChange={setSourceLanguage} defaultValue={"auto"}>
-                                <SelectTrigger className="w-[180px]">
-                                    <SelectValue placeholder="Select language" />
-                                </SelectTrigger>
-                                <SelectContent >
-                                    <SelectGroup>
-                                        <SelectItem className="font-bold" key="auto" value="auto">
-                                            auto
-                                        </SelectItem>
-                                        <SelectLabel className="font-bold">Europe</SelectLabel>
-                                        {EuropeLanguages.map((language) => (
-                                            <SelectItem key={language.value} value={language.value}>
-                                                {language.label}
-                                            </SelectItem>
-                                        ))}
-                                        <SelectLabel className="font-bold">Asia</SelectLabel>
-                                        {AsiaLanguages.map((language) => (
-                                            <SelectItem key={language.value} value={language.value}>
-                                                {language.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
-                        </DrawerHeader>
-                        <DrawerFooter className="pt-2">
-                            <DrawerClose asChild>
-                                <Button variant="default">save</Button>
-                            </DrawerClose>
-                            <DrawerClose asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DrawerClose>
-                        </DrawerFooter>
-                    </DrawerContent>
+                    <SettingsDrawerContent selectedSub={selectedSub} setTargetLanguage={setTargetLanguage} setSourceLanguage={setSourceLanguage} />
                     <PopoverContent className="p-4 ml-4 rounded-lg shadow-md ">
                         <div>
                             <p className="mb-2">Subtitle title:</p>
@@ -398,7 +319,4 @@ const Home = () => {
 };
 
 export default Home;
-
-
-
 

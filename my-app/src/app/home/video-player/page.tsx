@@ -191,13 +191,14 @@ const Home = () => {
                                                     </PopoverTrigger>
 
                                                     <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
-                                                    <DrawerTrigger asChild>
-                                                        <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
-                                                    </DrawerTrigger></>
+                                                </>
                                                 }
 
                                             </>
                                             : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
+                                        <DrawerTrigger asChild>
+                                            <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
+                                        </DrawerTrigger>
 
                                     </div>
                                     <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
@@ -246,14 +247,14 @@ const Home = () => {
                                                     </PopoverTrigger>
 
                                                     <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
-                                                    <DrawerTrigger asChild>
-                                                        <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
-                                                    </DrawerTrigger></>
+                                                </>
                                                 }
 
                                             </>
                                             : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
-
+                                        <DrawerTrigger asChild>
+                                            <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
+                                        </DrawerTrigger>
                                     </div>
                                     <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
                                         {!videoFile && !url && (

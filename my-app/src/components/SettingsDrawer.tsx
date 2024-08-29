@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from "react";
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from "@/components/ui/drawer";
 import {
     Select,
@@ -12,8 +13,20 @@ import {
 import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import TranslateSubtitle from "@/app/home/subtitles/TranslateSubtitle";
 import { Button } from "@/components/ui/button";
+import { useLocalStorage } from "@/hooks/useLocalStorage"; // Import the hook
 
 const SettingsDrawerContent = ({ selectedSub, setTargetLanguage, setSourceLanguage }: { selectedSub: Subtitle, setTargetLanguage: (language: string) => void, setSourceLanguage: (language: string) => void }) => {
+
+    // Use the localStorage hook to manage language preferences
+    const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "");
+    const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
+
+    // Sync state with localStorage values
+    useEffect(() => {
+        setTargetLanguage(storedTargetLanguage);
+        setSourceLanguage(storedSourceLanguage);
+    }, [storedTargetLanguage, storedSourceLanguage, setTargetLanguage, setSourceLanguage]);
+
     return (
         <DrawerContent>
             <DrawerHeader className="text-left">
@@ -25,11 +38,11 @@ const SettingsDrawerContent = ({ selectedSub, setTargetLanguage, setSourceLangua
                 <DrawerDescription>
                     Pick your preferred language to translate to.
                 </DrawerDescription>
-                <Select onValueChange={setTargetLanguage}>
+                <Select onValueChange={(value) => setStoredTargetLanguage(value)} defaultValue={storedTargetLanguage}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select language" />
                     </SelectTrigger>
-                    <SelectContent >
+                    <SelectContent>
                         <SelectGroup>
                             <SelectLabel className="font-bold text-md">Europe</SelectLabel>
                             {EuropeLanguages.map((language) => (
@@ -49,11 +62,11 @@ const SettingsDrawerContent = ({ selectedSub, setTargetLanguage, setSourceLangua
                 <DrawerDescription>
                     Optional, pick your subtitles language you want to get from YouTube, if exists.
                 </DrawerDescription>
-                <Select onValueChange={setSourceLanguage} defaultValue={"auto"}>
+                <Select onValueChange={(value) => setStoredSourceLanguage(value)} defaultValue={storedSourceLanguage}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select language" />
                     </SelectTrigger>
-                    <SelectContent >
+                    <SelectContent>
                         <SelectGroup>
                             <SelectItem className="font-bold" key="auto" value="auto">
                                 auto

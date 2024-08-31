@@ -16,7 +16,6 @@ export function SubtitlesDropDown({ data }: { data: Subtitle[] }) {
 
     return (
         <div className="flex items-center space-x-4">
-            <p className="text-sm text-muted-foreground">Subtitles</p>
             <DropdownMenu open={open} onOpenChange={setOpen}>
                 <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-[150px] justify-start">

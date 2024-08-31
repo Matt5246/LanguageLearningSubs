@@ -20,23 +20,31 @@ export async function POST(req: Request) {
             });
 
             if (existingSubtitle) {
-                const updatedSubtitle = await prisma.subtitle.update({
-                    where: { SubtitleId: existingSubtitle.SubtitleId },
-                    data: {
-                        subtitleTitle: subtitleTitle,
-                    },
-                });
-
-                return NextResponse.json(updatedSubtitle);
-            } else {
-                const newSubtitle = await prisma.subtitle.create({
-                    data: {
-                        ...data
-                    },
-                });
-
-                return NextResponse.json(newSubtitle);
-            }
+                if (subtitleData && subtitleData.length > 0) {
+                    await prisma.subtitleData.deleteMany({
+                        where: { subtitleDataId: existingSubtitle.SubtitleId },
+                    });
+                    const updatedSubtitle = await prisma.subtitle.update({
+                        where: { SubtitleId: existingSubtitle.SubtitleId },
+                        data: {
+                            subtitleData: { createMany: { data: subtitleData } },
+                        },
+                        
+                    });
+                    
+                    return NextResponse.json(updatedSubtitle);
+                }else{
+                    const updatedSubtitle = await prisma.subtitle.update({
+                        where: { SubtitleId: existingSubtitle.SubtitleId },
+                        data: {
+                            subtitleTitle: subtitleTitle || existingSubtitle.subtitleTitle,
+                            youtubeUrl: youtubeUrl || existingSubtitle.youtubeUrl, 
+                        },
+                        
+                    });
+                    return NextResponse.json(updatedSubtitle);
+                }
+            } 
         } catch (error) {
             console.error('Error creating or updating subtitle:', error);
             return NextResponse.json({ error: error });

@@ -13,17 +13,20 @@ import {
 import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import TranslateSubtitle from "@/app/home/subtitles/TranslateSubtitle";
 import { Button } from "@/components/ui/button";
-import { useLocalStorage } from "@/hooks/useLocalStorage"; // Import the hook
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { ToggleAutoScrollButton } from "./ToggleAutoScrollButton";
 
 const SettingsDrawerContent = ({ selectedSub, setTargetLanguage, setSourceLanguage }: { selectedSub: Subtitle, setTargetLanguage: (language: string) => void, setSourceLanguage: (language: string) => void }) => {
-
-    // Use the localStorage hook to manage language preferences
     const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "");
     const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
 
-    // Sync state with localStorage values
     useEffect(() => {
-        setTargetLanguage(storedTargetLanguage);
+        if (!storedTargetLanguage) {
+            setStoredTargetLanguage("de");
+            setTargetLanguage("de");
+        } else {
+            setTargetLanguage(storedTargetLanguage);
+        }
         setSourceLanguage(storedSourceLanguage);
     }, [storedTargetLanguage, storedSourceLanguage, setTargetLanguage, setSourceLanguage]);
 
@@ -86,11 +89,14 @@ const SettingsDrawerContent = ({ selectedSub, setTargetLanguage, setSourceLangua
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
+                <div className="my-2 space-x-4 ">
+                    {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
+                    <ToggleAutoScrollButton />
+                </div>
             </DrawerHeader>
             <DrawerFooter className="pt-2">
                 <DrawerClose asChild>
-                    <Button variant="default">Save</Button>
+                    <Button variant="default" className="mr-2">Save</Button>
                 </DrawerClose>
                 <DrawerClose asChild>
                     <Button variant="outline">Cancel</Button>

@@ -7,6 +7,7 @@ import { DataTable } from '@/components/Subtitles/SubtitlesListTanstack';
 import UpdateSubtitles from './UpdateSubtitles';
 import DeleteSubtitle from './DeleteSubtitles';
 import TranslateSubtitle from './TranslateSubtitle';
+import SwapTranslationButton from './SwapTranslationButton';
 export default function Home() {
   const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
   const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
@@ -17,13 +18,17 @@ export default function Home() {
         <div className="mb-4 md:mb-0">
           <SubtitlesDropDown data={subtitlesData as any[]} />
         </div>
-        {selectedSub && (
-          <div className='flex space-x-2'>
+
+        <div className='flex space-x-2'>
+          {selectedSub && (<>
             <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} />
+            <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />
             <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} />
             <DeleteSubtitle SubtitleId={selectedSub?.SubtitleId} />
-          </div>
-        )}
+          </>
+          )}
+
+        </div>
       </div>
       {selectedSub && (
         <div >

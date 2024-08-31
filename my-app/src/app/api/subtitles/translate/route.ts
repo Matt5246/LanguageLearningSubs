@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 interface SubtitleData {
     text: string;
-    dur: string;
+    end: string;
     start: string;
 }
 
@@ -28,7 +28,6 @@ export async function POST(req: Request) {
         const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target, source, SubtitleId } = data;
 
         let translatedSubtitleData: string[];
-
         try {
 
             const translationResponse = await fetch(primaryTranslationServiceURL, {
@@ -79,11 +78,11 @@ export async function POST(req: Request) {
         const combinedSubtitles = subtitleData.map((subtitle: SubtitleData, index: number) => ({
             text: subtitle.text,
             translation: translatedSubtitleData[index] || '', // Ensure fallback in case of mismatch
-            dur: parseFloat(subtitle.dur),
+            end: parseFloat(subtitle.end),
             start: parseFloat(subtitle.start),
         }));
 
-        console.log(combinedSubtitles);
+        console.log(combinedSubtitles[1]);
 
         if (existingSubtitle) {
             const updatedSubtitle = await prisma.subtitle.update({

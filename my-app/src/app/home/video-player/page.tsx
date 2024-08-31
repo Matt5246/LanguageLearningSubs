@@ -30,6 +30,9 @@ import SubsEditor from "@/services/subtitleConverter";
 import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown";
 import mkvExtract from "@/lib/mkvExtract"
 import SettingsDrawerContent from "@/components/SettingsDrawer";
+import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton";
+import { AddSubtitlesButton } from "@/components/AddSubtitlesButton";
+import TranslateSubtitle from "../subtitles/TranslateSubtitle";
 
 const Home = () => {
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
@@ -48,7 +51,7 @@ const Home = () => {
     //const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [url, setUrl] = useState<string>('');
-    console.log(targetLanguage, sourceLanguage)
+
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
@@ -81,34 +84,7 @@ const Home = () => {
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
     };
-    const handleAddSubtitles = () => {
-        if (!subtitleText.trim()) {
-            toast({
-                title: "Enter subtitle text",
-                description: "Subtitles text is missing!",
-                variant: "destructive",
-            })
-            return;
-        }
-        if (title === '') {
-            toast({
-                title: "Enter subtitle title",
-                description: "Subtitles text is missing!",
-                variant: "destructive",
-            })
-            return;
-        }
-        const SubtitleText = SubsEditor(subtitleText, selectedFileType);
 
-        console.log("SubtitleText", SubtitleText);
-
-        setSubtitleConverted(SubtitleText)
-
-        toast({
-            title: "Success!",
-            description: "Subtitles added succesfully!",
-        })
-    };
     const { isFetching, refetch: refetch2 } = useQuery({
         queryKey: ['saveCaptions'],
         queryFn: async () => {
@@ -143,7 +119,7 @@ const Home = () => {
                     variant: 'destructive',
                 }));
 
-                //dispatch(setSelectedSubtitle(res?.subtitle?.SubtitleId || null))
+                // dispatch(setSelectedSubtitle(res?.SubtitleId || null))
 
                 console.log("success")
             } catch (error) {
@@ -175,146 +151,119 @@ const Home = () => {
     return (
         <div className="m-4 h-[1000px]" >
             <Drawer>
-                <Popover>
-                    {isMobile ?
-                        <>
-                            <div className="rounded-lg border min-h-[300px]">
-                                <div className="flex flex-col h-full p-2">
-                                    <div className="flex">
-                                        <SubtitlesDropDown data={subtitlesData as any[]} />
-                                        <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" />
-                                        {userEmail ?
-                                            <>
-                                                {selectedSub ? null : <>
-                                                    <PopoverTrigger asChild>
-                                                        <Button className="mr-2 w-[115px]">Add Subtitles</Button>
-                                                    </PopoverTrigger>
-
-                                                    <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
-                                                </>
-                                                }
-
+                {isMobile ?
+                    <>
+                        <div className="rounded-lg border min-h-[300px]">
+                            <div className="flex flex-col h-full p-2">
+                                <div className="flex space-x-2 ">
+                                    <SubtitlesDropDown data={subtitlesData as any[]} />
+                                    {subtitleConverted?.length > 0 ? <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" /> : null}
+                                    {userEmail ?
+                                        <>
+                                            {selectedSub ? null : <>
+                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitle} />
+                                                <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
                                             </>
-                                            : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
-                                        <DrawerTrigger asChild>
-                                            <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
-                                        </DrawerTrigger>
-
-                                    </div>
-                                    <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
-                                        {!videoFile && !url && (
-                                            <div className="flex justify-center items-center h-full">
-                                                <p className="mr-4 text-gray-600">Drop your video here</p>
-                                                <Input
-                                                    type="file"
-                                                    className="w-[220px] "
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0];
-                                                        if (file) {
-                                                            setVideoFile(file);
-                                                            setUrl(URL.createObjectURL(file));
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
-                                        {url && <VideoPlayer url={url} track={subtitleConverted} />}
-                                    </div>
+                                            }
+                                        </>
+                                        : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
+                                    <DrawerTrigger asChild>
+                                        <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
+                                    </DrawerTrigger>
+                                </div>
+                                <div className="flex justify-center mt-10 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
+                                    {!videoFile && !url && (
+                                        <div>
+                                            <p className="text-gray-600 mb-3">Drop your video here</p>
+                                            <Input
+                                                type="file"
+                                                className="w-[220px] "
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        setVideoFile(file);
+                                                        setUrl(URL.createObjectURL(file));
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                    {url && <VideoPlayer url={url} track={subtitleConverted} />}
                                 </div>
                             </div>
+                        </div>
 
+                        {subtitleConverted?.length > 0 ?
+                            <DataTable captions={subtitleConverted as Caption[]} height="1000px" />
+                            : <div className="flex justify-center items-center h-full">
+                                <p className="text-center">No subtitles detected.</p>
+                            </div>}
+
+
+                    </>
+                    : <ResizablePanelGroup
+                        direction="horizontal"
+                        className="rounded-lg border"
+                    >
+                        <ResizablePanel defaultSize={65}>
+                            <div className="flex flex-col h-full p-2">
+                                <div className="flex">
+                                    <SubtitlesDropDown data={subtitlesData as any[]} />
+                                    <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" />
+                                    {userEmail ?
+                                        <>
+                                            {selectedSub ? null : <>
+                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitle} />
+
+                                                <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
+                                            </>
+                                            }
+
+                                        </>
+                                        : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
+                                    <DrawerTrigger asChild>
+                                        <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
+                                    </DrawerTrigger>
+                                </div>
+                                <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
+                                    {!videoFile && !url && (
+                                        <div className="flex justify-center items-center h-full">
+                                            <p className="mr-4 text-gray-600">Drop your video here</p>
+                                            <Input
+                                                type="file"
+                                                className="w-[220px] "
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        setVideoFile(file);
+                                                        setUrl(URL.createObjectURL(file));
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                    {url && <VideoPlayer url={url} track={subtitleConverted} />}
+                                </div>
+
+                            </div>
+
+                        </ResizablePanel>
+                        <ResizableHandle withHandle />
+                        <ResizablePanel defaultSize={35} >
                             {subtitleConverted?.length > 0 ?
                                 <DataTable captions={subtitleConverted as Caption[]} height="1000px" />
-                                : null}
-                            <div className="flex justify-center items-center h-full">
-                                <p className="text-center">No subtitles detected.</p>
-                            </div>
-                        </>
-                        : <ResizablePanelGroup
-                            direction="horizontal"
-                            className="rounded-lg border"
-                        >
-                            <ResizablePanel defaultSize={65}>
-                                <div className="flex flex-col h-full p-2">
-                                    <div className="flex">
-                                        <SubtitlesDropDown data={subtitlesData as any[]} />
-                                        <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" />
-                                        {userEmail ?
-                                            <>
-                                                {selectedSub ? null : <>
-                                                    <PopoverTrigger asChild>
-                                                        <Button className="mr-2 w-[115px]">Add Subtitles</Button>
-                                                    </PopoverTrigger>
-
-                                                    <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
-                                                </>
-                                                }
-
-                                            </>
-                                            : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
-                                        <DrawerTrigger asChild>
-                                            <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
-                                        </DrawerTrigger>
-                                    </div>
-                                    <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
-                                        {!videoFile && !url && (
-                                            <div className="flex justify-center items-center h-full">
-                                                <p className="mr-4 text-gray-600">Drop your video here</p>
-                                                <Input
-                                                    type="file"
-                                                    className="w-[220px] "
-                                                    onChange={(e) => {
-                                                        const file = e.target.files?.[0];
-                                                        if (file) {
-                                                            setVideoFile(file);
-                                                            setUrl(URL.createObjectURL(file));
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                        )}
-                                        {url && <VideoPlayer url={url} track={subtitleConverted} />}
-                                    </div>
-                                </div>
-
-                            </ResizablePanel>
-                            <ResizableHandle withHandle />
-                            <ResizablePanel defaultSize={35} >
-                                {subtitleConverted?.length > 0 ?
-                                    <DataTable captions={subtitleConverted as Caption[]} height="1000px" />
-                                    : null}
-                                <div className="flex justify-center items-center h-full">
+                                : <div className="flex justify-center items-center h-full">
                                     <p className="text-center">No subtitles detected.</p>
-                                </div>
-                            </ResizablePanel>
-                        </ResizablePanelGroup>}
-                    <SettingsDrawerContent selectedSub={selectedSub} setTargetLanguage={setTargetLanguage} setSourceLanguage={setSourceLanguage} />
-                    <PopoverContent className="p-4 ml-4 rounded-lg shadow-md ">
-                        <div>
-                            <p className="mb-2">Subtitle title:</p>
-                            <Input type="text" className="mb-2" placeholder="set title" onChange={(e) => setTitle(e.target.value)} />
-                            <p >Subtitle text:</p>
-                            <Textarea
-                                placeholder="Enter subtitle text"
-                                className="mb-3 mt-3 "
-                                value={subtitleText}
-                                onChange={(e) => setSubtitleText(e.target.value)}
-                            />
-                            <RadioGroup defaultValue="srt" onValueChange={(value) => setSelectedFileType(value)}>
-                                <div >
-                                    <RadioGroupItem value="srt" className="mr-2" />
-                                    <Label htmlFor="option-srt">.srt</Label>
-                                </div>
-                                <div>
-                                    <RadioGroupItem value="ass" className="mr-2" />
-                                    <Label htmlFor="option-ass">.ass</Label>
-                                </div>
-                            </RadioGroup>
-                            <Button className="mt-4 absolute right-3 bottom-3" onClick={handleAddSubtitles}>Submit</Button>
-                        </div>
-                    </PopoverContent>
-                </Popover>
+                                </div>}
+
+                        </ResizablePanel>
+                    </ResizablePanelGroup>}
+                <SettingsDrawerContent selectedSub={selectedSub} setTargetLanguage={setTargetLanguage} setSourceLanguage={setSourceLanguage} />
             </Drawer>
+            <div className="my-4 space-x-4">
+                <ToggleAutoScrollButton />
+                {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
+            </div>
         </div>
     );
 };

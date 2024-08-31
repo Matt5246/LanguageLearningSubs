@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux';
 import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 
 
-function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
+function UpdateSubtitles(selectedSubtitle: any) {
     const dispatch = useDispatch();
     const [updatedSubtitle, setUpdatedSubtitle] = useState({
         SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,

@@ -55,6 +55,19 @@ const subtitlesSlice = createSlice({
             state.autoScrollEnabled = !state.autoScrollEnabled;
             localStorage.setItem('autoScrollEnabled', JSON.stringify(state.autoScrollEnabled));
         },
+        swapTranslation(state, action: PayloadAction<string>) {
+            const subtitleId = action.payload;
+            const subtitle = state.subtitles.find(sub => sub.SubtitleId === subtitleId);
+
+            if (subtitle) {
+                subtitle.subtitleData = subtitle?.subtitleData?.map(sub => ({
+                    ...sub,
+                    text: sub.translation , 
+                    translation: sub.text           
+                }));
+                saveSubtitlesToStorage(state.subtitles);  
+            }
+        },
         initializeSubtitles(state, action: PayloadAction<Subtitle[]>) {
             state.subtitles = action.payload;
             saveSubtitlesToStorage(state.subtitles)
@@ -74,6 +87,7 @@ export const {
     setSelectedSubtitle,
     setPlayedSeconds, 
     toggleAutoScroll, 
+    swapTranslation, 
 } = subtitlesSlice.actions;
 export const selectFlashCardData = createSelector(
     (state: any) => state.subtitle.subtitles,

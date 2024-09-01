@@ -33,6 +33,7 @@ import SettingsDrawerContent from "@/components/SettingsDrawer";
 import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton";
 import { AddSubtitlesButton } from "@/components/AddSubtitlesButton";
 import TranslateSubtitle from "../subtitles/TranslateSubtitle";
+import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
 
 const Home = () => {
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
@@ -188,6 +189,7 @@ const Home = () => {
                                             />
                                         </div>
                                     )}
+
                                     {url && <VideoPlayer url={url} track={subtitleConverted} />}
                                 </div>
                             </div>
@@ -261,9 +263,12 @@ const Home = () => {
                 <SettingsDrawerContent selectedSub={selectedSub} setTargetLanguage={setTargetLanguage} setSourceLanguage={setSourceLanguage} />
             </Drawer>
             <div className="my-4 space-x-4">
+
                 <ToggleAutoScrollButton />
                 {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
+                {selectedSub ? <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} /> : null}
             </div>
+
         </div>
     );
 };

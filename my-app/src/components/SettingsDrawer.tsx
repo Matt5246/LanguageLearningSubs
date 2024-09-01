@@ -90,8 +90,7 @@ const SettingsDrawerContent = ({ selectedSub, setTargetLanguage, setSourceLangua
                     </SelectContent>
                 </Select>
                 <div className="my-2 space-x-4 ">
-                    {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
-                    <ToggleAutoScrollButton />
+
                 </div>
             </DrawerHeader>
             <DrawerFooter className="pt-2">

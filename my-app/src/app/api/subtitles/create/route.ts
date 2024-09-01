@@ -24,7 +24,7 @@ export async function POST(req: Request) {
                 text: data?.text,
                 // translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,
                 start: parseFloat(data.start),
-                end: parseFloat(data.dur)
+                end: parseFloat(data.end)
             }));
 
             const data: any = {

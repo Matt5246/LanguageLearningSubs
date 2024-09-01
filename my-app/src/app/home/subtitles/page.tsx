@@ -21,9 +21,9 @@ export default function Home() {
 
         <div className='flex space-x-2'>
           {selectedSub && (<>
-            <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} />
-            <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />
             <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} />
+            <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />
+            <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} />
             <DeleteSubtitle SubtitleId={selectedSub?.SubtitleId} />
           </>
           )}

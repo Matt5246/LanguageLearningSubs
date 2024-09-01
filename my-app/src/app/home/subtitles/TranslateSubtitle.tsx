@@ -81,7 +81,7 @@ function TranslateSubtitle(selectedSubtitle: any) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" disabled={isFetching}>
+                <Button variant="secondary" disabled={isFetching}>
                     {isFetching ? 'Updating...' : 'Translate'}
                 </Button>
             </DialogTrigger>

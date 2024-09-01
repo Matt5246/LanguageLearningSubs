@@ -13,7 +13,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { swapTranslation } from '@/lib/features/subtitles/subtitleSlice';
 
 interface SwapTranslationButtonProps {
     selectedSubtitle: any;
@@ -37,7 +37,10 @@ function SwapTranslationButton({ selectedSubtitle }: SwapTranslationButtonProps)
                     'Content-Type': 'application/json',
                 },
             });
-            dispatch(updateSubtitle(response.data));
+            if (response && response.status === 200) {
+
+                dispatch(swapTranslation(selectedSubtitle?.SubtitleId));
+            }
             return response.data;
         },
         enabled: false,
@@ -55,7 +58,7 @@ function SwapTranslationButton({ selectedSubtitle }: SwapTranslationButtonProps)
                     end: sub.end,
                     start: sub.start
                 }));
-                console.log("subtitleData:", selectedSubtitle.subtitleData)
+
                 setUpdatedSubtitle({
                     SubtitleId: selectedSubtitle.SubtitleId,
                     userId: selectedSubtitle.userId,
@@ -73,40 +76,11 @@ function SwapTranslationButton({ selectedSubtitle }: SwapTranslationButtonProps)
     }, [selectedSubtitle]);
     const hasTranslations = selectedSubtitle?.subtitleData?.some((sub: any) => sub.translation && sub.text);
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="default" disabled={isLoading}>
-                    {isLoading ? 'Swapping...' : 'Swap Translation'}
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Swap Translation</DialogTitle>
-                </DialogHeader>
-                <DialogDescription>Are you sure you want to swap the translations with the original text?</DialogDescription>
-                <DialogFooter>
-                    <Button
-                        variant="default"
-                        className='mt-2 select-none'
-                        onClick={() => {
-                            refetch();
-                        }}
-                        disabled={!hasTranslations}
-                    >
-                        Confirm Swap
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className='mt-2 select-none'
-                        onClick={() => {
-                            // Reset state or perform additional actions if needed
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <Button variant="secondary" disabled={isLoading && !hasTranslations} onClick={() => {
+            refetch();
+        }}>
+            {isLoading ? 'Swapping...' : 'Swap Translation'}
+        </Button>
     );
 }
 

@@ -56,8 +56,8 @@ async function handleAddToHardWords(word: string | null, sentence: string, sente
                 },
             })
         } else if (response.data.success) {
-            toast("Success", {
-                description: response.data.error,
+            toast("Successfully added hard word", {
+                description: `Hard word added: ${word} `,
                 action: {
                     label: "Close",
                     onClick: () => console.log("Closed"),

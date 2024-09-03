@@ -74,7 +74,11 @@ export function AddSubtitlesButton({ setSubtitleConverted, updateTitle }: AddSub
                         value={subtitleText}
                         onChange={(e) => setSubtitleText(e.target.value)}
                     />
-                    <RadioGroup defaultValue="srt" onValueChange={(value) => setSelectedFileType(value)}>
+                    <RadioGroup defaultValue="auto" onValueChange={(value) => setSelectedFileType(value)}>
+                        <div>
+                            <RadioGroupItem value="auto" className="mr-2" />
+                            <Label htmlFor="option-auto">auto</Label>
+                        </div>
                         <div>
                             <RadioGroupItem value="srt" className="mr-2" />
                             <Label htmlFor="option-srt">.srt</Label>

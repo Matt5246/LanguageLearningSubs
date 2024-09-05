@@ -47,6 +47,7 @@ interface HardWord {
     translation?: string;
     pos?: string; // Part of speech
     lemma?: string;
+    createdAt?: string;
     sentences?: sentences[];
 }
 

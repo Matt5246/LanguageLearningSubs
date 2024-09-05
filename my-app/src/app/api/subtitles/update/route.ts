@@ -5,9 +5,8 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId } = await req.json();
+            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId, episode } = await req.json();
             const data: any = {
-                userId,
                 subtitleTitle,
             };
 
@@ -18,12 +17,14 @@ export async function POST(req: Request) {
             const existingSubtitle = await prisma.subtitle.findFirst({
                 where: { userId, SubtitleId },
             });
-
+            if(existingSubtitle?.episode){
+                data.episode = parseInt(episode) || existingSubtitle.episode;
+            }
             if (existingSubtitle) {
                 if (subtitleData && subtitleData.length > 0) {
-                    await prisma.subtitleData.deleteMany({
-                        where: { subtitleDataId: existingSubtitle.SubtitleId },
-                    });
+                    // await prisma.subtitleData.deleteMany({
+                    //     where: { subtitleDataId: existingSubtitle.SubtitleId },
+                    // });
                     const updatedSubtitle = await prisma.subtitle.update({
                         where: { SubtitleId: existingSubtitle.SubtitleId },
                         data: {
@@ -37,8 +38,7 @@ export async function POST(req: Request) {
                     const updatedSubtitle = await prisma.subtitle.update({
                         where: { SubtitleId: existingSubtitle.SubtitleId },
                         data: {
-                            subtitleTitle: subtitleTitle || existingSubtitle.subtitleTitle,
-                            youtubeUrl: youtubeUrl || existingSubtitle.youtubeUrl, 
+                            ...data, 
                         },
                         
                     });

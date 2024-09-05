@@ -22,8 +22,7 @@ function UpdateSubtitles(selectedSubtitle: any) {
         userId: selectedSubtitle?.selectedSubtitle?.userId,
         youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
         subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-        subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
-        hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+        episode: selectedSubtitle?.selectedSubtitle?.episode,
     });
 
     const { isLoading, isError, error, data, refetch } = useQuery({
@@ -49,8 +48,7 @@ function UpdateSubtitles(selectedSubtitle: any) {
                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-                subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
-                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+                episode: selectedSubtitle?.selectedSubtitle?.episode,
             });
         }
     }, [selectedSubtitle]);
@@ -81,6 +79,15 @@ function UpdateSubtitles(selectedSubtitle: any) {
                         onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, youtubeUrl: e.target.value })}
                     />
                 </>}
+                {selectedSubtitle?.selectedSubtitle?.episode && <>
+                    <DialogDescription>youtubeUrl</DialogDescription>
+                    <input
+                        type="number"
+                        value={updatedSubtitle?.episode}
+
+                        onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, episode: e.target.value })}
+                    />
+                </>}
 
                 <DialogFooter>
                     <Button
@@ -99,8 +106,7 @@ function UpdateSubtitles(selectedSubtitle: any) {
                                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-                                subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
-                                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+                                episode: selectedSubtitle?.selectedSubtitle?.episode,
                             });
                         }}
                     >

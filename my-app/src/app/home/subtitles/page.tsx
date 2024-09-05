@@ -34,6 +34,9 @@ export default function Home() {
         <div >
           <p className="text-sm text-muted-foreground mt-2">Subtitles Title</p>
           <p className='m-1 select-text'>{selectedSub?.subtitleTitle}</p>
+          {selectedSub?.episode &&
+            <><p className="text-sm text-muted-foreground">Episode</p>
+              <p className='m-1 select-text'>{selectedSub?.episode}</p></>}
           <p className="text-sm text-muted-foreground">Video url</p>
           <p className='m-1 select-text mb-3'>{selectedSub?.youtubeUrl ? selectedSub?.youtubeUrl : 'Video from private storage'}</p>
 

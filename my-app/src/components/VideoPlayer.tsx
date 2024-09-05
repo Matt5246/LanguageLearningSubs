@@ -8,9 +8,10 @@ import { setPlayedSeconds } from '@/lib/features/subtitles/subtitleSlice';
 interface VideoPlayerProps {
     url: string;
     track?: any;
+    light?: boolean;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track, light }) => {
     const dispatch = useDispatch();
     const [isReady, setIsReady] = useState(false);
     const [playing, setPlaying] = useState(false);
@@ -80,6 +81,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track }) => {
             width="100%"
             onPlay={handlePlay}
             onPause={handlePause}
+            light={light}
             onProgress={handleProgress}
             playing={playing}
             config={{

@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
 
-            const { email, youtubeUrl, subtitleTitle, subtitleData, sourceLang, targetLang } = await req.json();
+            const { email, youtubeUrl, subtitleTitle, subtitleData, sourceLang, targetLang, episode } = await req.json();
 
             if (!email) {
                 throw new Error('Email is required');
@@ -29,12 +29,15 @@ export async function POST(req: Request) {
 
             const data: any = {
                 userId,
-                subtitleTitle,
+                subtitleTitle
             };
             console.log("data:", data)
 
             if (youtubeUrl) {
                 data.youtubeUrl = youtubeUrl;
+            }
+            if (episode) {
+                data.episode = episode;
             }
             console.log(updatedSubtitleData)
             const subtitle = await prisma.subtitle.create({

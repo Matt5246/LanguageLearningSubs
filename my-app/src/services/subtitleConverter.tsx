@@ -1,4 +1,17 @@
 export default function SubsEditor(fileString: string, selectedOption: string) {
+    // If the selected option is "auto", detect the subtitle type
+    if (selectedOption === "auto") {
+        if (fileString.includes(" --> ")) {
+            selectedOption = "srt";
+        } else if (fileString.includes("Dialogue: ")) {
+            selectedOption = "ass";
+        } else if (/^\d{1,2}:\d{2}(:\d{2})?\s*$/.test(fileString.split("\n")[0])) {
+            selectedOption = "yt";
+        } else {
+            throw new Error("Subtitle type could not be determined automatically. Please select the type manually.");
+        }
+    }
+
     if (selectedOption === "yt") {
         console.log("yt");
         // Remove unwanted characters
@@ -107,6 +120,7 @@ export default function SubsEditor(fileString: string, selectedOption: string) {
     }
     return [];
 }
+
 function convertTimeToMilliseconds(time: string): number {
     const [hhmmss, ms] = time.split(",");
     const [hh, mm, ss] = hhmmss.split(":").map(Number);

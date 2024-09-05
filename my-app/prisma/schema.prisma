@@ -31,6 +31,7 @@ model Subtitle {
   userId        String         @db.ObjectId
   youtubeUrl    String?
   subtitleTitle String?
+  episode       Int?
   sourceLang    String?
   targetLang    String?
   subtitleData  SubtitleData[]
@@ -39,7 +40,7 @@ model Subtitle {
   updatedAt     DateTime?      @updatedAt
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([subtitleTitle, userId])
+  @@unique([subtitleTitle, episode, userId])
 }
 
 model SubtitleData {

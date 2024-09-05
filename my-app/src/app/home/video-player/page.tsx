@@ -18,7 +18,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { useSession } from "next-auth/react";
 import { useAppDispatch } from '@/lib/hooks';
-import { SubtitlesState, addSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { SubtitlesState, addSubtitle, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice';
 import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
 import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice'
 import { useIsMobile } from '@/hooks/useMobile'
@@ -34,18 +34,18 @@ import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton";
 import { AddSubtitlesButton } from "@/components/AddSubtitlesButton";
 import TranslateSubtitle from "../subtitles/TranslateSubtitle";
 import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
+import { getSubs } from "@/components/NavBar";
+import FileBrowser from "./fileBrowser";
 
 const Home = () => {
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
     const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const { toast } = useToast();
     const session = useSession();
-    const [subtitleText, setSubtitleText] = useState("");
     const [subtitleConverted, setSubtitleConverted] = useState<any>([]);
-    const [selectedFileType, setSelectedFileType] = useState("srt");
     const userEmail = session?.data?.user?.email;
     const dispatch = useAppDispatch();
-    const [title, setTitle] = useState<string>('');
+    const [titleAndSeries, setTitleAndSeries] = useState<{ subtitleTitle: string, subtitleSeriesName: string | null }>();
     const isMobile = useIsMobile();
     const [targetLanguage, setTargetLanguage] = useState("");
     const [sourceLanguage, setSourceLanguage] = useState("");
@@ -95,13 +95,13 @@ const Home = () => {
                 }
                 const subtitle = {
                     email: userEmail,
-                    subtitleTitle: title,
                     subtitleData: subtitleConverted,
+                    ...titleAndSeries,
                     sourceLang: sourceLanguage || null,
                     targetLang: targetLanguage || null,
                     hardWords: [],
                 }
-
+                console.log(subtitle)
                 if (!userEmail) {
                     throw new Error('User email not found in session.');
                 }
@@ -113,7 +113,14 @@ const Home = () => {
                             'Content-Type': 'application/json'
                         }
                     }
-                ).then(() => dispatch(addSubtitle(subtitle))
+                ).then(() => (getSubs(userEmail ?? "")
+                    .then((subtitles) => {
+                        dispatch(initializeSubtitles(subtitles));
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching subtitles:', error);
+                    }))
+
                 ).catch((e) => toast({
                     title: "Error saving subtitles",
                     description: e ? e.toString() : "Something went wrong while saving subtitles.",
@@ -162,7 +169,7 @@ const Home = () => {
                                     {userEmail ?
                                         <>
                                             {selectedSub ? null : <>
-                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitle} />
+                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitleAndSeries} />
                                                 <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
                                             </>
                                             }
@@ -215,7 +222,7 @@ const Home = () => {
                                     {userEmail ?
                                         <>
                                             {selectedSub ? null : <>
-                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitle} />
+                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitleAndSeries} />
 
                                                 <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
                                             </>
@@ -268,7 +275,9 @@ const Home = () => {
                 {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
                 {selectedSub ? <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} /> : null}
             </div>
-
+            <div>
+                <FileBrowser />
+            </div>
         </div>
     );
 };

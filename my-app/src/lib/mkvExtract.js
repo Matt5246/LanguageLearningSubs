@@ -85,7 +85,7 @@ function handleStream(stream, callback) {
         }
         break;
       default:
-        // do nothing
+      // do nothing
     }
     if (
       files[currentFile] &&
@@ -120,18 +120,18 @@ function handleStream(stream, callback) {
 
         const fixedLine = isASS
           ? "Dialogue: " +
-            [lineParts[1], startTimestamp, endTimestamp]
-              .concat(lineParts.slice(2))
-              .join(",")
+          [lineParts[1], startTimestamp, endTimestamp]
+            .concat(lineParts.slice(2))
+            .join(",")
           : lineIndex +
-            1 +
-            "\r\n" +
-            startTimestamp.replace(".", ",") +
-            " --> " +
-            endTimestamp.replace(".", ",") +
-            "\r\n" +
-            line +
-            "\r\n";
+          1 +
+          "\r\n" +
+          startTimestamp.replace(".", ",") +
+          " --> " +
+          endTimestamp.replace(".", ",") +
+          "\r\n" +
+          line +
+          "\r\n";
 
         if (fixedLines[lineIndex]) {
           fixedLines[lineIndex] += "\r\n" + fixedLine;

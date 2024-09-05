@@ -10,7 +10,7 @@ function generateRandomTitle() {
 }
 async function fetchLemmaAndPOS(word: string) {
     try {
-        const response = await axios.post('http://127.0.0.1:8000/nlp', { word });
+        const response = await axios.post('http://127.0.0.1:8080/nlp', { word });
         const { result } = response.data;
         return result;
     } catch (error) {
@@ -56,7 +56,13 @@ export async function POST(req: Request) {
             //@ts-ignore
             const selectedUserId = userId || user.id;
             const subtitle = await prisma.subtitle.findFirst({
-                where: { userId: selectedUserId, youtubeUrl },
+                where: {
+                    userId: selectedUserId,
+                    OR: [
+                        { youtubeUrl: youtubeUrl || undefined },
+                        { subtitleTitle: subtitleTitle || undefined }
+                    ],
+                },
             });
 
             if (!subtitle) {
@@ -123,7 +129,7 @@ export async function POST(req: Request) {
                 },
             });
             console.log("successfully added hardword:", hardWord)
-            return NextResponse.json({ word: hardWord, sentenceData });
+            return NextResponse.json({ word: hardWord, sentenceData, success: 'successfully added hardword' });
         } catch (error) {
             console.error('Error creating/updating subtitle:', error);
             return NextResponse.json({ error: error });

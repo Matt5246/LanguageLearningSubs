@@ -2,44 +2,22 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { createSelector } from '@reduxjs/toolkit';
 
-export interface Subtitle {
-    SubtitleId?: String;
-    youtubeUrl?: String;
-    subtitleTitle?: String;
-    subtitleData?: SubtitleData[];
-    hardWords?: HardWord[];
-}
 
-export interface SubtitleData {
-    text: String;
-    translation?: String;
-    duration?: Number;
-    offset?: Number;
-}
 
-export interface HardWord {
-    id?: String
-    hardWordId: String
-    word: String;
-    translation?: String;
-    pos?: String; // Part of speech
-    lemma?: String;
-    learnState?: Number;
-    sentences?: sentences[]
-}
-export interface sentences {
-    id?: String
-    sentence: String
-    translation?: String
-}
+
+
 export interface SubtitlesState {
-    subtitles: Subtitle[]
-    selectedSubtitle: String | null
+    subtitles: Subtitle[];
+    selectedSubtitle: String | null;
+    playedSeconds: number;
+    autoScrollEnabled: boolean;
 }
 
 const initialState: SubtitlesState = {
     subtitles: loadSubtitlesFromStorage(),
-    selectedSubtitle: null
+    selectedSubtitle: null,
+    playedSeconds: 0,
+    autoScrollEnabled: loadAutoScrollState(),
 };
 
 const subtitlesSlice = createSlice({
@@ -70,6 +48,26 @@ const subtitlesSlice = createSlice({
         setSelectedSubtitle(state, action: PayloadAction<string | null>) {
             state.selectedSubtitle = action.payload;
         },
+        setPlayedSeconds(state, action: PayloadAction<number>) {
+            state.playedSeconds = action.payload;
+        },
+        toggleAutoScroll(state) {  
+            state.autoScrollEnabled = !state.autoScrollEnabled;
+            localStorage.setItem('autoScrollEnabled', JSON.stringify(state.autoScrollEnabled));
+        },
+        swapTranslation(state, action: PayloadAction<string>) {
+            const subtitleId = action.payload;
+            const subtitle = state.subtitles.find(sub => sub.SubtitleId === subtitleId);
+
+            if (subtitle) {
+                subtitle.subtitleData = subtitle?.subtitleData?.map(sub => ({
+                    ...sub,
+                    text: sub.translation , 
+                    translation: sub.text           
+                }));
+                saveSubtitlesToStorage(state.subtitles);  
+            }
+        },
         initializeSubtitles(state, action: PayloadAction<Subtitle[]>) {
             state.subtitles = action.payload;
             saveSubtitlesToStorage(state.subtitles)
@@ -79,8 +77,18 @@ const subtitlesSlice = createSlice({
 
 
 export const subtitles = (state: SubtitlesState) => state.subtitles;
-export const { addSubtitle, clearSubtitles, getSubtitle, updateSubtitle, initializeSubtitles, deleteSubtitle, setSelectedSubtitle } = subtitlesSlice.actions;
-
+export const {
+    addSubtitle,
+    clearSubtitles,
+    getSubtitle,
+    updateSubtitle,
+    initializeSubtitles,
+    deleteSubtitle,
+    setSelectedSubtitle,
+    setPlayedSeconds, 
+    toggleAutoScroll, 
+    swapTranslation, 
+} = subtitlesSlice.actions;
 export const selectFlashCardData = createSelector(
     (state: any) => state.subtitle.subtitles,
     (subtitles) => {
@@ -105,22 +113,31 @@ function loadSubtitlesFromStorage(): Subtitle[] {
     }
     return [];
 }
-
-function saveSubtitlesToStorage(subtitles: Subtitle[]): void {
-    localStorage.setItem('subtitles', JSON.stringify(subtitles));
+function loadAutoScrollState(): boolean {
+    if (typeof window !== 'undefined') {
+        const storedAutoScrollState = localStorage.getItem('autoScrollEnabled');
+        return storedAutoScrollState ? JSON.parse(storedAutoScrollState) : true;
+    }
+    return true;
 }
 
-export const startPeriodicUpdates = () => (dispatch: any) => {
-    const interval = setInterval(() => {
-        dispatch(updateDataPeriodically());
-    }, 10 * 60000); //x * 60s
+function saveSubtitlesToStorage(subtitles: Subtitle[]): void {
+    if (typeof window !== 'undefined') {
+    localStorage.setItem('subtitles', JSON.stringify(subtitles));
+    }
+}
 
-    return () => clearInterval(interval);
-};
+// export const startPeriodicUpdates = () => (dispatch: any) => {
+//     const interval = setInterval(() => {
+//         dispatch(updateDataPeriodically());
+//     }, 10 * 60000); //x * 60s
 
-const updateDataPeriodically = () => (dispatch: any) => {
-    console.log('Updating or adding data periodically...');
-};
+//     return () => clearInterval(interval);
+// };
+
+// const updateDataPeriodically = () => (dispatch: any) => {
+//     console.log('Updating or adding data periodically...');
+// };
 
 export default subtitlesSlice.reducer;
 

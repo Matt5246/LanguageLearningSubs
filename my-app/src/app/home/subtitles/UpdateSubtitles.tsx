@@ -15,14 +15,14 @@ import { useDispatch } from 'react-redux';
 import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 
 
-function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
+function UpdateSubtitles(selectedSubtitle: any) {
     const dispatch = useDispatch();
     const [updatedSubtitle, setUpdatedSubtitle] = useState({
+        SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
         userId: selectedSubtitle?.selectedSubtitle?.userId,
         youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
         subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-        subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
-        hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+        episode: selectedSubtitle?.selectedSubtitle?.episode,
     });
 
     const { isLoading, isError, error, data, refetch } = useQuery({
@@ -44,11 +44,11 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
     useEffect(() => {
         if (selectedSubtitle) {
             setUpdatedSubtitle({
+                SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-                subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
-                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+                episode: selectedSubtitle?.selectedSubtitle?.episode,
             });
         }
     }, [selectedSubtitle]);
@@ -70,13 +70,24 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
                     value={updatedSubtitle?.subtitleTitle}
                     onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, subtitleTitle: e.target.value })}
                 />
-                <DialogDescription>youtubeUrl</DialogDescription>
-                <input
-                    type="text"
-                    value={updatedSubtitle?.youtubeUrl}
+                {selectedSubtitle?.selectedSubtitle?.youtubeUrl && <>
+                    <DialogDescription>youtubeUrl</DialogDescription>
+                    <input
+                        type="text"
+                        value={updatedSubtitle?.youtubeUrl}
 
-                    onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, youtubeUrl: e.target.value })}
-                />
+                        onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, youtubeUrl: e.target.value })}
+                    />
+                </>}
+                {selectedSubtitle?.selectedSubtitle?.episode && <>
+                    <DialogDescription>youtubeUrl</DialogDescription>
+                    <input
+                        type="number"
+                        value={updatedSubtitle?.episode}
+
+                        onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, episode: e.target.value })}
+                    />
+                </>}
 
                 <DialogFooter>
                     <Button
@@ -91,11 +102,11 @@ function UpdateSubtitles(selectedSubtitle: any, SubtitleId: string) {
                         variant="outline" className='mt-2'
                         onClick={() => {
                             setUpdatedSubtitle({
+                                SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
                                 userId: selectedSubtitle?.selectedSubtitle?.userId,
                                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
-                                subtitleData: selectedSubtitle?.selectedSubtitle?.subtitleData,
-                                hardWords: selectedSubtitle?.selectedSubtitle?.hardWords,
+                                episode: selectedSubtitle?.selectedSubtitle?.episode,
                             });
                         }}
                     >

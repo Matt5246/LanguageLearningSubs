@@ -6,13 +6,14 @@ const prisma = new PrismaClient();
 
 interface SubtitleData {
     text: string;
-    dur: string;
+    end: string;
     start: string;
 }
 
 interface RequestData {
+    SubtitleId: string,
     userId: string;
-    youtubeUrl: string;
+    youtubeUrl?: string;
     subtitleTitle: string;
     subtitleData: SubtitleData[];
     text: string;
@@ -24,10 +25,9 @@ export async function POST(req: Request) {
     try {
         const data: RequestData = await req.json();
 
-        const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target, source } = data;
+        const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target, source, SubtitleId } = data;
 
         let translatedSubtitleData: string[];
-
         try {
 
             const translationResponse = await fetch(primaryTranslationServiceURL, {
@@ -63,8 +63,9 @@ export async function POST(req: Request) {
         }
 
         const existingSubtitle = await prisma.subtitle.findFirst({
-            where: { userId, youtubeUrl },
+            where: { userId, SubtitleId },
         });
+
 
         const subtitleDataId = existingSubtitle?.SubtitleId;
 
@@ -77,11 +78,11 @@ export async function POST(req: Request) {
         const combinedSubtitles = subtitleData.map((subtitle: SubtitleData, index: number) => ({
             text: subtitle.text,
             translation: translatedSubtitleData[index] || '', // Ensure fallback in case of mismatch
-            dur: parseFloat(subtitle.dur),
+            end: parseFloat(subtitle.end),
             start: parseFloat(subtitle.start),
         }));
 
-        console.log(combinedSubtitles);
+        console.log(combinedSubtitles[1]);
 
         if (existingSubtitle) {
             const updatedSubtitle = await prisma.subtitle.update({
@@ -94,11 +95,19 @@ export async function POST(req: Request) {
             console.log("Successfully updated subtitle with translation.");
             return NextResponse.json({ updatedSubtitle, combinedSubtitles });
         } else {
+            const data: any = {
+                userId,
+                subtitleTitle,
+            };
+
+            if (youtubeUrl) {
+                data.youtubeUrl = youtubeUrl;
+            }
+
+
             const newSubtitle = await prisma.subtitle.create({
                 data: {
-                    userId,
-                    youtubeUrl,
-                    subtitleTitle,
+                    ...data,
                     subtitleData: { createMany: { data: combinedSubtitles } },
                 },
             });

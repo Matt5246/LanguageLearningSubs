@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -23,19 +23,31 @@ import { EuropeLanguages } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios'
 import { useDispatch } from 'react-redux';
-import { updateSubtitle, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
-
+import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { useLocalStorage } from "@/hooks/useLocalStorage"; // Import the hook
 
 function TranslateSubtitle(selectedSubtitle: any) {
-    const [targetLanguage, setTargetLanguage] = useState('de'); // Default target language
-    const [sourceLanguage, setSourceLanguage] = useState('auto'); // Default target language
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
+    const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "de");
+    const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
+    const [targetLanguage, setTargetLanguage] = useState(storedTargetLanguage);
+    const [sourceLanguage, setSourceLanguage] = useState(storedSourceLanguage);
+
+    useEffect(() => {
+        setStoredTargetLanguage(targetLanguage);
+    }, [targetLanguage, setStoredTargetLanguage]);
+
+    useEffect(() => {
+        setStoredSourceLanguage(sourceLanguage);
+    }, [sourceLanguage, setStoredSourceLanguage]);
+
     const { isFetching, refetch } = useQuery({
         queryKey: ['translate', selectedSubtitle?.selectedSubtitle?.SubtitleId],
         queryFn: async () => {
-            const text = await selectedSubtitle?.selectedSubtitle?.subtitleData.map((data: any) => (data.text))
+            const text = selectedSubtitle?.selectedSubtitle?.subtitleData.map((data: any) => data.text);
 
             const translationResponse = await axios.post('/api/subtitles/translate', {
+                SubtitleId: selectedSubtitle?.selectedSubtitle?.SubtitleId,
                 text: text,
                 email: selectedSubtitle?.selectedSubtitle?.email,
                 userId: selectedSubtitle?.selectedSubtitle?.userId,
@@ -49,31 +61,27 @@ function TranslateSubtitle(selectedSubtitle: any) {
                     'Content-Type': 'application/json',
                 },
             });
+
             if (translationResponse?.data?.combinedSubtitles) {
-                console.log(translationResponse?.data?.combinedSubtitles)
-                await dispatch(updateSubtitle({
+                dispatch(updateSubtitle({
                     SubtitleId: translationResponse?.data?.createdSubtitleData?.SubtitleId,
                     youtubeUrl: translationResponse?.data?.createdSubtitleData?.youtubeUrl,
                     subtitleTitle: translationResponse?.data?.createdSubtitleData?.subtitleTitle,
                     subtitleData: translationResponse?.data?.combinedSubtitles,
                     hardWords: translationResponse?.data?.createdSubtitleData?.SubtitleId,
                 }));
-
             }
 
             return translationResponse.data;
         },
-
         enabled: false,
         retry: true,
     });
 
-
-
     return (
-        <Dialog >
+        <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" disabled={isFetching}>
+                <Button variant="secondary" disabled={isFetching}>
                     {isFetching ? 'Updating...' : 'Translate'}
                 </Button>
             </DialogTrigger>
@@ -84,8 +92,8 @@ function TranslateSubtitle(selectedSubtitle: any) {
 
                 <DialogDescription>Subtitle title:</DialogDescription>
                 {selectedSubtitle?.selectedSubtitle?.subtitleTitle}
-                <DialogDescription>Target language: </DialogDescription>
-                <Select onValueChange={setTargetLanguage}>
+                <DialogDescription>Target language:</DialogDescription>
+                <Select onValueChange={setTargetLanguage} defaultValue={targetLanguage}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -100,14 +108,13 @@ function TranslateSubtitle(selectedSubtitle: any) {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <DialogDescription>source language: </DialogDescription>
-                <Select onValueChange={setSourceLanguage} defaultValue='auto'>
+                <DialogDescription>Source language:</DialogDescription>
+                <Select onValueChange={setSourceLanguage} defaultValue={sourceLanguage}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent >
                         <SelectGroup>
-
                             <SelectItem value="auto">auto</SelectItem>
                             <SelectLabel className='font-extrabold'>Europe</SelectLabel>
                             {EuropeLanguages.map((language) => (
@@ -118,17 +125,15 @@ function TranslateSubtitle(selectedSubtitle: any) {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <DialogDescription>Subtitles row number: </DialogDescription>
+
+                <DialogDescription>Subtitles row number:</DialogDescription>
                 {selectedSubtitle?.selectedSubtitle?.subtitleData?.length}
 
-                <DialogDescription>Subtitle URL:</DialogDescription>
+                {selectedSubtitle?.selectedSubtitle?.youtubeUrl && <DialogDescription>Subtitle URL:</DialogDescription>}
                 {selectedSubtitle?.selectedSubtitle?.youtubeUrl}
-                <DialogFooter>
 
-                    <Button variant="default" disabled={isFetching} className='mt-2'
-                        onClick={() => {
-                            refetch()
-                        }}>
+                <DialogFooter>
+                    <Button variant="default" disabled={isFetching} className='mt-2' onClick={() => refetch()}>
                         {isFetching ? 'Updating...' : 'Translate'}
                     </Button>
 

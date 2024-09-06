@@ -179,7 +179,7 @@ const ListItem = React.forwardRef<
     )
 })
 ListItem.displayName = "ListItem"
-async function getSubs(email: String) {
+export async function getSubs(email: String) {
     try {
         if (email) {
             const response = await axios.post('/api/subtitles/get', { email });

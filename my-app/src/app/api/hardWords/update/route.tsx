@@ -18,9 +18,17 @@ export async function POST(req: Request) {
                 return { error: 'Hard word not found' };
             }
 
+            const updateData: any = {
+                learnState,
+            };
+
+            if (learnState === 100 && !existingHardWord.learnedAt) {
+                updateData.learnedAt = new Date();
+            }
+
             await prisma.hardWord.update({
                 where: { id },
-                data: { learnState },
+                data: updateData,
             });
 
             console.log("Successfully updated learn state for hard word with ID:", id);

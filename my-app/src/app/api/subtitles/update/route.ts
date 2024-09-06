@@ -5,35 +5,46 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { youtubeUrl, subtitleTitle, subtitleData, userId } = await req.json();
+            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId, episode } = await req.json();
+            const data: any = {
+                subtitleTitle,
+            };
 
+            if (youtubeUrl) {
+                data.youtubeUrl = youtubeUrl;
+            }
 
             const existingSubtitle = await prisma.subtitle.findFirst({
-                where: { userId, youtubeUrl },
+                where: { userId, SubtitleId },
             });
-            console.log(existingSubtitle)
-            if (existingSubtitle) {
-                // If the subtitle already exists, update it
-                const updatedSubtitle = await prisma.subtitle.update({
-                    where: { SubtitleId: existingSubtitle.SubtitleId },
-                    data: {
-                        subtitleTitle: subtitleTitle,
-                    },
-                });
-
-                return NextResponse.json(updatedSubtitle);
-            } else {
-                // If the subtitle does not exist, create a new one
-                const newSubtitle = await prisma.subtitle.create({
-                    data: {
-                        userId,
-                        youtubeUrl,
-                        subtitleTitle,
-                    },
-                });
-
-                return NextResponse.json(newSubtitle);
+            if(existingSubtitle?.episode){
+                data.episode = parseInt(episode) || existingSubtitle.episode;
             }
+            if (existingSubtitle) {
+                if (subtitleData && subtitleData.length > 0) {
+                    // await prisma.subtitleData.deleteMany({
+                    //     where: { subtitleDataId: existingSubtitle.SubtitleId },
+                    // });
+                    const updatedSubtitle = await prisma.subtitle.update({
+                        where: { SubtitleId: existingSubtitle.SubtitleId },
+                        data: {
+                            subtitleData: { createMany: { data: subtitleData } },
+                        },
+                        
+                    });
+                    
+                    return NextResponse.json(updatedSubtitle);
+                }else{
+                    const updatedSubtitle = await prisma.subtitle.update({
+                        where: { SubtitleId: existingSubtitle.SubtitleId },
+                        data: {
+                            ...data, 
+                        },
+                        
+                    });
+                    return NextResponse.json(updatedSubtitle);
+                }
+            } 
         } catch (error) {
             console.error('Error creating or updating subtitle:', error);
             return NextResponse.json({ error: error });

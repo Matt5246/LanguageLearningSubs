@@ -174,7 +174,6 @@ const Home = () => {
     return (
         <div className="m-4 h-[1000px]" >
             <Drawer>
-
                 {isMobile ?
                     <>
                         <div className="rounded-lg border min-h-[300px]">
@@ -237,7 +236,7 @@ const Home = () => {
                                     )}
                                 </div>
                                 <div className="p-2 h-full">
-                                    <VideoPlayer url={url} />
+                                    {url && <VideoPlayer url={url} />}
                                 </div>
                             </div>
                         </ResizablePanel>

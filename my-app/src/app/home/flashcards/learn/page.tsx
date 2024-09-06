@@ -15,29 +15,40 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@/components/ui/hover-card"
+import { useToast } from "@/components/ui/use-toast";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import EditWord from "./EditWord"
 
 export default function FlashCard() {
-    const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
+    const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: Subtitle) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const [progress, setProgress] = useState(0);
-    const [subtitles, setSubtitles] = useState<any[]>(selectedSub?.hardWords || []);
+    const [subtitles, setSubtitles] = useState<HardWord[]>(selectedSub?.hardWords || []);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
-    const currentSubtitle = subtitles[currentWordIndex] || null;
-    const filteredSubtitles = subtitles.filter(subtitle => subtitle.learnState !== 100);
     const [showAllData, setShowAllData] = useState(false);
+    const [currentSubtitle, setCurrentSubtitle] = useState(subtitles[currentWordIndex] || null);
+    const filteredSubtitles = subtitles.filter(subtitle => subtitle.learnState !== 100)
     const isMobile = useIsMobile();
-
+    const { toast } = useToast();
 
     const findNextUnlearnedWordIndex = () => {
         if (filteredSubtitles.length > 0) {
             for (let i = currentWordIndex + 1; i < subtitles.length; i++) {
                 if (subtitles[i].learnState !== 100) {
                     setCurrentWordIndex(i);
+                    setCurrentSubtitle(subtitles[i])
                     return;
                 }
             }
             for (let i = 0; i < currentWordIndex; i++) {
                 if (subtitles[i].learnState !== 100) {
                     setCurrentWordIndex(i);
+                    setCurrentSubtitle(subtitles[i])
                     return;
                 }
             }
@@ -48,12 +59,11 @@ export default function FlashCard() {
         setShowAllData(false);
         findNextUnlearnedWordIndex();
     };
-
     const handleEasy = () => {
         setShowAllData(false);
         const updatedSubtitles = subtitles.map(subtitle => {
             if (subtitle.word === currentSubtitle?.word) {
-                const updatedLearnState = Math.min(subtitle.learnState + 34, 100);
+                const updatedLearnState = Math.min(subtitle.learnState! + 34, 100);
                 return {
                     ...subtitle,
                     learnState: updatedLearnState
@@ -61,8 +71,6 @@ export default function FlashCard() {
             }
             return subtitle;
         });
-
-        console.log(subtitles)
         setSubtitles(updatedSubtitles);
         findNextUnlearnedWordIndex();
     };
@@ -73,7 +81,7 @@ export default function FlashCard() {
             if (subtitle?.word === currentSubtitle?.word) {
                 return {
                     ...subtitle,
-                    learnState: Math.max(subtitle.learnState - 40, 0)
+                    learnState: Math.max(subtitle.learnState! - 40, 0)
                 };
             }
             return subtitle;
@@ -98,6 +106,10 @@ export default function FlashCard() {
             const response = await axios.post('/api/hardWords/update',
                 { hardWords: subtitles }
             );
+            toast({
+                title: "Word updated successfully!",
+                description: response.toString(),
+            })
         } catch (error) {
             console.error('Error fetching subtitles:', error);
         }
@@ -108,6 +120,14 @@ export default function FlashCard() {
         const learningIncrement = 34;
         return Math.ceil((maxLearnState - learnState) / learningIncrement);
     };
+    const handleSaveEditWord = (updatedWord: HardWord) => {
+        const updatedSubtitles = subtitles.map(subtitle =>
+            subtitle.word === updatedWord.word ? updatedWord : subtitle
+        );
+        setSubtitles(updatedSubtitles);
+        setCurrentSubtitle(updatedWord)
+    };
+
     React.useEffect(() => {
         if (subtitles.length > 0) {
             const completedSubtitles = subtitles.filter(subtitle => subtitle.learnState === 100).length;
@@ -123,23 +143,44 @@ export default function FlashCard() {
 
     }, [subtitles, currentSubtitle]);
 
-    useOnKeyPress(handlePreviousWord, ['1', 'z']);
-    useOnKeyPress(handleHard, ['2', 'x']);
-    useOnKeyPress(handleNextWord, ['3', 'c']);
-    useOnKeyPress(handleEasy, ['4', 'v']);
+    useOnKeyPress(handlePreviousWord, ['1']);
+    useOnKeyPress(handleHard, ['2']);
+    useOnKeyPress(handleNextWord, ['3']);
+    useOnKeyPress(handleEasy, ['4']);
     useOnKeyPress(handleShowTranslation, ['Enter', ' ']);
 
     return (
         <>
             <div className="flex justify-center ">
-                <Progress value={progress} className="w-[60%] mt-6" />
+                <HoverCard >
+                    <HoverCardTrigger asChild >
+                        <Progress value={progress} className="w-[60%] mt-6" />
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-80">
+                        <label className="text-xl font-bold pb-4">Learned Words:</label>
+                        {subtitles.length > 0 && (
+                            <div>
+                                {subtitles.map((wordObject, index) => (
+                                    <p key={index}>
+                                        {wordObject.word && <span>{wordObject.word}: </span>}
+                                        {wordObject.learnState}
+                                    </p>
+                                ))}
+                                <div className="text-2xl font-bold absolute right-5 bottom-5">{progress}%</div>
+                            </div>
+                        )}
+                    </HoverCardContent>
+                </HoverCard>
             </div>
             <div className="flex justify-center mt-6">
                 <div className="flex flex-col">
                     {filteredSubtitles?.length > 0 ? (
                         <Card className="min-w-[350px] md:w-[500px] min-h-[530px] m-3 relative">
                             <CardHeader>
-                                <CardTitle className="text-xl">{selectedSub?.subtitleTitle}</CardTitle>
+                                <div className="flex justify-between">
+                                    <CardTitle className="text-xl">{selectedSub?.subtitleTitle}</CardTitle>
+                                    <EditWord wordData={currentSubtitle} onSave={handleSaveEditWord} />
+                                </div>
                             </CardHeader>
                             <CardContent className="mb-[45px]">
                                 <div className="grid w-full items-center  space-y-1.5">
@@ -147,7 +188,7 @@ export default function FlashCard() {
                                         <CardDescription>Word</CardDescription>
                                         <CardTitle className='text-xl'>{currentSubtitle?.word}</CardTitle>
                                     </div>
-                                    <div className="flex flex-col space-y-1.5">
+                                    <div className="flex flex-col space-y-1.5 text-xl">
                                         {showAllData && (
                                             <>
                                                 {currentSubtitle?.translation && (
@@ -165,13 +206,7 @@ export default function FlashCard() {
                                                     </>
                                                 )}
                                                 <Accordion type="single" collapsible>
-                                                    {currentSubtitle?.sentences.map((data: any, index: number) => (
-                                                        // <div key={index} className="space-y-1.5">
-                                                        //     <CardDescription>Sentence</CardDescription>
-                                                        //     <CardTitle>{data?.sentence}</CardTitle>
-                                                        //     <CardDescription>Sentence Translation</CardDescription>
-                                                        //     <CardTitle>{data?.translation}</CardTitle>
-                                                        // </div>
+                                                    {currentSubtitle?.sentences && currentSubtitle?.sentences.map((data: any, index: number) => (
                                                         <>
                                                             <CardDescription>Sentence</CardDescription>
                                                             <AccordionItem value={`item-${index}`} key={index}>
@@ -182,7 +217,7 @@ export default function FlashCard() {
                                                     ))}
                                                 </Accordion>
 
-                                                <CardDescription>LearnState {calculateLearningAttempts(currentSubtitle?.learnState)}</CardDescription>
+                                                <CardDescription>LearnState {calculateLearningAttempts(currentSubtitle?.learnState!)}</CardDescription>
                                             </>
                                         )}
                                     </div>
@@ -213,24 +248,18 @@ export default function FlashCard() {
                             </CardFooter>
                         </Card>
                     ) : (
-                        <div className="mt-12 text-center text-gray-500 mx-4">
-                            Add your hard words to {selectedSub?.subtitleTitle ? <p>{selectedSub.subtitleTitle}</p> : ' the database'} first to use this component. {!selectedSub?.subtitleTitle && 'Or pick subtitles in flashCards page.'}
-                        </div>
+                        <>
+                            <div className="mt-12 text-center text-gray-500 mx-4">
+                                Add your hard words to {selectedSub?.subtitleTitle ? <p>{selectedSub.subtitleTitle}</p> : ' the database'} first to use this component. {!selectedSub?.subtitleTitle && 'Or pick subtitles in flashCards page.'}
+                            </div>
+                            <Button className='mt-10' onClick={() => redirect('/home/flashcards')}>
+                                <Link href='/home/flashcards'>Go back</Link>
+                            </Button>
+                        </>
                     )}
-                    {/* {subtitles.length > 0 && (
-                        <div className="mt-6">
-                            <h2 className="text-xl font-bold">Learned Words:</h2>
-                            {subtitles.map((wordObject, index) => (
-                                <p key={index}>
-                                    {wordObject.word && <span>{wordObject.word}: </span>}
-                                    {wordObject.learnState}
-                                </p>
-                            ))}
-
-                        </div>
-                    )} */}
                 </div>
             </div>
+
         </>
     );
 }

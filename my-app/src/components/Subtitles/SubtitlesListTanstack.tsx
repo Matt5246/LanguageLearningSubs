@@ -1,4 +1,5 @@
 "use client"
+import React, { useEffect, useRef } from "react";
 import {
     ColumnDef,
     Row,
@@ -11,9 +12,11 @@ import {
 } from "@tanstack/react-table";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { HTMLAttributes, forwardRef, useState } from "react";
-import { TableVirtuoso } from "react-virtuoso";
+import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso";
 import { cn } from "@/lib/utils";
 import { columns } from './columns'
+import { useSelector } from "react-redux";
+
 
 const TableComponent = forwardRef<
     HTMLTableElement,
@@ -22,23 +25,28 @@ const TableComponent = forwardRef<
     <table
         ref={ref}
         className={cn("w-full caption-bottom text-sm", className)}
-
         {...props}
     />
 ));
 TableComponent.displayName = "TableComponent";
 
-const TableRowComponent = <TData,>(rows: Row<TData>[]) =>
+const TableRowComponent = <TData,>(rows: Row<TData>[], currentIndex: number) =>
     function getTableRow(props: HTMLAttributes<HTMLTableRowElement>) {
         // @ts-expect-error data-index is a valid attribute
         const index = props["data-index"];
         const row = rows[index];
+        const isActive = index === currentIndex;
+
         if (!row) return null;
 
         return (
             <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className={cn(isActive
+                    ? "bg-blue-100 dark:bg-blue-900 dark:text-white hover:bg-blue-200 dark:hover:bg-blue-800 "
+                    : "hover:bg-gray-100 dark:hover:bg-gray-700",
+                    "transition-colors duration-300")}
                 {...props}
             >
                 {row.getVisibleCells().map((cell) => (
@@ -54,24 +62,19 @@ function SortingIndicator({ isSorted }: { isSorted: SortDirection | false }) {
     if (!isSorted) return null;
     return (
         <div>
-            {
-                {
-                    asc: "↑",
-                    desc: "↓",
-                }[isSorted]
-            }
+            {{ asc: "↑", desc: "↓", }[isSorted]}
         </div>
     );
 }
 
-
-
 export function DataTable<TData, TValue>({ captions, height }: { captions: Caption[], height: string }) {
     const [sorting, setSorting] = useState<SortingState>([]);
-    const tableData = captions;
-
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const playedSeconds = useSelector((state: any) => state.subtitle.playedSeconds);
+    const autoScrollEnabled = useSelector((state: any) => state.subtitle.autoScrollEnabled);
+    const tableRef = useRef<TableVirtuosoHandle>(null);
     const table = useReactTable({
-        data: tableData,
+        data: captions,
         columns: columns,
         state: {
             sorting,
@@ -83,14 +86,45 @@ export function DataTable<TData, TValue>({ captions, height }: { captions: Capti
 
     const { rows } = table.getRowModel();
 
+    useEffect(() => {
+        if (rows.length > 0) {
+            let newIndex = -1;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const startTime = row.original.start ?? 0;
+                const nextStartTime = rows[i + 1]?.original.start ?? Infinity;
+                if (playedSeconds >= startTime && playedSeconds < nextStartTime) {
+                    newIndex = i;
+                    break;
+                }
+            }
+
+            if (newIndex === -1) {
+                newIndex = 0;
+            }
+
+            setCurrentIndex(newIndex);
+
+            if (autoScrollEnabled && tableRef.current && newIndex !== -1) {
+                tableRef.current.scrollToIndex({
+                    index: newIndex,
+                    align: "center",
+                    behavior: "smooth",
+                });
+            }
+        }
+    }, [playedSeconds, rows, autoScrollEnabled]);
+
     return (
         <div className="rounded-md border ">
             <TableVirtuoso
+                ref={tableRef}
                 style={{ height }}
                 totalCount={rows.length}
                 components={{
                     Table: TableComponent,
-                    TableRow: TableRowComponent(rows),
+                    TableRow: TableRowComponent(rows, currentIndex),
                 }}
                 fixedHeaderContent={() =>
                     table.getHeaderGroups().map((headerGroup) => (

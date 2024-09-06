@@ -31,6 +31,7 @@ model Subtitle {
   userId        String         @db.ObjectId
   youtubeUrl    String?
   subtitleTitle String?
+  episode       Int?
   sourceLang    String?
   targetLang    String?
   subtitleData  SubtitleData[]
@@ -39,7 +40,7 @@ model Subtitle {
   updatedAt     DateTime?      @updatedAt
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([youtubeUrl, userId])
+  @@unique([subtitleTitle, episode, userId])
 }
 
 model SubtitleData {
@@ -47,8 +48,8 @@ model SubtitleData {
   subtitleDataId String?   @db.ObjectId
   text           String?
   translation    String?
-  dur            Float? //duration
-  start          Float? //offset
+  end            Float?
+  start          Float?
   Subtitle       Subtitle? @relation(fields: [subtitleDataId], references: [SubtitleId], onDelete: Cascade)
 
   @@unique([text, start, subtitleDataId])
@@ -62,8 +63,12 @@ model HardWord {
   pos         String? //Part of speech
   lemma       String?
   learnState  Int        @default(0)
+  createdAt   DateTime?  @default(now())
+  learnedAt   DateTime?
   sentences   Sentence[]
-  Subtitle    Subtitle?  @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
+
+  Subtitle Subtitle? @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
+  userId   String?   @db.ObjectId
 
   @@unique([word])
 }

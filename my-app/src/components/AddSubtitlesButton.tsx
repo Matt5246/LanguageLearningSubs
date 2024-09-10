@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { useSelector } from "react-redux";
+import { SubtitlesState } from '@/lib/features/subtitles/subtitleSlice';
 import SubsEditor from "@/services/subtitleConverter";
 
 interface AddSubtitlesButtonProps {
@@ -15,10 +17,14 @@ interface AddSubtitlesButtonProps {
 
 export function AddSubtitlesButton({ setSubtitleConverted, updateTitle }: AddSubtitlesButtonProps) {
     const { toast } = useToast();
+    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
     const [subtitleText, setSubtitleText] = useState("");
     const [title, setTitle] = useState<string>('');
     const [episode, setEpisode] = useState<number>();
     const [selectedFileType, setSelectedFileType] = useState("srt");
+
+    // Extract unique titles
+    const uniqueTitles = [...new Set(subtitlesData.map(subtitle => subtitle.subtitleTitle))];
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -50,8 +56,6 @@ export function AddSubtitlesButton({ setSubtitleConverted, updateTitle }: AddSub
             });
         }
     };
-
-
 
     const handleAddSubtitles = () => {
         if (!subtitleText.trim()) {
@@ -92,17 +96,24 @@ export function AddSubtitlesButton({ setSubtitleConverted, updateTitle }: AddSub
                 <div>
                     <p className="mb-2">Subtitle title:</p>
                     <Input
-                        type="text"
-                        className="mb-2"
-                        placeholder="Set title"
+                        list="subtitle-titles"
+                        placeholder="Select or enter a title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
+                        className="mb-2"
                     />
+                    <datalist id="subtitle-titles">
+                        {uniqueTitles.map((uniqueTitle) => (
+                            <option key={uniqueTitle} value={uniqueTitle}>
+                                {uniqueTitle}
+                            </option>
+                        ))}
+                    </datalist>
                     <p className="mb-2">Subtitle episode:</p>
                     <Input
                         type="number"
                         className="mb-2"
-                        placeholder="add episode number (optional)"
+                        placeholder="Add episode number (optional)"
                         value={episode}
                         onChange={(e) => setEpisode(parseInt(e.target.value))}
                     />

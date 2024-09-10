@@ -71,7 +71,7 @@ const aggregateData = (data: Subtitle[], period: 'day' | 'week' | 'month') => {
 
 export default function Component() {
     const [activeChart, setActiveChart] = React.useState<keyof typeof chartConfig>("hardWords");
-    const [period, setPeriod] = React.useState<'day' | 'week' | 'month'>('month');
+    const [period, setPeriod] = React.useState<'day' | 'week' | 'month'>('day');
 
     const handlePeriodChange = (newPeriod: 'day' | 'week' | 'month') => {
         setPeriod(newPeriod);

@@ -30,32 +30,52 @@ const TableComponent = forwardRef<
 ));
 TableComponent.displayName = "TableComponent";
 
-const TableRowComponent = <TData,>(rows: Row<TData>[], currentIndex: number) =>
+const TableRowComponent = <TData,>(rows: Row<TData>[], currentIndex: number, autoScrollEnabled: boolean) =>
     function getTableRow(props: HTMLAttributes<HTMLTableRowElement>) {
         // @ts-expect-error data-index is a valid attribute
         const index = props["data-index"];
         const row = rows[index];
         const isActive = index === currentIndex;
 
-        if (!row) return null;
 
-        return (
-            <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className={cn(isActive
-                    ? "bg-blue-100 dark:bg-blue-900 dark:text-white hover:bg-blue-200 dark:hover:bg-blue-800 "
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700",
-                    "transition-colors duration-300")}
-                {...props}
-            >
-                {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                ))}
-            </TableRow>
-        );
+        if (!row) return null;
+        if (autoScrollEnabled) {
+
+
+
+            return (
+                <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className={cn(isActive
+                        ? "bg-blue-100 dark:bg-blue-900 dark:text-white hover:bg-blue-200 dark:hover:bg-blue-800 "
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700",
+                        "transition-colors duration-300")}
+                    {...props}
+                >
+                    {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                    ))}
+                </TableRow>
+            );
+        } else {
+            return (
+                <TableRow
+                    key={row.id}
+                    className={cn("hover:bg-gray-100 dark:hover:bg-gray-700", "transition-colors duration-300")}
+                    {...props}
+                >
+                    {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                    ))}
+                </TableRow>
+            );
+        }
+
     };
 
 function SortingIndicator({ isSorted }: { isSorted: SortDirection | false }) {
@@ -124,7 +144,7 @@ export function DataTable<TData, TValue>({ captions, height }: { captions: Capti
                 totalCount={rows.length}
                 components={{
                     Table: TableComponent,
-                    TableRow: TableRowComponent(rows, currentIndex),
+                    TableRow: TableRowComponent(rows, currentIndex, autoScrollEnabled),
                 }}
                 fixedHeaderContent={() =>
                     table.getHeaderGroups().map((headerGroup) => (

@@ -1,11 +1,8 @@
 'use client'
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import VideoPlayer from "@/components/VideoPlayer";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import {
     ResizableHandle,
     ResizablePanel,
@@ -15,18 +12,14 @@ import axios from 'axios';
 import SubtitlesSkeleton from "@/components/Subtitles/SubtitlesSkeleton"
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast"
-import { ToastAction } from "@/components/ui/toast"
 import { useSession } from "next-auth/react";
 import { useAppDispatch } from '@/lib/hooks';
 import { SubtitlesState, addSubtitle, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice';
 import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
-import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice'
 import { useIsMobile } from '@/hooks/useMobile'
 import { GearIcon } from '@radix-ui/react-icons';
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
-import { Textarea } from "@/components/ui/textarea"
 import { useSelector } from 'react-redux'
-import SubsEditor from "@/services/subtitleConverter";
 import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown";
 import mkvExtract from "@/lib/mkvExtract"
 import SettingsDrawerContent from "@/components/SettingsDrawer";
@@ -38,8 +31,12 @@ import { getSubs } from "@/components/NavBar";
 import FileBrowser from "./fileBrowser";
 
 const Home = () => {
-    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
-    const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
+    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles ?? []);
+    const selectedSub: Subtitle | null = useSelector((state: any) =>
+        Array.isArray(state.subtitle.subtitles)
+            ? state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle)
+            : null
+    );
     const { toast } = useToast();
     const session = useSession();
     const [subtitleConverted, setSubtitleConverted] = useState<any>([]);

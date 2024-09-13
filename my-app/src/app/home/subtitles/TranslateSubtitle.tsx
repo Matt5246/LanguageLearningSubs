@@ -23,16 +23,19 @@ import { EuropeLanguages } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios'
 import { useDispatch } from 'react-redux';
-import { updateSubtitle } from '@/lib/features/subtitles/subtitleSlice';
-import { useLocalStorage } from "@/hooks/useLocalStorage"; // Import the hook
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice';
+import { getSubs } from "@/components/NavBar";
+import { useToast } from "@/components/ui/use-toast"
 
-function TranslateSubtitle(selectedSubtitle: any) {
+
+function TranslateSubtitle(selectedSubtitle: any, email: string) {
     const dispatch = useDispatch();
     const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "de");
     const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
     const [targetLanguage, setTargetLanguage] = useState(storedTargetLanguage);
     const [sourceLanguage, setSourceLanguage] = useState(storedSourceLanguage);
-
+    const { toast } = useToast();
     useEffect(() => {
         setStoredTargetLanguage(targetLanguage);
     }, [targetLanguage, setStoredTargetLanguage]);
@@ -60,19 +63,20 @@ function TranslateSubtitle(selectedSubtitle: any) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-            });
+            }).then(() => (getSubs(selectedSubtitle?.selectedSubtitle?.email ?? "")
+                .then((subtitles) => {
+                    dispatch(initializeSubtitles(subtitles));
+                })
+                .catch((error) => {
+                    console.error('Error fetching subtitles:', error);
+                }))
 
-            if (translationResponse?.data?.combinedSubtitles) {
-                dispatch(updateSubtitle({
-                    SubtitleId: translationResponse?.data?.createdSubtitleData?.SubtitleId,
-                    youtubeUrl: translationResponse?.data?.createdSubtitleData?.youtubeUrl,
-                    subtitleTitle: translationResponse?.data?.createdSubtitleData?.subtitleTitle,
-                    subtitleData: translationResponse?.data?.combinedSubtitles,
-                    hardWords: translationResponse?.data?.createdSubtitleData?.SubtitleId,
-                }));
-            }
-
-            return translationResponse.data;
+            ).catch((e) => toast({
+                title: "Error translating subtitles",
+                description: e ? e.toString() : "Something went wrong while translating subtitles.",
+                variant: 'destructive',
+            }));
+            return translationResponse;
         },
         enabled: false,
         retry: true,

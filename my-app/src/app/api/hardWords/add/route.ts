@@ -5,7 +5,7 @@ import { primaryTranslationServiceURL, fallbackTranslationServiceURL } from '@/l
 
 const prisma = new PrismaClient();
 function generateRandomTitle() {
-    const randomNumber = Math.floor(Math.random() * 1000) + 1; // Generate a random number between 1 and 1000
+    const randomNumber = Math.floor(Math.random() * 1000) + 1; 
     return `Subtitle ${randomNumber}`;
 }
 async function fetchLemmaAndPOS(word: string) {
@@ -66,14 +66,7 @@ export async function POST(req: Request) {
             });
 
             if (!subtitle) {
-                const newSubtitle = await prisma.subtitle.create({
-                    data: {
-                        userId: selectedUserId,
-                        youtubeUrl,
-                        subtitleTitle: subtitleTitle || generateRandomTitle(),
-                    },
-                });
-                return NextResponse.json(newSubtitle);
+                return NextResponse.json({ error: 'subtitle not found!' });
             }
 
             const existingHardWord = await prisma.hardWord.findFirst({
@@ -89,7 +82,13 @@ export async function POST(req: Request) {
                 sentence,
                 translation: sentenceTranslation,
             }
-            let hardWordData = {
+            let hardWordData: {
+                word: string;
+                Subtitle: { connect: { SubtitleId: string; } };
+                lemma?: string | null;
+                pos?: string | null;
+                translation?: string | null;
+            } = {
                 word: hardWord,
                 Subtitle: { connect: { SubtitleId: subtitle.SubtitleId } },
             }
@@ -107,7 +106,6 @@ export async function POST(req: Request) {
             if (translation) {
                 hardWordData = {
                     ...hardWordData,
-                    //@ts-ignore
                     translation
                 };
             }
@@ -122,6 +120,7 @@ export async function POST(req: Request) {
             //     return NextResponse.json({ word: hardWord, sentenceData });
             // }
 
+            console.log('hardword:', hardWordData)
             await prisma.hardWord.create({
                 data: {
                     ...hardWordData,

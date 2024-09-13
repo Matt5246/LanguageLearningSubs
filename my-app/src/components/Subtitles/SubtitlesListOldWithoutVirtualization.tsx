@@ -32,7 +32,6 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
             youtubeUrl: url,
             email: userEmail,
             hardWord: selectedWord,
-
             //sentence: selectedSubtitle?.text,
         }
         try {

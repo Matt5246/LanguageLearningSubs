@@ -5,9 +5,11 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId, episode } = await req.json();
+            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId, episode, sourceLang, targetLang } = await req.json();
             const data: any = {
                 subtitleTitle,
+                sourceLang,
+                targetLang,
             };
 
             if (youtubeUrl) {

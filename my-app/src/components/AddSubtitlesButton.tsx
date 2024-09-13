@@ -17,14 +17,13 @@ interface AddSubtitlesButtonProps {
 
 export function AddSubtitlesButton({ setSubtitleConverted, updateTitle }: AddSubtitlesButtonProps) {
     const { toast } = useToast();
-    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
+    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles ?? []);
     const [subtitleText, setSubtitleText] = useState("");
     const [title, setTitle] = useState<string>('');
     const [episode, setEpisode] = useState<number>();
     const [selectedFileType, setSelectedFileType] = useState("srt");
 
-    // Extract unique titles
-    const uniqueTitles = [...new Set(subtitlesData.map(subtitle => subtitle.subtitleTitle))];
+    const uniqueTitles = Array.from(new Set(Array.isArray(subtitlesData) ? subtitlesData.map(subtitle => subtitle.subtitleTitle) : []));
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];

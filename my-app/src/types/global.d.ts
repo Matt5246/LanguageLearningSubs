@@ -28,6 +28,8 @@ interface Subtitle {
     SubtitleId?: string | null;
     youtubeUrl?: string;
     subtitleTitle?: string;
+    sourceLang?: string;
+    targetLang?: string;
     episode?: number;
     subtitleData?: SubtitleData[];
     hardWords?: HardWord[];

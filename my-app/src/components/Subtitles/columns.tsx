@@ -34,8 +34,6 @@ function convertTime(time: number): string {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, subtitleTitle: string, url: string, userId: string) {
-
-    console.log("hardWord", word)
     if (!word || (!url && !subtitleTitle) || !userId) return;
     const data = {
         youtubeUrl: url || null,
@@ -64,7 +62,6 @@ async function handleAddToHardWords(word: string | null, sentence: string, sente
                 },
             })
         }
-        console.log('Word added to hard words:', response.data);
     } catch (error) {
         console.error('Error adding word to hard words:', error);
     }
@@ -116,7 +113,6 @@ const RenderMiddlePopoverContent = (row: any) => {
     const [end, setEnd] = useState(fullRow.end);
 
     const handleEditSentence = async () => {
-        console.log(sentenceTranslation);
         try {
             await axios.post('/api/subtitles/subtitleData/update', {
                 id: fullRow?.id,

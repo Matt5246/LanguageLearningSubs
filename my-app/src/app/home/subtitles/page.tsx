@@ -8,6 +8,7 @@ import UpdateSubtitles from './UpdateSubtitles';
 import DeleteSubtitle from './DeleteSubtitles';
 import TranslateSubtitle from './TranslateSubtitle';
 import SwapTranslationButton from './SwapTranslationButton';
+import { MostUsedWordsButton } from './MostUsedWords';
 export default function Home() {
   const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
   const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
@@ -25,6 +26,7 @@ export default function Home() {
             <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />
             <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} />
             <DeleteSubtitle SubtitleId={selectedSub?.SubtitleId} />
+            <MostUsedWordsButton selectedSubtitle={selectedSub as Subtitle} />
           </>
           )}
 

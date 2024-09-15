@@ -8,8 +8,6 @@ export async function POST(req: Request) {
             const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId, episode, sourceLang, targetLang } = await req.json();
             const data: any = {
                 subtitleTitle,
-                sourceLang,
-                targetLang,
             };
 
             if (youtubeUrl) {
@@ -21,6 +19,10 @@ export async function POST(req: Request) {
             });
             if(existingSubtitle?.episode){
                 data.episode = parseInt(episode) || existingSubtitle.episode;
+            }
+            if(existingSubtitle?.sourceLang){
+                data.sourceLang = sourceLang || existingSubtitle.sourceLang;
+                data.targetLang = targetLang || existingSubtitle.targetLang;
             }
             if (existingSubtitle) {
                 if (subtitleData && subtitleData.length > 0) {

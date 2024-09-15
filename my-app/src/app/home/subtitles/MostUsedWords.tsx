@@ -90,7 +90,7 @@ export function MostUsedWordsButton({ selectedSubtitle }: MostUsedWordsButtonPro
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>Most Used Words</Button>
+                <Button variant="outline">Most Used Words</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

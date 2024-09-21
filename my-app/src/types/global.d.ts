@@ -33,6 +33,7 @@ interface Subtitle {
     episode?: number;
     subtitleData?: SubtitleData[];
     hardWords?: HardWord[];
+    createdAt?: Date;
 }
 
 interface SubtitleData {

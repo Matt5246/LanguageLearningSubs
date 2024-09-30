@@ -43,9 +43,9 @@ export default function Home() {
               <DeleteSubtitle SubtitleId={selectedSub?.SubtitleId} />
             </div>
             <div className='flex space-x-2'>
-              <MostUsedWordsButton selectedSubtitle={selectedSub as Subtitle} />
               <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />
               <Button onClick={() => dispatch(setSelectedSubtitle(null))} >Go Back</Button>
+              <MostUsedWordsButton selectedSubtitle={selectedSub as Subtitle} />
             </div>
           </div>
         )}

@@ -108,7 +108,7 @@ export default function FlashCard() {
             );
             toast({
                 title: "Word updated successfully!",
-                description: response.toString(),
+                // description: response.toString(),
             })
         } catch (error) {
             console.error('Error fetching subtitles:', error);
@@ -252,9 +252,12 @@ export default function FlashCard() {
                             <div className="mt-12 text-center text-gray-500 mx-4">
                                 Add your hard words to {selectedSub?.subtitleTitle ? <p>{selectedSub.subtitleTitle}</p> : ' the database'} first to use this component. {!selectedSub?.subtitleTitle && 'Or pick subtitles in flashCards page.'}
                             </div>
-                            <Button className='mt-10' onClick={() => redirect('/home/flashcards')}>
-                                <Link href='/home/flashcards'>Go back</Link>
-                            </Button>
+
+                            <Link href='/home/flashcards'>
+                                <Button className='mt-10 w-full' onClick={() => redirect('/home/flashcards')}>
+                                    Go back
+                                </Button>
+                            </Link>
                         </>
                     )}
                 </div>

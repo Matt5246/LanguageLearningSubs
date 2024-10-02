@@ -11,6 +11,7 @@ import SwapTranslationButton from './SwapTranslationButton';
 import { MostUsedWordsButton } from './MostUsedWords';
 import { SubtitleCards } from './SubtitleCards';
 import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion'; // Import motion from framer-motion
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -30,13 +31,20 @@ export default function Home() {
 
   return (
     <div className='m-5'>
-      <div className='flex flex-col md:flex-row justify-between items-start'>
+      <div className='flex flex-col md:flex-row justify-between items-start'
+      >
         <div className="mb-4 md:mb-0">
           <SubtitlesDropDown data={subtitlesData as any[]} />
         </div>
 
         {selectedSub && (
-          <div className='flex flex-col items-end'>
+          <motion.div
+            className='flex flex-col items-end'
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
             <div className='flex space-x-2 mb-2'>
               <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} />
               <UpdateSubtitles selectedSubtitle={selectedSub as Subtitle} />
@@ -47,7 +55,7 @@ export default function Home() {
               <Button onClick={() => dispatch(setSelectedSubtitle(null))} >Go Back</Button>
               <MostUsedWordsButton selectedSubtitle={selectedSub as Subtitle} />
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
 
@@ -69,7 +77,15 @@ export default function Home() {
           )}
         </div>
       ) : (
-        Object.keys(groupedSubtitles).length > 0 && <SubtitleCards groupedSubtitles={groupedSubtitles} />
+        Object.keys(groupedSubtitles).length > 0 &&
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 1, scale: 0.8 }}
+          transition={{ duration: 0.2 }}
+        >
+          <SubtitleCards groupedSubtitles={groupedSubtitles} />
+        </motion.div>
       )}
     </div>
   );

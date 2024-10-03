@@ -19,7 +19,7 @@ interface Word {
 const Home: React.FC = () => {
     const flashCardData: Subtitle[] = useSelector(selectFlashCardData) || [];
     const [isLoaded, setIsLoaded] = useState(false);
-    const [fontSize, setFontSize] = useState('text-xl'); // Adjusted initial size for better mobile fit
+    const [fontSize, setFontSize] = useState('text-xl');
 
     const sortedHardWords: Word[] = flashCardData
         .flatMap(data => data.hardWords)
@@ -55,6 +55,13 @@ const Home: React.FC = () => {
         );
     }
 
+    const scrollTo = (letter: string) => {
+        const element = document.getElementById(letter);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
     return (
         <>
             <h1 className="text-2xl font-bold mt-6 ml-6 md:text-3xl">
@@ -65,17 +72,27 @@ const Home: React.FC = () => {
                 <Button onClick={decreaseFontSize}>A-</Button>
                 <Button onClick={increaseFontSize}>A+</Button>
             </div>
+            <div className='absolute'>
+                {Object.keys(groupedWords).length > 0 ? (
+                    <div className='flex flex-col justify-center sticky m-2'>
+                        {Object.keys(groupedWords).map((letter, letterIndex) => (
+                            <Button className="" key={letter} onClick={() => scrollTo(letter)}>{letter}</Button>
+                        ))}
 
+                    </div>
+                ) : null}
+            </div>
             <div className="flex justify-center select-text">
                 {Object.keys(groupedWords).length > 0 ? (
                     <div className="mt-9 w-full px-4 md:w-[700px]">
                         {Object.keys(groupedWords).map((letter, letterIndex) => (
-                            <div key={letter} className="mb-3">
+                            <div key={letter} id={letter} className="mb-3">
                                 <motion.h2
-                                    initial={{ opacity: 0, y: 25 }}
+                                    initial={{ opacity: 0, y: 23 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5, delay: letterIndex * 0.1 }}
                                     className="text-2xl md:text-3xl font-semibold mb-2"
+                                    id={letter}
                                 >
                                     {letter}
                                 </motion.h2>
@@ -89,7 +106,7 @@ const Home: React.FC = () => {
                                         className={`flex justify-between p-1.5 md:p-0 ${fontSize}`}
                                     >
                                         <div className="w-1/2 break-words">
-                                            <strong>{row.word}</strong>
+                                            <strong>{row.word.charAt(0).toUpperCase() + row.word.slice(1)}</strong>
                                         </div>
                                         <div className="w-1/2 break-words">
                                             {row.translation}

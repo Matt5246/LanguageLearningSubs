@@ -11,7 +11,7 @@ import SwapTranslationButton from './SwapTranslationButton';
 import { MostUsedWordsButton } from './MostUsedWords';
 import { SubtitleCards } from './SubtitleCards';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion'; // Import motion from framer-motion
+import { motion } from 'framer-motion';
 
 export default function Home() {
   const dispatch = useDispatch();

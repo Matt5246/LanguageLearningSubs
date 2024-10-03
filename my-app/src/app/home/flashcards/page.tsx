@@ -15,6 +15,7 @@ const Home = () => {
     const [groupedSubtitles, setGroupedSubtitles] = useState<GroupedSubtitles>({});
 
     useEffect(() => {
+
         const grouped = flashCardData.reduce((acc: GroupedSubtitles, subtitle: Subtitle) => {
             if (!acc[subtitle.subtitleTitle!]) {
                 acc[subtitle.subtitleTitle!] = [];
@@ -30,7 +31,7 @@ const Home = () => {
         dispatch(setSelectedSubtitle(SubtitleId));
         redirect('/home/flashcards/learn');
     };
-
+    if (!flashCardData) return <>none</>;
     return (
         <div className="flex justify-center mt-6 mx-5">
             {Object.keys(groupedSubtitles).length > 0 ? (
@@ -44,11 +45,11 @@ const Home = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, delay: index * 0.1 }}
                             >
-                                <Card className="m-3 transition-transform transform group hover:scale-105 hover:shadow-lg">
+                                <Card className="m-3 transition-transform transform group hover:scale-105 hover:shadow-lg min-h-[450px]">
                                     <CardHeader>
                                         <CardTitle className="text-xl">{subtitleTitle}</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="flex-grow h-[301px]">
+                                    <CardContent className="flex-grow ">
                                         <p className='pb-3'>Word count: {data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0)}</p>
                                         <div className={`space-y-2 ${data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0) > 10 ? 'h-[250px] overflow-y-auto' : ''}`}>
                                             {data.map((subtitle, index) => (
@@ -62,7 +63,7 @@ const Home = () => {
                                             ))}
                                         </div>
                                     </CardContent>
-                                    <CardFooter className="flex w-full justify-between">
+                                    <CardFooter className="flex w-full justify-between fixed bottom-0 left-0 bg-white">
                                         <DeleteSubtitle SubtitleId={data[0].SubtitleId!} />
                                         <Link href='/home/flashcards/learn'>
                                             <Button variant="secondary" onClick={() => handleLearnButtonClick(data[0].SubtitleId!)}>

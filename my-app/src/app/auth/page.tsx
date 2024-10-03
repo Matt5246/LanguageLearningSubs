@@ -99,11 +99,11 @@ export default function Authorization() {
 						<CardContent className="space-y-2">
 							<div className="space-y-1">
 								<Label htmlFor="name">Name</Label>
-								<Input id="name" value={data.name} onChange={e => setData({ ...data, name: e.target.value })} defaultValue="" />
+								<Input id="name" value={data.name} onChange={e => setData({ ...data, name: e.target.value })} />
 							</div>
 							<div className="space-y-1">
 								<Label htmlFor="email">Email</Label>
-								<Input id="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} defaultValue="" />
+								<Input id="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
 							</div>
 							<div className="space-y-1">
 								<Label htmlFor="password">Password</Label>
@@ -130,7 +130,7 @@ export default function Authorization() {
 						<CardContent className="space-y-2">
 							<div className="space-y-1">
 								<Label htmlFor="email">Email</Label>
-								<Input id="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} defaultValue="" />
+								<Input id="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
 							</div>
 							<div className="space-y-1">
 								<Label htmlFor="password">Password</Label>

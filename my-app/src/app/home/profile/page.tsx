@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 export default function UserProfile() {
 
     const session = useSession();
@@ -72,9 +73,12 @@ export default function UserProfile() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button className="w-full">
-                        <CheckIcon className="mr-2 h-4 w-4" /> Make changes
-                    </Button>
+                    <Link href='/home/profile/subscribe' className="w-full">
+
+                        <Button className="w-full">
+                            <CheckIcon className="mr-2 h-4 w-4" /> Subscriptions
+                        </Button>
+                    </Link>
                 </CardFooter>
             </Card>
         </div>

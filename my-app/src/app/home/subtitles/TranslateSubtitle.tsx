@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { EuropeLanguages } from '@/lib/utils';
+import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios'
 import { useDispatch } from 'react-redux';
@@ -33,8 +33,8 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
     const dispatch = useDispatch();
     const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "de");
     const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
-    const [targetLanguage, setTargetLanguage] = useState(storedTargetLanguage);
-    const [sourceLanguage, setSourceLanguage] = useState(storedSourceLanguage);
+    const [targetLanguage, setTargetLanguage] = useState(selectedSubtitle?.selectedSubtitle?.targetLang ? selectedSubtitle?.selectedSubtitle?.targetLang : storedTargetLanguage);
+    const [sourceLanguage, setSourceLanguage] = useState(selectedSubtitle?.selectedSubtitle?.sourceLang ? selectedSubtitle?.selectedSubtitle?.sourceLang : storedSourceLanguage);
     const { toast } = useToast();
     useEffect(() => {
         setStoredTargetLanguage(targetLanguage);
@@ -43,7 +43,7 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
     useEffect(() => {
         setStoredSourceLanguage(sourceLanguage);
     }, [sourceLanguage, setStoredSourceLanguage]);
-
+    console.log("subtitle", selectedSubtitle)
     const { isFetching, refetch } = useQuery({
         queryKey: ['translate', selectedSubtitle?.selectedSubtitle?.SubtitleId],
         queryFn: async () => {
@@ -103,8 +103,14 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
                     </SelectTrigger>
                     <SelectContent >
                         <SelectGroup>
-                            <SelectLabel>Europe</SelectLabel>
+                            <SelectLabel className='font-extrabold text-lg'>Europe</SelectLabel>
                             {EuropeLanguages.map((language) => (
+                                <SelectItem key={language.value} value={language.value}>
+                                    {language.label}
+                                </SelectItem>
+                            ))}
+                            <SelectLabel className='font-extrabold text-lg'>Asia</SelectLabel>
+                            {AsiaLanguages.map((language) => (
                                 <SelectItem key={language.value} value={language.value}>
                                     {language.label}
                                 </SelectItem>
@@ -120,8 +126,14 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
                     <SelectContent >
                         <SelectGroup>
                             <SelectItem value="auto">auto</SelectItem>
-                            <SelectLabel className='font-extrabold'>Europe</SelectLabel>
+                            <SelectLabel className='font-extrabold text-lg'>Europe</SelectLabel>
                             {EuropeLanguages.map((language) => (
+                                <SelectItem key={language.value} value={language.value}>
+                                    {language.label}
+                                </SelectItem>
+                            ))}
+                            <SelectLabel className='font-extrabold text-lg'>Asia</SelectLabel>
+                            {AsiaLanguages.map((language) => (
                                 <SelectItem key={language.value} value={language.value}>
                                     {language.label}
                                 </SelectItem>
@@ -135,7 +147,6 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
 
                 {selectedSubtitle?.selectedSubtitle?.youtubeUrl && <DialogDescription>Subtitle URL:</DialogDescription>}
                 {selectedSubtitle?.selectedSubtitle?.youtubeUrl}
-
                 <DialogFooter>
                     <Button variant="default" disabled={isFetching} className='mt-2' onClick={() => refetch()}>
                         {isFetching ? 'Updating...' : 'Translate'}

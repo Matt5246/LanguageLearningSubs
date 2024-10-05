@@ -63,7 +63,7 @@ const Home = () => {
                                             ))}
                                         </div>
                                     </CardContent>
-                                    <CardFooter className="flex w-full justify-between fixed bottom-0 left-0 bg-white">
+                                    <CardFooter className="flex w-full justify-between fixed bottom-0 left-0">
                                         <DeleteSubtitle SubtitleId={data[0].SubtitleId!} />
                                         <Link href='/home/flashcards/learn'>
                                             <Button variant="secondary" onClick={() => handleLearnButtonClick(data[0].SubtitleId!)}>

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useSelector, useDispatch } from 'react-redux';
 import { SubtitlesState, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 import * as React from "react";
@@ -12,12 +12,14 @@ import { MostUsedWordsButton } from './MostUsedWords';
 import { SubtitleCards } from './SubtitleCards';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const dispatch = useDispatch();
   const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
   const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
   const validData = Array.isArray(subtitlesData) ? subtitlesData : [];
+  const [isClient, setIsClient] = useState(false);
 
   const groupedSubtitles = validData.reduce((acc: { [key: string]: Subtitle[] }, subtitle) => {
     if (subtitle.subtitleTitle && !acc[subtitle.subtitleTitle]) {
@@ -29,15 +31,19 @@ export default function Home() {
     return acc;
   }, {});
 
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <div className='m-5'>
-      <div className='flex flex-col md:flex-row justify-between items-start'
-      >
+      <div className='flex flex-col md:flex-row justify-between items-start'>
         <div className="mb-4 md:mb-0">
           <SubtitlesDropDown data={subtitlesData as any[]} />
         </div>
 
-        {selectedSub && (
+        {selectedSub && isClient && (
           <motion.div
             className='flex flex-col items-end'
             initial={{ opacity: 0, y: -20 }}
@@ -52,7 +58,7 @@ export default function Home() {
             </div>
             <div className='flex space-x-2'>
               <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />
-              <Button onClick={() => dispatch(setSelectedSubtitle(null))} >Go Back</Button>
+              <Button onClick={() => dispatch(setSelectedSubtitle(null))}>Go Back</Button>
               <MostUsedWordsButton selectedSubtitle={selectedSub as Subtitle} />
             </div>
           </motion.div>
@@ -77,15 +83,16 @@ export default function Home() {
           )}
         </div>
       ) : (
-        Object.keys(groupedSubtitles).length > 0 &&
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 1, scale: 0.8 }}
-          transition={{ duration: 0.2 }}
-        >
-          <SubtitleCards groupedSubtitles={groupedSubtitles} />
-        </motion.div>
+        isClient && Object.keys(groupedSubtitles).length > 0 && (
+          <motion.p
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 1, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <SubtitleCards groupedSubtitles={groupedSubtitles} />
+          </motion.p>
+        )
       )}
     </div>
   );

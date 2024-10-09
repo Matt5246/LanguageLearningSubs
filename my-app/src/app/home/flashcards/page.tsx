@@ -51,17 +51,17 @@ const Home = () => {
                                     </CardHeader>
                                     <CardContent className="flex-grow ">
                                         <p className='pb-3'>Word count: {data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0)}</p>
-                                        <div className={`space-y-2 ${data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0) > 10 ? 'h-[250px] overflow-y-auto' : ''}`}>
+                                        <p className={`space-y-2 ${data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0) > 10 ? 'h-[250px] overflow-y-auto' : ''}`}>
                                             {data.map((subtitle, index) => (
-                                                <div key={index}>
+                                                <p key={index}>
                                                     {subtitle.hardWords!.map((hardWord, idx) => (
                                                         <p key={idx}>
                                                             {hardWord.word} <a className="text-gray-500">{'->'}</a> {hardWord.translation} {hardWord.learnState === 100 && <a className="text-green-500">✓</a>}
                                                         </p>
                                                     ))}
-                                                </div>
+                                                </p>
                                             ))}
-                                        </div>
+                                        </p>
                                     </CardContent>
                                     <CardFooter className="flex w-full justify-between fixed bottom-0 left-0">
                                         <DeleteSubtitle SubtitleId={data[0].SubtitleId!} />

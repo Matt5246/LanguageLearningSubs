@@ -8,9 +8,9 @@ function generateRandomTitle() {
     const randomNumber = Math.floor(Math.random() * 1000) + 1; 
     return `Subtitle ${randomNumber}`;
 }
-async function fetchLemmaAndPOS(word: string) {
+async function fetchLemmaAndPOS(word: string, sourceLang: string) {
     try {
-        const response = await axios.post('http://127.0.0.1:8080/nlp', { word });
+        const response = await axios.post('http://127.0.0.1:8080/nlp', { word, sourceLang });
         const { result } = response.data;
         return result;
     } catch (error) {
@@ -40,7 +40,7 @@ async function fetchTranslation(word: string, sourceLang: string, targetLang: st
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { email, youtubeUrl, hardWord, subtitleTitle, userId, sentence, sentenceTranslation } = await req.json();
+            const { email, youtubeUrl, hardWord, subtitleTitle, userId, sentence, sentenceTranslation, sourceLang } = await req.json();
 
             if (!email && !userId) {
                 throw new Error('Email is required');
@@ -92,7 +92,7 @@ export async function POST(req: Request) {
                 word: hardWord,
                 Subtitle: { connect: { SubtitleId: subtitle.SubtitleId } },
             }
-            const { lemma, pos } = await fetchLemmaAndPOS(hardWord);
+            const { lemma, pos } = await fetchLemmaAndPOS(hardWord, sourceLang);
             const translation = await fetchTranslation(lemma ? lemma : hardWord, subtitle?.sourceLang || "auto", subtitle?.targetLang || 'en');
 
             if (lemma) {

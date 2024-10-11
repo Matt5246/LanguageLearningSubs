@@ -33,15 +33,15 @@ function convertTime(time: number): string {
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
-async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, subtitleTitle: string, url: string, userId: string) {
-
-    console.log("hardWord", word)
+async function handleAddToHardWords(word: string | null, sentence: string, sentenceTranslation: string, subtitleTitle: string, url: string, userId: string, sourceLang: string) {
     if (!word || (!url && !subtitleTitle) || !userId) return;
+    console.log('sourceLang', sourceLang)
     const data = {
         youtubeUrl: url || null,
         subtitleTitle: subtitleTitle || null,
         userId: userId,
         hardWord: word,
+        sourceLang,
         sentence,
         sentenceTranslation,
     };
@@ -64,7 +64,6 @@ async function handleAddToHardWords(word: string | null, sentence: string, sente
                 },
             })
         }
-        console.log('Word added to hard words:', response.data);
     } catch (error) {
         console.error('Error adding word to hard words:', error);
     }
@@ -116,7 +115,6 @@ const RenderMiddlePopoverContent = (row: any) => {
     const [end, setEnd] = useState(fullRow.end);
 
     const handleEditSentence = async () => {
-        console.log(sentenceTranslation);
         try {
             await axios.post('/api/subtitles/subtitleData/update', {
                 id: fullRow?.id,
@@ -234,7 +232,7 @@ const RenderMiddlePopoverContent = (row: any) => {
                         ))}
                     </ul>
                     <Button className="mt-2" onClick={() =>
-                        handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.subtitleTitle || '', selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '')}
+                        handleAddToHardWords(selectedWord, fullRow?.text as string, fullRow?.translation as string, selectedSubtitle?.subtitleTitle || '', selectedSubtitle?.youtubeUrl || '', selectedSubtitle?.userId || '', selectedSubtitle?.sourceLang || '')}
                     >Add to Hard Words</Button>
                     <DrawerTrigger asChild>
                         <Button className="mt-2 absolute right-4">Edit</Button>

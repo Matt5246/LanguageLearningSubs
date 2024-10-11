@@ -30,8 +30,8 @@ type Subtitle = {
 export function SubtitlesDropDown({ data }: { data: Subtitle[] }) {
     const dispatch = useDispatch();
     const [title, setTitle] = React.useState("");
-
-    const groupedSubtitles = data.reduce((acc: { [key: string]: Subtitle[] }, subtitle) => {
+    const validData = Array.isArray(data) ? data : [];
+    const groupedSubtitles = validData.reduce((acc: { [key: string]: Subtitle[] }, subtitle) => {
         if (!acc[subtitle.subtitleTitle]) {
             acc[subtitle.subtitleTitle] = [];
         }

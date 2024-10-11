@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player/lazy';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setPlayedSeconds } from '@/lib/features/subtitles/subtitleSlice';
 
 
@@ -17,7 +17,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track, light }) => {
     const [playing, setPlaying] = useState(false);
     const playerRef = useRef<any>(null);
     const isBlobUrl = (url: string) => url.startsWith('blob:');
-
+    const autoScrollEnabled = useSelector((state: any) => state.subtitle.autoScrollEnabled);
     const { originalVTTUrl, translationVTTUrl, mixedVTTUrl } = convertToVTT(track || [{ start: 0, end: 2, text: "No subtitles available" }]);
 
     const subtitleTracks = [
@@ -43,7 +43,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track, light }) => {
     }, [url, isReady]);
 
     const handleProgress = (state: { playedSeconds: number }) => {
-        dispatch(setPlayedSeconds(state.playedSeconds));
+        if (autoScrollEnabled) {
+            dispatch(setPlayedSeconds(state.playedSeconds));
+        }
         if (!isBlobUrl(url)) {
             localStorage.setItem(`videoCurrentTime-${url}`, state.playedSeconds.toString());
         }

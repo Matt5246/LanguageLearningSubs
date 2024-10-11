@@ -77,7 +77,7 @@ export async function POST(req: Request) {
 
         const combinedSubtitles = subtitleData.map((subtitle: SubtitleData, index: number) => ({
             text: subtitle.text,
-            translation: translatedSubtitleData[index] || '', // Ensure fallback in case of mismatch
+            translation: translatedSubtitleData[index] || null, 
             end: parseFloat(subtitle.end),
             start: parseFloat(subtitle.start),
         }));

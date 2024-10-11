@@ -23,6 +23,8 @@ function UpdateSubtitles(selectedSubtitle: any) {
         youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
         subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
         episode: selectedSubtitle?.selectedSubtitle?.episode,
+        sourceLang: selectedSubtitle?.selectedSubtitle?.sourceLang,
+        targetLang: selectedSubtitle?.selectedSubtitle?.targetLang,
     });
 
     const { isLoading, isError, error, data, refetch } = useQuery({
@@ -49,6 +51,8 @@ function UpdateSubtitles(selectedSubtitle: any) {
                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
                 episode: selectedSubtitle?.selectedSubtitle?.episode,
+                sourceLang: selectedSubtitle?.selectedSubtitle?.sourceLang,
+                targetLang: selectedSubtitle?.selectedSubtitle?.targetLang,
             });
         }
     }, [selectedSubtitle]);
@@ -88,6 +92,24 @@ function UpdateSubtitles(selectedSubtitle: any) {
                         onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, episode: e.target.value })}
                     />
                 </>}
+                {selectedSubtitle?.selectedSubtitle?.sourceLang && <>
+                    <DialogDescription>sourceLang</DialogDescription>
+                    <input
+                        type="text"
+                        value={updatedSubtitle?.sourceLang}
+
+                        onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, sourceLang: e.target.value })}
+                    />
+                </>}
+                {selectedSubtitle?.selectedSubtitle?.targetLang && <>
+                    <DialogDescription>targetLang</DialogDescription>
+                    <input
+                        type="text"
+                        value={updatedSubtitle?.targetLang}
+
+                        onChange={(e) => setUpdatedSubtitle({ ...updatedSubtitle, targetLang: e.target.value })}
+                    />
+                </>}
 
                 <DialogFooter>
                     <Button
@@ -107,6 +129,8 @@ function UpdateSubtitles(selectedSubtitle: any) {
                                 youtubeUrl: selectedSubtitle?.selectedSubtitle?.youtubeUrl,
                                 subtitleTitle: selectedSubtitle?.selectedSubtitle?.subtitleTitle,
                                 episode: selectedSubtitle?.selectedSubtitle?.episode,
+                                sourceLang: selectedSubtitle?.selectedSubtitle?.sourceLang,
+                                targetLang: selectedSubtitle?.selectedSubtitle?.targetLang,
                             });
                         }}
                     >

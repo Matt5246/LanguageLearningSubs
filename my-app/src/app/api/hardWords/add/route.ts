@@ -5,12 +5,12 @@ import { primaryTranslationServiceURL, fallbackTranslationServiceURL } from '@/l
 
 const prisma = new PrismaClient();
 function generateRandomTitle() {
-    const randomNumber = Math.floor(Math.random() * 1000) + 1; // Generate a random number between 1 and 1000
+    const randomNumber = Math.floor(Math.random() * 1000) + 1; 
     return `Subtitle ${randomNumber}`;
 }
-async function fetchLemmaAndPOS(word: string) {
+async function fetchLemmaAndPOS(word: string, sourceLang: string) {
     try {
-        const response = await axios.post('http://127.0.0.1:8080/nlp', { word });
+        const response = await axios.post('http://127.0.0.1:8080/nlp', { word, sourceLang });
         const { result } = response.data;
         return result;
     } catch (error) {
@@ -40,7 +40,7 @@ async function fetchTranslation(word: string, sourceLang: string, targetLang: st
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { email, youtubeUrl, hardWord, subtitleTitle, userId, sentence, sentenceTranslation } = await req.json();
+            const { email, youtubeUrl, hardWord, subtitleTitle, userId, sentence, sentenceTranslation, sourceLang } = await req.json();
 
             if (!email && !userId) {
                 throw new Error('Email is required');
@@ -66,14 +66,7 @@ export async function POST(req: Request) {
             });
 
             if (!subtitle) {
-                const newSubtitle = await prisma.subtitle.create({
-                    data: {
-                        userId: selectedUserId,
-                        youtubeUrl,
-                        subtitleTitle: subtitleTitle || generateRandomTitle(),
-                    },
-                });
-                return NextResponse.json(newSubtitle);
+                return NextResponse.json({ error: 'subtitle not found!' });
             }
 
             const existingHardWord = await prisma.hardWord.findFirst({
@@ -89,11 +82,17 @@ export async function POST(req: Request) {
                 sentence,
                 translation: sentenceTranslation,
             }
-            let hardWordData = {
+            let hardWordData: {
+                word: string;
+                Subtitle: { connect: { SubtitleId: string; } };
+                lemma?: string | null;
+                pos?: string | null;
+                translation?: string | null;
+            } = {
                 word: hardWord,
                 Subtitle: { connect: { SubtitleId: subtitle.SubtitleId } },
             }
-            const { lemma, pos } = await fetchLemmaAndPOS(hardWord);
+            const { lemma, pos } = await fetchLemmaAndPOS(hardWord, sourceLang);
             const translation = await fetchTranslation(lemma ? lemma : hardWord, subtitle?.sourceLang || "auto", subtitle?.targetLang || 'en');
 
             if (lemma) {
@@ -107,7 +106,6 @@ export async function POST(req: Request) {
             if (translation) {
                 hardWordData = {
                     ...hardWordData,
-                    //@ts-ignore
                     translation
                 };
             }
@@ -122,6 +120,7 @@ export async function POST(req: Request) {
             //     return NextResponse.json({ word: hardWord, sentenceData });
             // }
 
+            console.log('hardword:', hardWordData)
             await prisma.hardWord.create({
                 data: {
                     ...hardWordData,

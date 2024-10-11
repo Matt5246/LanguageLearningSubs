@@ -18,25 +18,37 @@ export async function POST(req: Request) {
             }
             const userId = user.id
 
-            // const translatedSubtitleData = targetLang ? await translateSubtitleData(subtitleData, sourceLang, targetLang) : subtitleData;
+            const { translatedSubtitleData, detectedLanguage } = targetLang
+                ? await translateSubtitleData(subtitleData, sourceLang, targetLang)
+                : { translatedSubtitleData: subtitleData, detectedLanguage: sourceLang };
+            const updatedSubtitleData = subtitleData.map((data: any, index: number) => ({
+                text: data?.text,
+                translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,
 
-            const updatedSubtitleData = subtitleData.map((data: SubtitleData, index: number) => ({
-                ...data,
-                // translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,
                 start: parseFloat(data.start),
                 dur: parseFloat(data.dur)
             }));
+            const finalSourceLang = sourceLang === 'auto' && detectedLanguage ? detectedLanguage : sourceLang;
 
+            console.log("Detected language:", detectedLanguage);
+            const data: any = {
+                userId,
+                subtitleTitle
+            };
+            console.log("data:", data)
 
-
-
-            console.log(updatedSubtitleData)
+            if (youtubeUrl) {
+                data.youtubeUrl = youtubeUrl;
+            }
+            if (episode) {
+                data.episode = episode;
+            }
+            console.log(updatedSubtitleData[0])
             const subtitle = await prisma.subtitle.create({
                 data: {
-                    userId,
-                    youtubeUrl,
-                    subtitleTitle,
-                    sourceLang,
+                    ...data,
+                    sourceLang: finalSourceLang,
+
                     targetLang,
                     subtitleData: {
                         createMany: { data: updatedSubtitleData },
@@ -63,7 +75,15 @@ async function translateSubtitleData(subtitleData: SubtitleData[], sourceLang: s
             target: targetLang,
             format: "text"
         });
-        return response.data.translatedText;
+        let detectedLanguage= "auto";
+        if(sourceLang=== "auto" && response.data.detectedLanguage[0].language){
+            detectedLanguage = response.data.detectedLanguage[0].language;
+        }
+
+        return {
+            translatedSubtitleData: response.data.translatedText,
+            detectedLanguage
+        };
     } catch (error) {
         console.error('Error translating subtitles:', error);
         throw new Error('Failed to translate subtitles');

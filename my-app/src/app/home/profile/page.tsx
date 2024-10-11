@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 export default function UserProfile() {
 
     const session = useSession();
@@ -31,7 +32,7 @@ export default function UserProfile() {
             description: `${image ? <Image src={image} alt="Profile Image" width={100} height={100} /> : null}`,
         },
     ];
-
+    console.log(image)
     return (
         <div className="flex justify-center mt-6">
             <Card className={cn("</div>w-[380px]")}>
@@ -53,7 +54,7 @@ export default function UserProfile() {
                         <Switch />
                     </div>
                     <div>
-                        {Credentials.map((notification, index) => (
+                        {Credentials.map((credentials, index) => (
                             <div
                                 key={index}
                                 className="mb-4 grid grid-cols-[25px_1fr] items-start pb-4 last:mb-0 last:pb-0"
@@ -61,10 +62,10 @@ export default function UserProfile() {
                                 <span className="flex h-2 w-2 translate-y-1 rounded-full bg-sky-500" />
                                 <div className="space-y-1">
                                     <p className="text-sm font-medium leading-none">
-                                        {notification.title}
+                                        {credentials.title}
                                     </p>
                                     <p className="text-sm text-muted-foreground">
-                                        {notification.description}
+                                        {credentials.description}
                                     </p>
                                 </div>
                             </div>
@@ -72,9 +73,12 @@ export default function UserProfile() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button className="w-full">
-                        <CheckIcon className="mr-2 h-4 w-4" /> Make changes
-                    </Button>
+                    <Link href='/home/profile/subscribe' className="w-full">
+
+                        <Button className="w-full">
+                            <CheckIcon className="mr-2 h-4 w-4" /> Subscriptions
+                        </Button>
+                    </Link>
                 </CardFooter>
             </Card>
         </div>

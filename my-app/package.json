@@ -48,6 +48,7 @@
     "ebml": "2.2.4",
     "express": "^4.18.3",
     "filereader-stream": "^2.0.0",
+    "framer-motion": "^11.9.0",
     "googleapis": "^134.0.0",
     "libass-wasm": "https://github.com/Dador/JavascriptSubtitlesOctopus#4.0.0",
     "lucide-react": "^0.344.0",

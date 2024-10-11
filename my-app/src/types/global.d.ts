@@ -28,9 +28,12 @@ interface Subtitle {
     SubtitleId?: string | null;
     youtubeUrl?: string;
     subtitleTitle?: string;
+    sourceLang?: string;
+    targetLang?: string;
     episode?: number;
     subtitleData?: SubtitleData[];
     hardWords?: HardWord[];
+    createdAt?: Date;
 }
 
 interface SubtitleData {
@@ -48,6 +51,7 @@ interface HardWord {
     pos?: string; // Part of speech
     lemma?: string;
     createdAt?: string;
+    learnedAt?: string | null; 
     sentences?: sentences[];
 }
 

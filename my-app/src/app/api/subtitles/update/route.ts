@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
-            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId, episode } = await req.json();
+            const { youtubeUrl, subtitleTitle, subtitleData, userId, SubtitleId, episode, sourceLang, targetLang } = await req.json();
             const data: any = {
                 subtitleTitle,
             };
@@ -19,6 +19,10 @@ export async function POST(req: Request) {
             });
             if(existingSubtitle?.episode){
                 data.episode = parseInt(episode) || existingSubtitle.episode;
+            }
+            if (sourceLang || targetLang) {
+                data.sourceLang = sourceLang || existingSubtitle?.sourceLang;
+                data.targetLang = targetLang || existingSubtitle?.targetLang;
             }
             if (existingSubtitle) {
                 if (subtitleData && subtitleData.length > 0) {

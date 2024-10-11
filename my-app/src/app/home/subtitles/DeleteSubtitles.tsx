@@ -8,19 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 
 function DeleteSubtitle({ SubtitleId }: any) {
     const dispatch = useDispatch();
-    // const handleDelete = async () => {
-    //     try {
-    //         await axios.delete('/api/subtitles/delete', {
-    //             data: { SubtitleId },
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         });
-    //         dispatch(deleteSubtitle(SubtitleId));
-    //     } catch (error) {
-    //         console.error('Error deleting subtitle:', error);
-    //     }
-    // };
+
     const { isLoading, isError, error, data, refetch } = useQuery({
         queryKey: ['SubtitleId', SubtitleId],
         queryFn: async () => {

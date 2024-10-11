@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useState } from "react"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { useSelector } from 'react-redux'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -74,22 +74,25 @@ const generateChartData = (allHardWords: HardWord[], period: 'day' | 'week' | 'm
 };
 
 export default function Component() {
-    const [activeChart, setActiveChart] = React.useState<keyof typeof chartConfig>("hardWords");
-    const [period, setPeriod] = React.useState<'day' | 'week' | 'month'>('day');
+    const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("hardWords");
+    const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
 
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
-    const allHardWords = subtitlesData.flatMap(subtitle => subtitle.hardWords || []);
-
     if (!subtitlesData || subtitlesData.length === 0) {
         return null;
     }
-
+    const allHardWords = subtitlesData.flatMap(subtitle => subtitle.hardWords || []);
     const chartData = generateChartData(allHardWords, period);
+
+    const total = {
+        hardWords: chartData.reduce((acc, curr) => acc + curr.hardWords, 0),
+        learned: chartData.reduce((acc, curr) => acc + curr.learned, 0)
+    }
+
     chartData.sort((a, b) => {
         const aDate = new Date(a.date);
         const bDate = new Date(b.date);
 
-        // If the period is week, convert week to a comparable format
         if (period === 'week') {
             const [aYear, aWeek] = a.date.split('-W').map(Number);
             const [bYear, bWeek] = b.date.split('-W').map(Number);
@@ -99,13 +102,6 @@ export default function Component() {
         return aDate.getTime() - bDate.getTime();
     });
 
-    const total = React.useMemo(
-        () => ({
-            hardWords: chartData.reduce((acc, curr) => acc + curr.hardWords, 0),
-            learned: chartData.reduce((acc, curr) => acc + curr.learned, 0),
-        }),
-        [chartData]
-    );
 
     return (
         <Card className="m-5">

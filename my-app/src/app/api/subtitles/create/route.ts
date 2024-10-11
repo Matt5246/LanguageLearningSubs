@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     if (req.method === 'POST') {
         try {
 
-            const { email, youtubeUrl, subtitleTitle, subtitleData, sourceLang, targetLang, episode } = await req.json();
+            const { email, youtubeUrl, subtitleTitle, subtitleData, sourceLang, targetLang } = await req.json();
 
             if (!email) {
                 throw new Error('Email is required');
@@ -24,8 +24,9 @@ export async function POST(req: Request) {
             const updatedSubtitleData = subtitleData.map((data: any, index: number) => ({
                 text: data?.text,
                 translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,
+
                 start: parseFloat(data.start),
-                end: parseFloat(data.end)
+                dur: parseFloat(data.dur)
             }));
             const finalSourceLang = sourceLang === 'auto' && detectedLanguage ? detectedLanguage : sourceLang;
 
@@ -47,9 +48,11 @@ export async function POST(req: Request) {
                 data: {
                     ...data,
                     sourceLang: finalSourceLang,
+
                     targetLang,
                     subtitleData: {
                         createMany: { data: updatedSubtitleData },
+
                     },
                 }
             });

@@ -1,5 +1,9 @@
+<<<<<<< Updated upstream
 'use client'
 
+=======
+"use client"
+>>>>>>> Stashed changes
 export default function Home() {
 
   return (

@@ -8,7 +8,7 @@ export default function Home() {
                 <p className="pt-4">
                     Are you passionate about learning a new language? Imagine mastering it through your favorite movies and TV shows!
                     At Subtitle Learning, we believe that language learning should be both fun and effective.
-                    That's why we've created a unique platform where you can immerse yourself in foreign languages through subtitles.
+                    That&apos;s why we&apos;ve created a unique platform where you can immerse yourself in foreign languages through subtitles.
                 </p>
 
                 <h2 className="font-bold text-2xl pt-8">Why Learn with Subtitles?</h2>

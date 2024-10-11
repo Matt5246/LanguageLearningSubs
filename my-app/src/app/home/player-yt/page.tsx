@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 'use client'
 import { useState, useEffect, useMemo } from "react";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -337,13 +336,3 @@ const Home = () => {
 
 export default Home;
 
-=======
-
-export default function Home() {
-    return (
-        <>
-
-        </>
-    );
-}
->>>>>>> Stashed changes

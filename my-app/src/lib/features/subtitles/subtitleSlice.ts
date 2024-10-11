@@ -14,7 +14,7 @@ export interface SubtitlesState {
 }
 
 const initialState: SubtitlesState = {
-    subtitles: loadSubtitlesFromStorage(),
+    subtitles: [],
     selectedSubtitle: null,
     playedSeconds: 0,
     autoScrollEnabled: loadAutoScrollState(),
@@ -102,19 +102,19 @@ export const selectFlashCardData = createSelector(
     }
 );
 
-function loadSubtitlesFromStorage(): Subtitle[] {
-    if (typeof window !== 'undefined') {
-        const storedSubtitles = localStorage.getItem('subtitles');
-        if (storedSubtitles) {
-            const subtitles = JSON.parse(storedSubtitles);
-            if (subtitles.length > 0) {
-                return subtitles;
-            }
-        }
-        return []
-    }
-    return [];
-}
+// function loadSubtitlesFromStorage(): Subtitle[] {
+//     if (typeof window !== 'undefined') {
+//         const storedSubtitles = localStorage.getItem('subtitles');
+//         if (storedSubtitles) {
+//             const subtitles = JSON.parse(storedSubtitles);
+//             if (subtitles.length > 0) {
+//                 return subtitles;
+//             }
+//         }
+//         return []
+//     }
+//     return [];
+// }
 function loadAutoScrollState(): boolean {
     if (typeof window !== 'undefined') {
         const storedAutoScrollState = localStorage.getItem('autoScrollEnabled');

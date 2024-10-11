@@ -4,7 +4,6 @@ import { ThemeProvider } from "@/components/theme-provider"
 import AvatarComponent from '@/components/Avatar'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
 
-
 export default function RootLayout({
   children,
 }: Readonly<{

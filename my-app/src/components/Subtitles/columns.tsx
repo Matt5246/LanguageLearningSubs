@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from 'axios'
 import { useSelector } from "react-redux";
 import { PopoverClose } from "@radix-ui/react-popover";
@@ -25,6 +25,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+
 
 function convertTime(time: number): string {
     const hours = Math.floor(time / 3600);
@@ -104,15 +105,72 @@ export const columns: ColumnDef<Caption>[] = [
         size: 10,
     },
 ];
-
+const isJapanese = (text: string) => {
+    const japanesePattern = /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF]/;
+    return japanesePattern.test(text);
+};
+async function fetchTokenizedWords(text: string) {
+    try {
+        const response = await axios.post('/api/hardWords/tokenize', { text });
+        if (response.data.tokens) {
+            return response.data.tokens;
+        } else {
+            throw new Error(response.data.error || 'Tokenization failed');
+        }
+    } catch (error) {
+        console.error('Error fetching tokenized words:', error);
+        throw error;
+    }
+}
 const RenderMiddlePopoverContent = (row: any) => {
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
+    const [tokenizedWords, setTokenizedWords] = useState<string[]>([]);
     const fullRow = row.row.row.original as Caption;
     const [sentence, setSentence] = useState(fullRow.text);
     const [sentenceTranslation, setSentenceTranslation] = useState(fullRow.translation);
     const selectedSubtitle: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const [start, setStart] = useState(fullRow.start);
     const [end, setEnd] = useState(fullRow.end);
+
+    useEffect(() => {
+        const tokenizeText = async () => {
+            try {
+                if (selectedSubtitle?.sourceLang === 'ja') {
+                    if (isJapanese(fullRow?.text)) {
+                        const tokens = await fetchTokenizedWords(fullRow?.text);
+                        console.log('tokens', tokens)
+                        const filteredTokens = tokens.filter((token: { surface_form: string; }) => token.surface_form.trim() !== '');
+
+                        let mergedTokens = [];
+                        for (let i = 0; i < filteredTokens.length; i++) {
+                            const currentToken = filteredTokens[i].surface_form;
+                            const nextToken = filteredTokens[i + 1]?.surface_form || '';
+
+                            // If token ends with "っ", merge it with the next token
+                            if (currentToken.endsWith('っ') && nextToken) {
+                                mergedTokens.push(currentToken + nextToken);
+                                i++; // Skip the next token as it's already merged
+                            } else {
+                                mergedTokens.push(currentToken);
+                            }
+                        }
+                        setTokenizedWords(filteredTokens.map((token: any) => token.surface_form));
+                    } else {
+                        const words = fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '');
+                        setTokenizedWords(words);
+                    }
+                } else {
+                    const words = fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '');
+                    setTokenizedWords(words);
+                }
+
+            } catch (error) {
+                console.error('Error in tokenization:', error);
+            }
+        };
+
+        tokenizeText();
+    }, [fullRow, selectedSubtitle?.sourceLang]);
 
     const handleEditSentence = async () => {
         try {
@@ -212,11 +270,11 @@ const RenderMiddlePopoverContent = (row: any) => {
 
                     <h4 className="font-medium leading-none">Subtitle Line:</h4>
                     <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
-                    <h4 className="font-medium leading-none">{fullRow?.translation ? "Translation:" : null}</h4>
+                    <h4 className="font-medium leading-none">{fullRow?.translation && fullRow?.translation?.length > 1 ? "Translation:" : null}</h4>
                     <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
                     <h3>Select Hard Word:</h3>
                     <ul>
-                        {fullRow?.text?.replace(/[,.-?![\]\"]/g, '').split(' ').filter((word: string) => word !== '').map((word: string, index: number) => (
+                        {tokenizedWords.map((word, index) => (
                             <li key={index} onChange={() => setSelectedWord(word)}>
                                 <label className={word === selectedWord ? "text-green-500" : ""}>
                                     <input

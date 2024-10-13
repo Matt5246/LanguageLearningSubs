@@ -119,8 +119,8 @@ const Home = () => {
                     youtubeUrl: url,
                     subtitleTitle: title,
                     subtitleData: data,
-                    sourceLang: sourceLanguage || null,
-                    targetLang: targetLanguage || null,
+                    sourceLang: sourceLanguage || undefined,
+                    targetLang: targetLanguage || undefined,
                     hardWords: [],
                 }
 

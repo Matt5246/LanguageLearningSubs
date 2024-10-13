@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { SubtitlesState } from "@/lib/features/subtitles/subtitleSlice";

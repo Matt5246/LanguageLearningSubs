@@ -101,6 +101,24 @@ export const selectFlashCardData = createSelector(
         }));
     }
 );
+export const selectedSubtitle = createSelector(
+    (state: any) => state.subtitle.subtitles,
+    (state: any) => state.subtitle.selectedSubtitle,
+    (subtitles: any, selectedSubtitle: string | null | undefined) => {
+        if (Array.isArray(subtitles) && subtitles.length > 0 && selectedSubtitle) {
+            return subtitles.find((subtitle: any) => subtitle.SubtitleId === selectedSubtitle) || null;
+        }
+        return null;
+    }
+);
+export const updateSubtitleTranslation = (state: any, action: any) => {
+    const { SubtitleId, subtitleData } = action.payload;
+
+    const index = state.subtitles.findIndex((sub: any) => sub.SubtitleId === SubtitleId);
+    if (index !== -1) {
+        state.subtitles[index].subtitleData = subtitleData;
+    }
+};
 
 // function loadSubtitlesFromStorage(): Subtitle[] {
 //     if (typeof window !== 'undefined') {

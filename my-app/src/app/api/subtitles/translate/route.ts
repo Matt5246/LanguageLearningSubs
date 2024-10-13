@@ -57,9 +57,9 @@ export async function POST(req: Request) {
                 }),
                 headers: { "Content-Type": "application/json" }
             });
-
             const fallbackResult = await fallbackTranslationResponse.json();
             translatedSubtitleData = fallbackResult.translatedText;
+            console.log(translatedSubtitleData)
         }
 
         const existingSubtitle = await prisma.subtitle.findFirst({
@@ -117,7 +117,7 @@ export async function POST(req: Request) {
         }
     } catch (error: any) {
         console.error('Error creating or updating subtitle:', error);
-        return NextResponse.json({ error: error.message });
+        return NextResponse.json({ error: error.message })
     }
 
 }

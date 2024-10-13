@@ -35,7 +35,7 @@ export default function Home() {
 
                 <h2 className="font-bold text-2xl pt-8">Start Your Language Adventure Today!</h2>
                 <p className="pt-4 pb-9">
-                    Dive into the world of Subtitle Learning and transform your language skills. Whether you're a beginner or looking to perfect your fluency,
+                    Dive into the world of Subtitle Learning and transform your language skills. Whether you&apos;re a beginner or looking to perfect your fluency,
                     our platform is designed to make learning enjoyable and effective.
                 </p>
             </div>

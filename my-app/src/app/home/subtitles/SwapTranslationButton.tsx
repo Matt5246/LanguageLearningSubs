@@ -48,7 +48,7 @@ function SwapTranslationButton({ selectedSubtitle }: SwapTranslationButtonProps)
     });
 
     useEffect(() => {
-        if (selectedSubtitle) {
+        if (selectedSubtitle?.subtitleData) {
             const hasTranslations = selectedSubtitle.subtitleData.some((sub: any) => sub.translation && sub.text);
             if (hasTranslations) {
                 const updatedData = selectedSubtitle.subtitleData.map((sub: any) => ({

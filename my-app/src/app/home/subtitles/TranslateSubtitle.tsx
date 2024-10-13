@@ -27,10 +27,13 @@ import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice';
 import { getSubs } from "@/components/NavBar";
 import { useToast } from "@/components/ui/use-toast"
+import { useSession } from 'next-auth/react';
 
-
-function TranslateSubtitle(selectedSubtitle: any, email: string) {
+function TranslateSubtitle(selectedSubtitle: any) {
     const dispatch = useDispatch();
+    const { data: session, status } = useSession();
+    const email = session?.user?.email;
+
     const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "de");
     const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
     const [targetLanguage, setTargetLanguage] = useState(selectedSubtitle?.selectedSubtitle?.targetLang ? selectedSubtitle?.selectedSubtitle?.targetLang : storedTargetLanguage);
@@ -43,7 +46,7 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
     useEffect(() => {
         setStoredSourceLanguage(sourceLanguage);
     }, [sourceLanguage, setStoredSourceLanguage]);
-    console.log("subtitle", selectedSubtitle)
+
     const { isFetching, refetch } = useQuery({
         queryKey: ['translate', selectedSubtitle?.selectedSubtitle?.SubtitleId],
         queryFn: async () => {
@@ -63,7 +66,7 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-            }).then(() => (getSubs(selectedSubtitle?.selectedSubtitle?.email ?? "")
+            }).then(() => (getSubs(email || "")
                 .then((subtitles) => {
                     dispatch(initializeSubtitles(subtitles));
                 })
@@ -76,6 +79,7 @@ function TranslateSubtitle(selectedSubtitle: any, email: string) {
                 description: e ? e.toString() : "Something went wrong while translating subtitles.",
                 variant: 'destructive',
             }));
+
             return translationResponse;
         },
         enabled: false,

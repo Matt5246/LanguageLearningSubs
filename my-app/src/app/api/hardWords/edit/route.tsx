@@ -12,7 +12,7 @@ export async function POST(req: Request) {
             where: { id },
         });
         if (!existingHardWord) {
-            return { error: 'Hard word not found' };
+            return NextResponse.json({ error: 'Hard word not found' }, { status: 404 });
         }
         const updatedHardWord = {
             word: hardWord.word,

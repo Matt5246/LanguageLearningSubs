@@ -13,11 +13,12 @@ import { SubtitleCards } from './SubtitleCards';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { selectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 
 export default function Home() {
   const dispatch = useDispatch();
   const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
-  const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
+  const selectedSub: Subtitle | null = useSelector(selectedSubtitle);
   const validData = Array.isArray(subtitlesData) ? subtitlesData : [];
   const [isClient, setIsClient] = useState(false);
 
@@ -57,7 +58,7 @@ export default function Home() {
               <DeleteSubtitle SubtitleId={selectedSub?.SubtitleId} />
             </div>
             <div className='flex space-x-2'>
-              <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />
+              <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle | null} />
               <Button onClick={() => dispatch(setSelectedSubtitle(null))}>Go Back</Button>
               <MostUsedWordsButton selectedSubtitle={selectedSub as Subtitle} />
             </div>

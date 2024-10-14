@@ -26,6 +26,8 @@ function SwapTranslationButton({ selectedSubtitle }: SwapTranslationButtonProps)
         userId: selectedSubtitle?.userId,
         subtitleTitle: selectedSubtitle?.subtitleTitle,
         youtubeUrl: selectedSubtitle?.youtubeUrl,
+        sourceLang: selectedSubtitle?.sourceLang,
+        targetLang: selectedSubtitle?.targetLang,
         subtitleData: []
     });
 
@@ -64,6 +66,8 @@ function SwapTranslationButton({ selectedSubtitle }: SwapTranslationButtonProps)
                     userId: selectedSubtitle.userId,
                     subtitleTitle: selectedSubtitle.subtitleTitle,
                     youtubeUrl: selectedSubtitle.youtubeUrl,
+                    sourceLang: selectedSubtitle.targetLang,
+                    targetLang: selectedSubtitle.sourceLang,
                     subtitleData: updatedData,
                 });
             } else {

@@ -10,25 +10,25 @@ import {
 } from "@/components/ui/resizable"
 import axios from 'axios';
 import SubtitlesSkeleton from "@/components/Subtitles/SubtitlesSkeleton"
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast"
-import { useSession } from "next-auth/react";
-import { useAppDispatch } from '@/lib/hooks';
-import { SubtitlesState, addSubtitle, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice';
-import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
+import { useSession } from "next-auth/react"
+import { useAppDispatch } from '@/lib/hooks'
+import { SubtitlesState, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice';
+import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack"
 import { useIsMobile } from '@/hooks/useMobile'
-import { GearIcon } from '@radix-ui/react-icons';
-import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerTrigger } from "@/components/ui/drawer"
 import { useSelector } from 'react-redux'
-import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown";
+import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown"
 import mkvExtract from "@/lib/mkvExtract"
-import SettingsDrawerContent from "@/components/SettingsDrawer";
-import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton";
-import { AddSubtitlesButton } from "@/components/AddSubtitlesButton";
-import TranslateSubtitle from "../subtitles/TranslateSubtitle";
+import SettingsDrawerContent from "@/components/SettingsDrawer"
+import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton"
+import { AddSubtitlesButton } from "@/components/AddSubtitlesButton"
+import TranslateSubtitle from "../subtitles/TranslateSubtitle"
 import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
-import { getSubs } from "@/components/NavBar";
-import FileBrowser from "./fileBrowser";
+import { getSubs } from "@/components/NavBar"
+import FileBrowser from "./fileBrowser"
+import { GearButton } from "@/components/SettingsButton"
 
 const Home = () => {
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles ?? []);
@@ -152,7 +152,15 @@ const Home = () => {
         }
     }, [selectedSub]);
 
-
+    const handleVideoSelect = (videoUrl: string) => {
+        setUrl(videoUrl);
+    };
+    const handleAddSubtitlesButton = (subtitleConverted: any, updateTitle: any) => {
+        setSubtitleConverted(subtitleConverted)
+        setTitleAndSeries(updateTitle)
+        console.log(updateTitle)
+        console.log(subtitleConverted)
+    }
     return (
         <div className="m-4 h-[1000px]" >
             <Drawer>
@@ -166,14 +174,14 @@ const Home = () => {
                                     {userEmail ?
                                         <>
                                             {selectedSub ? null : <>
-                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitleAndSeries} />
+                                                <AddSubtitlesButton handleAddSubtitles={handleAddSubtitlesButton} />
                                                 <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
                                             </>
                                             }
                                         </>
                                         : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
                                     <DrawerTrigger asChild>
-                                        <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
+                                        <GearButton />
                                     </DrawerTrigger>
                                 </div>
                                 <div className="flex justify-center mt-10 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
@@ -219,7 +227,7 @@ const Home = () => {
                                     {userEmail ?
                                         <>
                                             {selectedSub ? null : <>
-                                                <AddSubtitlesButton setSubtitleConverted={setSubtitleConverted} updateTitle={setTitleAndSeries} />
+                                                <AddSubtitlesButton handleAddSubtitles={handleAddSubtitlesButton} />
 
                                                 <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
                                             </>
@@ -228,7 +236,7 @@ const Home = () => {
                                         </>
                                         : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
                                     <DrawerTrigger asChild>
-                                        <Button variant="secondary" className="p-2 ml-2"><GearIcon className="w-5 h-5" /></Button>
+                                        <GearButton />
                                     </DrawerTrigger>
                                 </div>
                                 <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
@@ -273,11 +281,15 @@ const Home = () => {
                 {selectedSub ? <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} /> : null}
             </div>
             <div>
-                <FileBrowser />
+                <FileBrowser onVideoSelect={handleVideoSelect} handleAddSubtitles={handleAddSubtitlesButton} />
             </div>
         </div>
     );
 };
 
 export default Home;
+
+
+
+
 

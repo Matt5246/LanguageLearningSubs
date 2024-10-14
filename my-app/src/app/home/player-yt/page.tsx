@@ -33,6 +33,7 @@ import {
 import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import { useSelector } from 'react-redux'
 import TranslateSubtitle from "../subtitles/TranslateSubtitle";
+import { GearButton } from "@/components/SettingsButton";
 
 const Home = () => {
     const [url, setUrl] = useState<string>('');
@@ -185,9 +186,7 @@ const Home = () => {
                                                 {isLoading || isFetching ? 'Loading...' : 'Save Subtitles'}
                                             </Button>
                                             <DrawerTrigger asChild>
-                                                <Button variant="secondary" className="p-2 ml-2">
-                                                    <GearIcon className="w-5 h-5" />
-                                                </Button>
+                                                <GearButton />
                                             </DrawerTrigger>
                                         </>
                                     ) : (
@@ -208,7 +207,6 @@ const Home = () => {
                         <div className="flex justify-center items-center h-full">
                             <p className="text-center">No subtitles detected.</p>
                         </div>
-
                     </>
 
                     : <ResizablePanelGroup
@@ -225,9 +223,7 @@ const Home = () => {
                                                 {isLoading || isFetching ? 'Loading...' : 'Save Subtitles'}
                                             </Button>
                                             <DrawerTrigger asChild>
-                                                <Button variant="secondary" className="p-2 ml-2">
-                                                    <GearIcon className="w-5 h-5" />
-                                                </Button>
+                                                <GearButton />
                                             </DrawerTrigger>
                                         </>
                                     ) : (

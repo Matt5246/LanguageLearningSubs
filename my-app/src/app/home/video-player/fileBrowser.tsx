@@ -1,14 +1,21 @@
 'use client'
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import VideoPlayer from '@/components/VideoPlayer';
+import React, { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { PlayIcon } from '@radix-ui/react-icons'
+import { UploadIcon } from "@radix-ui/react-icons"
+import { AddSubtitlesButton } from '@/components/AddSubtitlesButton'
 
-const FileBrowser = () => {
+interface FileBrowserProps {
+    onVideoSelect: (url: string) => void;
+    handleAddSubtitles?: any;
+}
+
+const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSelect }: FileBrowserProps) => {
     const [folders, setFolders] = useState<File[]>([]);
     const [currentPath, setCurrentPath] = useState<File[]>([]);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
+    const [subtitlesConverted, setSubtitlesConverted] = useState()
     const [subtitleText, setSubtitleText] = useState<string>('');
 
     const handleFolderSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,56 +25,62 @@ const FileBrowser = () => {
         }
     };
 
-    const handleFolderClick = (folder: File) => {
-        const filteredFiles = folders.filter(file => file.webkitRelativePath.startsWith(folder.webkitRelativePath));
-        setCurrentPath(filteredFiles);
+    const handleFolderClick = (file: File) => {
+        // const filteredFiles = folders.filter(file => file.webkitRelativePath.startsWith(folder.webkitRelativePath));
+        // setCurrentPath(filteredFiles);
+        if (file.name.endsWith('.srt') || file.name.endsWith('.ass')) {
+            readFileContent(file);
+            setSelectedFile(file);
+        }
     };
 
     const handleBackClick = () => {
         setCurrentPath([]);
-        setSubtitleText(''); // Clear subtitle text when going back
+        setSubtitleText('');
     };
 
     const handleFileClick = (file: File) => {
-
+        if (file.name.endsWith('.mkv') || file.name.endsWith('.mp4')) {
+            onVideoSelect(URL.createObjectURL(file));
+            setSelectedFile(file);
+            setSubtitleText('');
+        } else if (file.name.endsWith('.srt') || file.name.endsWith('.ass')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const text = e.target?.result as string;
+                setSubtitleText(text);
+                setSelectedFile(file);
+            };
+            reader.readAsText(file);
+        }
     };
-
+    const readFileContent = (file: File) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target?.result as string;
+            setSubtitleText(text);
+        };
+        reader.readAsText(file);
+    };
     const renderFiles = () => {
         const filesToRender = currentPath.length > 0 ? currentPath : folders;
         return filesToRender.map((file, index) => {
             const isFolder = file.type === '';
-
-            // if (file.name.endsWith('.mkv')) {
-            //     const url = URL.createObjectURL(file);
-            //     setSelectedFile(file);
-            //     setSubtitleText(''); // Clear subtitle text when a video file is clicked
-            // } else if (file.name.endsWith('.srt') || file.name.endsWith('.ass')) {
-            //     const reader = new FileReader();
-            //     reader.onload = (e) => {
-            //         const text = e.target?.result as string;
-            //         console.log('Subtitle content:', text); // Debugging line
-            //         setSubtitleText(text);
-            //         setSelectedFile(file);
-            //         setVideoUrl(''); // Clear video URL when a subtitle file is clicked
-            //     };
-            //     reader.readAsText(file);
-            // }
             return (
-                <Card key={index} onClick={() => isFolder ? handleFolderClick(file) : handleFileClick(file)}>
+                <Card className='cursor-pointer' key={index} onClick={() => isFolder ? handleFolderClick(file) : handleFileClick(file)}>
                     <CardHeader>
                         <CardTitle>{isFolder ? '📁' : '📄'} {file.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {file.name.endsWith('.mkv') && (
+                        {(file.name.endsWith('.mkv') || file.name.endsWith('.mp4')) && (
                             <div className="mt-2">
-                                <VideoPlayer url={URL.createObjectURL(file)} light={true} />
+                                <PlayIcon />
                             </div>
                         )}
                         {(file.name.endsWith('.srt') || file.name.endsWith('.ass')) && (
-                            <div className="mt-2">
-                                {file === selectedFile && subtitleText && (
-                                    <pre>{subtitleText}</pre>
-                                )}
+                            <div className="mt-2 flex justify-between items-center space-x-2 ">
+                                <UploadIcon />
+                                <AddSubtitlesButton handleAddSubtitles={handleAddSubtitles} defaultSubs={subtitleText} />
                             </div>
                         )}
                     </CardContent>
@@ -77,7 +90,7 @@ const FileBrowser = () => {
     };
 
     return (
-        <div>
+        <>
             <input
                 type="file"
                 //@ts-ignore bcs webkitdirectory works and allows folder selection
@@ -86,10 +99,10 @@ const FileBrowser = () => {
                 onChange={handleFolderSelection}
             />
             <Button onClick={handleBackClick} disabled={currentPath.length === 0}>Back</Button>
-            <div className="grid grid-cols-3 gap-4 my-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 my-4">
                 {renderFiles()}
             </div>
-        </div>
+        </>
     );
 };
 

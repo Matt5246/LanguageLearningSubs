@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { selectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { SubtitleNavigator } from './SubtitleNavigator';
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -37,8 +38,10 @@ export default function Home() {
     setIsClient(true);
   }, []);
 
+  const totalEpisodes = groupedSubtitles[selectedSub?.subtitleTitle || '']?.length || 0;
+
   return (
-    <div className='m-5'>
+    <div className='sm:m-5 m-1'>
       <div className='flex flex-col md:flex-row justify-between items-start'>
         <div className="mb-4 md:mb-0">
           <SubtitlesDropDown data={subtitlesData as any[]} />
@@ -62,18 +65,22 @@ export default function Home() {
               <Button onClick={() => dispatch(setSelectedSubtitle(null))}>Go Back</Button>
               <MostUsedWordsButton selectedSubtitle={selectedSub as Subtitle} />
             </div>
+            {totalEpisodes > 1 && (
+              <SubtitleNavigator selectedSub={selectedSub} groupedSubtitles={groupedSubtitles} />
+            )}
           </motion.div>
         )}
       </div>
 
       {selectedSub ? (
-        <div>
+        <div >
           <p className="text-sm text-muted-foreground mt-2">Subtitles Title</p>
           <p className='m-1 select-text'>{selectedSub?.subtitleTitle}</p>
           {selectedSub?.episode &&
             <>
               <p className="text-sm text-muted-foreground">Episode</p>
               <p className='m-1 select-text'>{selectedSub?.episode}</p>
+              <p>{ }</p>
             </>
           }
           <p className="text-sm text-muted-foreground">Video url</p>
@@ -98,3 +105,8 @@ export default function Home() {
     </div>
   );
 }
+
+
+
+
+

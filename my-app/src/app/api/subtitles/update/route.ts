@@ -26,16 +26,19 @@ export async function POST(req: Request) {
             }
             if (existingSubtitle) {
                 if (subtitleData && subtitleData.length > 0) {
-                    // await prisma.subtitleData.deleteMany({
-                    //     where: { subtitleDataId: existingSubtitle.SubtitleId },
-                    // });
-                    const updatedSubtitle = await prisma.subtitle.update({
+                    const updatedSubtitle = await prisma.$transaction([
+                        prisma.subtitleData.deleteMany({
+                        where: { subtitleDataId: existingSubtitle.SubtitleId },
+                    }),
+                    prisma.subtitle.update({
                         where: { SubtitleId: existingSubtitle.SubtitleId },
                         data: {
+                            ...data,
                             subtitleData: { createMany: { data: subtitleData } },
                         },
                         
-                    });
+                    })])
+
                     
                     return NextResponse.json(updatedSubtitle);
                 }else{

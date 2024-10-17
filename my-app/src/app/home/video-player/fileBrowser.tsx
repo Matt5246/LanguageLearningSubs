@@ -7,17 +7,15 @@ import { UploadIcon } from "@radix-ui/react-icons"
 import { AddSubtitlesButton } from '@/components/AddSubtitlesButton'
 
 interface FileBrowserProps {
-    onVideoSelect: (url: string) => void;
+    onVideoSelect: (url: string, vidTitle: string) => void;
     handleAddSubtitles?: any;
 }
 
 const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSelect }: FileBrowserProps) => {
     const [folders, setFolders] = useState<File[]>([]);
     const [currentPath, setCurrentPath] = useState<File[]>([]);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [subtitlesConverted, setSubtitlesConverted] = useState()
     const [subtitleText, setSubtitleText] = useState<string>('');
-
+    const [fileTitle, setFileTitle] = useState<string>('')
     const handleFolderSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const filesArray = Array.from(event.target.files);
@@ -26,30 +24,27 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
     };
 
     const handleFolderClick = (file: File) => {
-        // const filteredFiles = folders.filter(file => file.webkitRelativePath.startsWith(folder.webkitRelativePath));
-        // setCurrentPath(filteredFiles);
+
         if (file.name.endsWith('.srt') || file.name.endsWith('.ass')) {
             readFileContent(file);
-            setSelectedFile(file);
         }
     };
 
     const handleBackClick = () => {
-        setCurrentPath([]);
+        setFolders([])
+        setCurrentPath([])
         setSubtitleText('');
     };
 
     const handleFileClick = (file: File) => {
         if (file.name.endsWith('.mkv') || file.name.endsWith('.mp4')) {
-            onVideoSelect(URL.createObjectURL(file));
-            setSelectedFile(file);
-            setSubtitleText('');
+            onVideoSelect(URL.createObjectURL(file), file.name);
+            setFileTitle(file.name)
         } else if (file.name.endsWith('.srt') || file.name.endsWith('.ass')) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const text = e.target?.result as string;
                 setSubtitleText(text);
-                setSelectedFile(file);
             };
             reader.readAsText(file);
         }
@@ -67,7 +62,11 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
         return filesToRender.map((file, index) => {
             const isFolder = file.type === '';
             return (
-                <Card className='cursor-pointer' key={index} onClick={() => isFolder ? handleFolderClick(file) : handleFileClick(file)}>
+                <Card
+                    className={`cursor-pointer ${fileTitle === file.name ? 'bg-blue-300 opacity-60' : ''}`}
+                    key={index}
+                    onClick={() => isFolder ? handleFolderClick(file) : handleFileClick(file)}
+                >
                     <CardHeader>
                         <CardTitle>{isFolder ? '📁' : '📄'} {file.name}</CardTitle>
                     </CardHeader>
@@ -98,7 +97,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                 multiple
                 onChange={handleFolderSelection}
             />
-            <Button onClick={handleBackClick} disabled={currentPath.length === 0}>Back</Button>
+            <Button onClick={handleBackClick} disabled={folders.length === 0}>Back</Button>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 my-4">
                 {renderFiles()}
             </div>

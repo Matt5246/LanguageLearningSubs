@@ -31,23 +31,24 @@ import FileBrowser from "./fileBrowser"
 import { GearButton } from "@/components/SettingsButton"
 
 const Home = () => {
+    const dispatch = useAppDispatch();
+    const { toast } = useToast();
+    const session = useSession();
+    const isMobile = useIsMobile();
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles ?? []);
     const selectedSub: Subtitle | null = useSelector((state: any) =>
         Array.isArray(state.subtitle.subtitles)
             ? state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle)
             : null
     );
-    const { toast } = useToast();
-    const session = useSession();
     const [subtitleConverted, setSubtitleConverted] = useState<any>([]);
     const userEmail = session?.data?.user?.email;
-    const dispatch = useAppDispatch();
     const [titleAndSeries, setTitleAndSeries] = useState<{ subtitleTitle: string, subtitleSeriesName: string | null }>();
-    const isMobile = useIsMobile();
     const [targetLanguage, setTargetLanguage] = useState("");
     const [sourceLanguage, setSourceLanguage] = useState("");
     //const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [videoTitle, setVideoTitle] = useState<string>("")
     const [url, setUrl] = useState<string>('');
 
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -78,6 +79,7 @@ const Home = () => {
                 description: "Please drop a video file here!",
             })
         }
+        setVideoTitle(file.name)
     };
     const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
@@ -152,14 +154,13 @@ const Home = () => {
         }
     }, [selectedSub]);
 
-    const handleVideoSelect = (videoUrl: string) => {
-        setUrl(videoUrl);
+    const handleVideoSelect = (videoUrl: string, vidTitle: string) => {
+        setUrl(videoUrl)
+        setVideoTitle(vidTitle)
     };
     const handleAddSubtitlesButton = (subtitleConverted: any, updateTitle: any) => {
         setSubtitleConverted(subtitleConverted)
         setTitleAndSeries(updateTitle)
-        console.log(updateTitle)
-        console.log(subtitleConverted)
     }
     return (
         <div className="m-4 h-[1000px]" >
@@ -171,6 +172,7 @@ const Home = () => {
                                 <div className="flex space-x-2 ">
                                     <SubtitlesDropDown data={subtitlesData as any[]} />
                                     {subtitleConverted?.length > 0 ? <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" /> : null}
+
                                     {userEmail ?
                                         <>
                                             {selectedSub ? null : <>
@@ -223,7 +225,7 @@ const Home = () => {
                             <div className="flex flex-col h-full p-2">
                                 <div className="flex">
                                     <SubtitlesDropDown data={subtitlesData as any[]} />
-                                    <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" />
+                                    {!videoTitle && !url.startsWith('blob:') ? <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" /> : <div className="mx-auto flex items-center">{videoTitle}</div>}
                                     {userEmail ?
                                         <>
                                             {selectedSub ? null : <>
@@ -235,9 +237,11 @@ const Home = () => {
 
                                         </>
                                         : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
-                                    <DrawerTrigger asChild>
+
+                                    <DrawerTrigger asChild >
                                         <GearButton />
                                     </DrawerTrigger>
+
                                 </div>
                                 <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
                                     {!videoFile && !url && (
@@ -280,7 +284,8 @@ const Home = () => {
                 {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
                 {selectedSub ? <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} /> : null}
             </div>
-            <div>
+            <hr />
+            <div className="my-5">
                 <FileBrowser onVideoSelect={handleVideoSelect} handleAddSubtitles={handleAddSubtitlesButton} />
             </div>
         </div>

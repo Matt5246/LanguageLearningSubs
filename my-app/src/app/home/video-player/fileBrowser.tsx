@@ -3,8 +3,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlayIcon, UploadIcon } from '@radix-ui/react-icons';
-import { AddSubtitlesButton, SubtitlePopoverContent } from '@/components/AddSubtitlesButton';
+import { SubtitlePopoverContent } from '@/components/AddSubtitlesButton';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@/components/ui/hover-card"
+import { CalendarDays } from "lucide-react"
 
 interface FileBrowserProps {
     onVideoSelect: (url: string, vidTitle: string) => void;
@@ -33,12 +39,12 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
 
     const handleBackClick = () => {
         if (currentPath.length > 0) {
-            setCurrentPath((prev) => prev.slice(0, -1)); // Go back one level in the folder structure
-            setSelectedFolder(null); // Reset selected folder when navigating back
+            setCurrentPath((prev) => prev.slice(0, -1)) // Go back one level in the folder structure
+            setSelectedFolder(null)
         } else {
-            setFolders([]); // Clear everything when going back from the root
-            setSelectedFolder(null);
-            setSubtitleText('');
+            setFolders([])
+            setSelectedFolder(null)
+            setSubtitleText('')
         }
     };
 
@@ -77,7 +83,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                 return acc;
             },
             { videos: [], subtitles: [] }
-        );
+        )
 
         return (
             <div className='my-5'>
@@ -109,9 +115,23 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                                 <PopoverTrigger asChild>
                                     <Card className="flex flex-col cursor-pointer" onClick={() => handleFileClick(file)}>
                                         <CardContent className='flex-grow'>
-                                            <div className="flex justify-between items-center space-x-2 mt-5">
-                                                <span className="truncate">{file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '')}</span> <div><UploadIcon /></div>
-                                            </div>
+
+                                            <HoverCard>
+                                                <HoverCardTrigger><div className="flex justify-between items-center space-x-2 mt-5">
+                                                    <span className="truncate">{file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '')}</span> <div><UploadIcon /></div>
+                                                </div></HoverCardTrigger>
+                                                <HoverCardContent className="p-4 space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-md font-semibold ">{file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '')}</span>
+
+                                                    </div>
+                                                    <div className="flex justify-between items-center text-xs text-muted-foreground ">
+                                                        <span className="flex justify-between items-center"><CalendarDays className="mr-2 h-4 w-4 opacity-70" />{"modified "}{new Date(file.lastModified).toLocaleDateString()}</span>
+                                                        <span>{(file.size / 1024).toFixed(2)} KB</span>
+                                                    </div>
+                                                </HoverCardContent>
+                                            </HoverCard>
+
                                         </CardContent>
                                     </Card>
                                 </PopoverTrigger>
@@ -157,7 +177,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
     };
 
     return (
-        <>
+        <div className="p-0 md:p-5">
             {currentPath.length === 0 && (
                 <input
                     type="file"
@@ -178,7 +198,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                     {renderFiles()}
                 </>
             )}
-        </>
+        </div>
     );
 };
 

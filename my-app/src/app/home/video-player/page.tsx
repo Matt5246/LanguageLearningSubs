@@ -29,6 +29,11 @@ import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
 import { getSubs } from "@/components/NavBar"
 import FileBrowser from "./fileBrowser"
 import { GearButton } from "@/components/SettingsButton"
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 const Home = () => {
     const dispatch = useAppDispatch();
@@ -43,7 +48,7 @@ const Home = () => {
     );
     const [subtitleConverted, setSubtitleConverted] = useState<any>([]);
     const userEmail = session?.data?.user?.email;
-    const [titleAndSeries, setTitleAndSeries] = useState<{ subtitleTitle: string, subtitleSeriesName: string | null }>();
+    const [titleAndEpisode, setTitleAndEpisode] = useState<{ subtitleTitle: string, episode: string | null }>();
     const [targetLanguage, setTargetLanguage] = useState("");
     const [sourceLanguage, setSourceLanguage] = useState("");
     //const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
@@ -95,7 +100,7 @@ const Home = () => {
                 const subtitle = {
                     email: userEmail,
                     subtitleData: subtitleConverted,
-                    ...titleAndSeries,
+                    ...titleAndEpisode,
                     sourceLang: sourceLanguage || null,
                     targetLang: targetLanguage || null,
                     hardWords: [],
@@ -160,7 +165,7 @@ const Home = () => {
     };
     const handleAddSubtitlesButton = (subtitleConverted: any, updateTitle: any) => {
         setSubtitleConverted(subtitleConverted)
-        setTitleAndSeries(updateTitle)
+        setTitleAndEpisode(updateTitle)
     }
     return (
         <div className="m-4 h-[1000px]" >
@@ -169,9 +174,9 @@ const Home = () => {
                     <>
                         <div className="rounded-lg border min-h-[300px]">
                             <div className="flex flex-col h-full p-2">
-                                <div className="flex space-x-2 ">
+                                <div className="flex flex-wrap space-x-2">
                                     <SubtitlesDropDown data={subtitlesData as any[]} />
-                                    {subtitleConverted?.length > 0 ? <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" /> : null}
+                                    {!videoTitle && !url.startsWith('blob:') ? <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" /> : <div className="mx-auto flex items-center">{videoTitle}</div>}
 
                                     {userEmail ?
                                         <>
@@ -210,7 +215,7 @@ const Home = () => {
                         </div>
 
                         {subtitleConverted?.length > 0 ?
-                            <DataTable captions={subtitleConverted as Caption[]} height="1000px" />
+                            <DataTable captions={subtitleConverted as Caption[]} height="500px" />
                             : <div className="flex justify-center items-center h-full">
                                 <p className="text-center">No subtitles detected.</p>
                             </div>}
@@ -230,8 +235,21 @@ const Home = () => {
                                         <>
                                             {selectedSub ? null : <>
                                                 <AddSubtitlesButton handleAddSubtitles={handleAddSubtitlesButton} />
+                                                <HoverCard>
+                                                    <HoverCardTrigger><Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
+                                                    </HoverCardTrigger>
+                                                    {titleAndEpisode && <HoverCardContent className="p-4 shadow-lg rounded-lg">
+                                                        <div className="text-sm ">
+                                                            <span className="font-normal">{titleAndEpisode?.subtitleTitle}</span>
+                                                            <div className="flex flex justify-between items-center mt-2 text-xs text-muted-foreground">
+                                                                <p className="font-semibold">Episode: <span className="font-normal">{titleAndEpisode?.episode}</span></p>
+                                                                <p className="font-semibold">Rows: <span className="font-normal">{subtitleConverted?.length}</span></p>
+                                                            </div>
+                                                        </div>
+                                                    </HoverCardContent>}
 
-                                                <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
+                                                </HoverCard>
+
                                             </>
                                             }
 

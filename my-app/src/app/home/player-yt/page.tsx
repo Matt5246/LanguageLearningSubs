@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import VideoPlayer from "@/components/VideoPlayer";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,17 +9,15 @@ import {
 } from "@/components/ui/resizable"
 import axios from 'axios';
 import SubtitlesSkeleton from "@/components/Subtitles/SubtitlesSkeleton"
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
-import { Button } from "@/components/ui/button";
-import { useSession } from "next-auth/react";
-import { useAppDispatch } from '@/lib/hooks';
-import { addSubtitle } from '@/lib/features/subtitles/subtitleSlice';
-import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack";
-import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice'
+import { Button } from "@/components/ui/button"
+import { useSession } from "next-auth/react"
+import { useAppDispatch } from '@/lib/hooks'
+import { addSubtitle } from '@/lib/features/subtitles/subtitleSlice'
+import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack"
 import { useIsMobile } from '@/hooks/useMobile'
-import { GearIcon } from '@radix-ui/react-icons';
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerDescription } from "@/components/ui/drawer";
 import {
     Select,

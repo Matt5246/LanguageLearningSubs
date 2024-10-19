@@ -17,7 +17,7 @@ const initialState: SubtitlesState = {
     subtitles: [],
     selectedSubtitle: null,
     playedSeconds: 0,
-    autoScrollEnabled: loadAutoScrollState(),
+    autoScrollEnabled: loadAutoScrollState() || false,
 };
 
 const subtitlesSlice = createSlice({

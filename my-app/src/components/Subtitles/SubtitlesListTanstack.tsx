@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect, useRef } from "react";
 import {
-    ColumnDef,
     Row,
     SortDirection,
     SortingState,
@@ -40,9 +39,6 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], currentIndex: number, aut
 
         if (!row) return null;
         if (autoScrollEnabled) {
-
-
-
             return (
                 <TableRow
                     key={row.id}
@@ -104,7 +100,7 @@ export function DataTable<TData, TValue>({ captions, height }: { captions: Capti
         getSortedRowModel: getSortedRowModel(),
     });
 
-    const { rows } = table.getRowModel();
+    const { rows } = table.getRowModel()
 
     useEffect(() => {
         if (rows.length > 0) {

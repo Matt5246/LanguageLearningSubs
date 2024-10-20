@@ -24,17 +24,19 @@ import { useToast } from "@/components/ui/use-toast";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import EditWord from "./EditWord"
+import InputFlashCard from './InputWord';
 
 export default function FlashCard() {
     const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: Subtitle) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
-    const [progress, setProgress] = useState(0);
-    const [subtitles, setSubtitles] = useState<HardWord[]>(selectedSub?.hardWords || []);
-    const [currentWordIndex, setCurrentWordIndex] = useState(0);
-    const [showAllData, setShowAllData] = useState(false);
-    const [currentSubtitle, setCurrentSubtitle] = useState(subtitles[currentWordIndex] || null);
+    const [progress, setProgress] = useState(0)
+    const [subtitles, setSubtitles] = useState<HardWord[]>(selectedSub?.hardWords || [])
+    const [currentWordIndex, setCurrentWordIndex] = useState(0)
+    const [showAllData, setShowAllData] = useState(false)
+    const [showInput, setShowInput] = useState(false)
+    const [currentSubtitle, setCurrentSubtitle] = useState(subtitles[currentWordIndex] || null)
     const filteredSubtitles = subtitles.filter(subtitle => subtitle.learnState !== 100)
-    const isMobile = useIsMobile();
-    const { toast } = useToast();
+    const isMobile = useIsMobile()
+    const { toast } = useToast()
 
     const findNextUnlearnedWordIndex = () => {
         if (filteredSubtitles.length > 0) {
@@ -54,13 +56,13 @@ export default function FlashCard() {
             }
         }
     };
-
     const handleNextWord = () => {
         setShowAllData(false);
         findNextUnlearnedWordIndex();
     };
     const handleEasy = () => {
-        setShowAllData(false);
+        setShowAllData(false)
+        setShowInput(false)
         const updatedSubtitles = subtitles.map(subtitle => {
             if (subtitle.word === currentSubtitle?.word) {
                 const updatedLearnState = Math.min(subtitle.learnState! + 34, 100);
@@ -74,7 +76,6 @@ export default function FlashCard() {
         setSubtitles(updatedSubtitles);
         findNextUnlearnedWordIndex();
     };
-
     const handleHard = () => {
         setShowAllData(false);
         const updatedSubtitles = subtitles.map(subtitle => {
@@ -86,19 +87,34 @@ export default function FlashCard() {
             }
             return subtitle;
         });
-
         setSubtitles(updatedSubtitles);
         findNextUnlearnedWordIndex();
     };
-
-
     const handlePreviousWord = () => {
         setShowAllData(false);
-        setCurrentWordIndex((prevIndex) => (prevIndex - 1 + filteredSubtitles.length) % filteredSubtitles.length);
+        if (filteredSubtitles.length > 0) {
+            const prevIndex = (currentWordIndex - 1 + subtitles.length) % subtitles.length;
+            // Find the previous unlearned word index
+            for (let i = prevIndex; i >= 0; i--) {
+                if (subtitles[i].learnState !== 100) {
+                    setCurrentWordIndex(i);
+                    setCurrentSubtitle(subtitles[i]);
+                    return;
+                }
+            }
+            // If no previous unlearned word is found, loop back to the last unlearned word
+            for (let i = subtitles.length - 1; i > prevIndex; i--) {
+                if (subtitles[i].learnState !== 100) {
+                    setCurrentWordIndex(i);
+                    setCurrentSubtitle(subtitles[i]);
+                    return;
+                }
+            }
+        }
     };
-
     const handleShowTranslation = () => {
         setShowAllData(true)
+        setShowInput(false)
     };
 
     const fetchSubtitles = async () => {
@@ -186,7 +202,7 @@ export default function FlashCard() {
                                 <div className="grid w-full items-center  space-y-1.5">
                                     <div className="flex flex-col space-y-1.5">
                                         <CardDescription>Word</CardDescription>
-                                        <CardTitle className='text-xl'>{currentSubtitle?.word}</CardTitle>
+                                        {!showInput && <CardTitle className='text-xl'>{currentSubtitle?.word}</CardTitle>}
                                     </div>
                                     <div className="flex flex-col space-y-1.5 text-xl">
                                         {showAllData && (
@@ -222,6 +238,9 @@ export default function FlashCard() {
                                         )}
                                     </div>
                                 </div>
+                                {showInput && (
+                                    <InputFlashCard word={currentSubtitle?.word} translation={currentSubtitle?.translation} handleEasy={handleEasy} />
+                                )}
                             </CardContent>
                             <CardFooter className={`absolute bottom-0 ${isMobile ? 'flex space-x-2' : 'flex justify-between space-x-8'}`}>
                                 {showAllData && (
@@ -240,11 +259,17 @@ export default function FlashCard() {
                                         </Button>
                                     </>
                                 )}
-                                {!showAllData &&
-                                    <Button variant="outline" className="md:w-[448px] w-[297px]" onClick={handleShowTranslation}>
-                                        Show Translation
-                                    </Button>
-                                }
+                                <div className='space-y-2'>
+                                    {showInput ? (<>
+                                        <Button variant="secondary" className="md:w-[448px] w-[297px]" onClick={() => { setShowInput(false); handleNextWord() }}>Skip</Button>
+                                        <Button className="md:w-[448px] w-[297px]" onClick={() => handleShowTranslation()}>show answer</Button>
+                                    </>) : (<>{!showAllData && (
+                                        <>
+                                            <Button variant="secondary" className="md:w-[448px] w-[297px]" onClick={() => setShowInput(true)}>Write Answer</Button>
+                                            <Button className="md:w-[448px] w-[297px]" onClick={handleShowTranslation}>Show Translation</Button>
+                                        </>)}
+                                    </>)}
+                                </div>
                             </CardFooter>
                         </Card>
                     ) : (

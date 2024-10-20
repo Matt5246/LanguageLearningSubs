@@ -51,7 +51,6 @@ const Home = () => {
     const [titleAndEpisode, setTitleAndEpisode] = useState<{ subtitleTitle: string, episode: string | null }>();
     const [targetLanguage, setTargetLanguage] = useState("");
     const [sourceLanguage, setSourceLanguage] = useState("");
-    //const selectedSub: Subtitle = useSelector((state: any) => state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle));
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [videoTitle, setVideoTitle] = useState<string>("")
     const [url, setUrl] = useState<string>('');

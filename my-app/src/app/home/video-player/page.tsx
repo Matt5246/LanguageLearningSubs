@@ -1,20 +1,19 @@
 'use client'
-import { useState, useEffect } from "react";
-import VideoPlayer from "@/components/VideoPlayer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react"
+import VideoPlayer from "@/components/VideoPlayer"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
     ResizableHandle,
     ResizablePanel,
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import axios from 'axios';
-import SubtitlesSkeleton from "@/components/Subtitles/SubtitlesSkeleton"
-import { useQuery } from "@tanstack/react-query";
+import axios from 'axios'
+import { useQuery } from "@tanstack/react-query"
 import { useToast } from "@/components/ui/use-toast"
 import { useSession } from "next-auth/react"
 import { useAppDispatch } from '@/lib/hooks'
-import { SubtitlesState, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice';
+import { SubtitlesState, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'
 import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack"
 import { useIsMobile } from '@/hooks/useMobile'
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer"
@@ -100,7 +99,7 @@ const Home = () => {
                     email: userEmail,
                     subtitleData: subtitleConverted,
                     ...titleAndEpisode,
-                    sourceLang: sourceLanguage || null,
+                    sourceLang: sourceLanguage || 'auto',
                     targetLang: targetLanguage || null,
                     hardWords: [],
                 }
@@ -239,9 +238,9 @@ const Home = () => {
                                                     </HoverCardTrigger>
                                                     {titleAndEpisode && <HoverCardContent className="p-4 shadow-lg rounded-lg">
                                                         <div className="text-sm ">
-                                                            <span className="font-normal">{titleAndEpisode?.subtitleTitle}</span>
+                                                            <span className="font-normal break-words break-all">{titleAndEpisode?.subtitleTitle}</span>
                                                             <div className="flex flex justify-between items-center mt-2 text-xs text-muted-foreground">
-                                                                <p className="font-semibold">Episode: <span className="font-normal">{titleAndEpisode?.episode}</span></p>
+                                                                {titleAndEpisode?.episode && <p className="font-semibold">Episode: <span className="font-normal">{titleAndEpisode?.episode}</span></p>}
                                                                 <p className="font-semibold">Rows: <span className="font-normal">{subtitleConverted?.length}</span></p>
                                                             </div>
                                                         </div>

@@ -24,6 +24,7 @@ model User {
   updatedAt      DateTime?  @updatedAt
   subtitles      Subtitle[]
   accounts       Account[]
+  HardWord       HardWord[]
 }
 
 model Subtitle {
@@ -65,12 +66,12 @@ model HardWord {
   learnState  Int        @default(0)
   createdAt   DateTime?  @default(now())
   learnedAt   DateTime?
+  userId      String?    @db.ObjectId
   sentences   Sentence[]
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Subtitle    Subtitle?  @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
 
-  Subtitle Subtitle? @relation(fields: [hardWordId], references: [SubtitleId], onDelete: Cascade)
-  userId   String?   @db.ObjectId
-
-  @@unique([word])
+  @@unique([word, userId])
 }
 
 model Sentence {

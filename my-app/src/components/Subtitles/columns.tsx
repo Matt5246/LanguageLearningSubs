@@ -48,9 +48,9 @@ async function handleAddToHardWords(word: string | null, sentence: string, sente
     };
     try {
         const response = await axios.post('/api/hardWords/add', data);
-        if (response.data.error) {
-            toast("Event has been Blocked", {
-                description: response.data.error,
+        if (response?.data?.error) {
+            toast("Failed to add hard word", {
+                description: typeof response?.data?.error === 'string' ? response.data.error : "An unexpected error occurred. Please try again later.",
                 action: {
                     label: "Close",
                     onClick: () => console.log("Closed"),

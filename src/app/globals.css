@@ -97,3 +97,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+.highlight {
+  background-color: #fef08a; /* A soft yellow highlight */
+  transition: background-color 1s ease, box-shadow 1s ease; /* Smooth color and shadow transition */
+  box-shadow: 0 0 10px rgba(255, 223, 0, 0.7); /* Soft yellow glow */
+}
+
+.highlight-remove {
+  background-color: transparent;
+  box-shadow: none;
+}

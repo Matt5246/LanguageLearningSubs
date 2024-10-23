@@ -20,12 +20,12 @@ export async function POST(req: Request) {
 
             const { translatedSubtitleData, detectedLanguage } = targetLang
                 ? await translateSubtitleData(subtitleData, sourceLang, targetLang)
-                : { translatedSubtitleData: subtitleData, detectedLanguage: sourceLang };
+                : await translateSubtitleData(subtitleData, sourceLang, 'en');
             const updatedSubtitleData = subtitleData.map((data: any, index: number) => ({
                 text: data?.text,
                 translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,
                 start: parseFloat(data.start),
-                end: parseFloat(data.end)
+                end: data.end ? parseFloat(data.end) : (parseFloat(data.start) + parseFloat(data.dur))
             }));
             const finalSourceLang = sourceLang === 'auto' && detectedLanguage ? detectedLanguage : sourceLang;
 
@@ -69,11 +69,11 @@ async function translateSubtitleData(subtitleData: SubtitleData[], sourceLang: s
         const response = await axios.post("http://127.0.0.1:5000/translate", {
             q: texts,
             source: sourceLang || "auto",
-            target: targetLang,
+            target: targetLang || "en",
             format: "text"
         });
-        let detectedLanguage= "auto";
-        if(sourceLang=== "auto" && response.data.detectedLanguage[0].language){
+        let detectedLanguage = "auto";
+        if(response.data.detectedLanguage[0].language){
             detectedLanguage = response.data.detectedLanguage[0].language;
         }
 

@@ -34,34 +34,28 @@ const components: { title: string; href: string; description: string }[] = [
             "A page where you can watch your saved videos with subtitles, and from your drive.",
     },
     {
+        title: "Subtitles",
+        href: "/home/subtitles",
+        description:
+            "Here you can manage all your subtitles. if you have any.",
+    },
+    {
         title: "Flashcards",
         href: "/home/flashcards",
         description:
             "A page where you can train your knowledge.",
     },
     {
-        title: "Books",
-        href: "/home/books",
+        title: "Progress tracking",
+        href: "/home/progress",
         description:
-            "Here you can read books in german language.",
-    },
-    {
-        title: "Subtitles",
-        href: "/home/subtitles",
-        description:
-            "Here you can see your all subtitles.",
+            "Here you can see the progress you've made.",
     },
     {
         title: "Word Bank",
         href: "/home/wordBank",
         description:
-            "Your saved words are listed here.",
-    },
-    {
-        title: "Progress tracking",
-        href: "/home/progress",
-        description:
-            "Here you can see the progress you've made.",
+            "Your saved words are listed here. You can easily find what you need.",
     },
 ]
 

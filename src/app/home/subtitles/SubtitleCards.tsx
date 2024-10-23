@@ -21,7 +21,7 @@ export function SubtitleCards({ groupedSubtitles }: { groupedSubtitles: GroupedS
     if (!isMounted) return null;
 
     return (
-        <div className=" columns-sm gap-4 space-y-4 mt-5 ">
+        <div className=" columns-xs gap-1 space-y-4 mt-5">
             {Object.entries(groupedSubtitles).map(([title, subtitles]) => (
                 <motion.div
                     key={title}
@@ -38,7 +38,7 @@ export function SubtitleCards({ groupedSubtitles }: { groupedSubtitles: GroupedS
                 >
                     <Card key={title} className="flex flex-col h-full break-inside-avoid transition-all duration-300 ease-in-out w-[250px]">
                         <CardHeader className="p-4">
-                            <CardTitle className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+                            <CardTitle className="text-2xl font-semibold text-gray-800 dark:text-gray-100 break-words">
                                 {title}
                             </CardTitle>
                         </CardHeader>

@@ -47,6 +47,17 @@ const Home: React.FC = () => {
         setFontSize((prevSize) => prevSize === 'text-2xl' ? 'text-xl' : 'text-lg');
     };
 
+    const scrollTo = (letter: string) => {
+        const element = document.getElementById(letter);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            element.classList.add('highlight');
+            setTimeout(() => {
+                element.classList.replace('highlight', 'highlight-remove');
+            }, 1500);
+        }
+    };
+
     if (!isLoaded) {
         return (
             <h1 className="text-2xl font-bold mt-9 ml-9">Word Bank
@@ -54,13 +65,6 @@ const Home: React.FC = () => {
             </h1>
         );
     }
-
-    const scrollTo = (letter: string) => {
-        const element = document.getElementById(letter);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
 
     return (
         <>

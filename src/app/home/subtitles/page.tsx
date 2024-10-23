@@ -41,7 +41,7 @@ export default function Home() {
   const totalEpisodes = groupedSubtitles[selectedSub?.subtitleTitle || '']?.length || 0;
 
   return (
-    <div className='sm:m-5 m-1'>
+    <div className='m-5 '>
       <div className='flex flex-col md:flex-row justify-between items-start'>
         <div className="mb-4 md:mb-0">
           <SubtitlesDropDown data={subtitlesData as any[]} />

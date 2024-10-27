@@ -195,13 +195,23 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
 
             <div className='flex w-full'>
                 {currentPath.length === 0 && (
-                    <input
-                        type="file"
-                        //@ts-ignore because webkitdirectory works and allows folder selection
-                        webkitdirectory="true"
-                        multiple
-                        onChange={handleFolderSelection}
-                    />
+                    <div>
+                        {
+                            folders.length === 0 && (
+                                <>
+                                    <h1 className="text-2xl font-bold">Upload Your Data</h1>
+                                    <p className="text-md mt-2 mb-4">Please select a folder to upload your video and subtitle files.</p>
+                                </>
+                            )
+                        }
+                        <input
+                            type="file"
+                            //@ts-ignore because webkitdirectory works and allows folder selection
+                            webkitdirectory="true"
+                            multiple
+                            onChange={handleFolderSelection}
+                        />
+                    </div>
                 )}
                 {currentPath.length === 0 ? (
                     <>{renderFolders()}</>

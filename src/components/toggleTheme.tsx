@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useState, useEffect } from "react"
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
 import { useTheme } from "next-themes"
 
@@ -14,7 +14,15 @@ import {
 
 export function ModeToggle() {
 	const { setTheme } = useTheme()
+	const [isHydrated, setIsHydrated] = useState(false);
 
+	useEffect(() => {
+		setIsHydrated(true);
+	}, []);
+
+	if (!isHydrated) {
+		return null;
+	}
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>

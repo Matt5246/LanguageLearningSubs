@@ -98,9 +98,14 @@ export async function POST(req: Request) {
             if (lemma) {
                 hardWordData = {
                     ...hardWordData,
-                    //@ts-ignore
                     lemma,
                     pos,
+                };
+            }else{
+                hardWordData = {
+                    ...hardWordData,
+                    lemma: hardWord,
+                    pos: null,
                 };
             }
             if (translation) {

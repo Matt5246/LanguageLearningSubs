@@ -26,14 +26,12 @@ const subtitlesSlice = createSlice({
     reducers: {
         addSubtitle(state, action: PayloadAction<Subtitle>) {
             state.subtitles.push(action.payload);
-            saveSubtitlesToStorage(state.subtitles);
         },
         deleteSubtitle(state, action: PayloadAction<string>) {
             state.subtitles = state.subtitles.filter(subtitle => subtitle.SubtitleId !== action.payload);
         },
         clearSubtitles(state) {
             state.subtitles = [];
-            saveSubtitlesToStorage([]);
         },
         getSubtitle(state, action: PayloadAction<string>): void {
             state.subtitles.find(subtitle => subtitle.SubtitleId === action.payload);
@@ -64,13 +62,11 @@ const subtitlesSlice = createSlice({
                     ...sub,
                     text: sub.translation,
                     translation: sub.text
-                }));
-                saveSubtitlesToStorage(state.subtitles);
+                }))
             }
         },
         initializeSubtitles(state, action: PayloadAction<Subtitle[]>) {
             state.subtitles = action.payload;
-            saveSubtitlesToStorage(state.subtitles)
         },
     },
 });
@@ -139,12 +135,6 @@ function loadAutoScrollState(): boolean {
         return storedAutoScrollState ? JSON.parse(storedAutoScrollState) : true;
     }
     return true;
-}
-
-function saveSubtitlesToStorage(subtitles: Subtitle[]): void {
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('subtitles', JSON.stringify(subtitles));
-    }
 }
 
 // export const startPeriodicUpdates = () => (dispatch: any) => {

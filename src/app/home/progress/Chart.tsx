@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { SubtitlesState } from '@/lib/features/subtitles/subtitleSlice'
+import { Spinner } from '@/components/ui/spinner';
 
 const chartConfig = {
     views: {
@@ -76,11 +77,9 @@ const generateChartData = (allHardWords: HardWord[], period: 'day' | 'week' | 'm
 export default function Component() {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("hardWords");
     const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
-
+    const [isLoaded, setIsLoaded] = useState(false)
     const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
-    if (!subtitlesData || subtitlesData.length === 0) {
-        return null;
-    }
+
     const allHardWords = subtitlesData.flatMap(subtitle => subtitle.hardWords || []);
     const chartData = generateChartData(allHardWords, period);
 
@@ -88,7 +87,16 @@ export default function Component() {
         hardWords: chartData.reduce((acc, curr) => acc + curr.hardWords, 0),
         learned: chartData.reduce((acc, curr) => acc + curr.learned, 0)
     }
-
+    if (!allHardWords) {
+        return (
+            <h1 className="text-2xl font-bold mt-9 ml-9">Checking for data
+                <Spinner />
+            </h1>
+        );
+    }
+    if (!subtitlesData || subtitlesData.length === 0) {
+        return null;
+    }
     chartData.sort((a, b) => {
         const aDate = new Date(a.date);
         const bDate = new Date(b.date);

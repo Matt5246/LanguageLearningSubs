@@ -30,40 +30,40 @@ import { ModeToggle } from './toggleTheme'
 import { useIsMobile } from '@/hooks/useMobile'
 
 function AvatarComponent() {
-	const { setTheme, theme } = useTheme()
+
 
 	return (
 		<div className='flex'>
-			{!useIsMobile() && <><ModeToggle />
-				<Dialog>
-					<DropdownMenu>
-						<DropdownMenuTrigger>
-							<Avatar className='ml-4'>
-								<AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-								<AvatarFallback>CN</AvatarFallback>
-							</Avatar>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent>
-							<DropdownMenuLabel>My Account</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							<Link href="/home/profile"><DropdownMenuItem>Profile</DropdownMenuItem></Link>
+			{typeof window !== 'undefined' && !useIsMobile() && <ModeToggle />}
+			<Dialog>
+				<DropdownMenu>
+					<DropdownMenuTrigger>
+						<Avatar className='ml-4'>
+							<AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+							<AvatarFallback>CN</AvatarFallback>
+						</Avatar>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent>
+						<DropdownMenuLabel>My Account</DropdownMenuLabel>
+						<DropdownMenuSeparator />
+						<Link href="/home/profile"><DropdownMenuItem>Profile</DropdownMenuItem></Link>
 
-							<DialogTrigger asChild>
-								<DropdownMenuItem>Settings</DropdownMenuItem>
-							</DialogTrigger>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem><SigninButton /></DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu >
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>Settings</DialogTitle>
-							<DialogDescription>
-								<Settings />
-							</DialogDescription>
-						</DialogHeader>
-					</DialogContent>
-				</Dialog></>}
+						<DialogTrigger asChild>
+							<DropdownMenuItem>Settings</DropdownMenuItem>
+						</DialogTrigger>
+						<DropdownMenuSeparator />
+						<SigninButton />
+					</DropdownMenuContent>
+				</DropdownMenu >
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Settings</DialogTitle>
+						<DialogDescription>
+							<Settings />
+						</DialogDescription>
+					</DialogHeader>
+				</DialogContent>
+			</Dialog>
 		</div>
 	)
 }

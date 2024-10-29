@@ -3,7 +3,9 @@
   "version": "0.2.5",
   "private": true,
   "scripts": {
-    "dev": "prisma generate && next dev",
+    "fastapi-dev": "pip install -r requirements.txt && python -m uvicorn api.index:app --reload",
+    "next-dev": "prisma generate && next dev",
+    "dev": "concurrently \"npm run next-dev\" \"npm run fastapi-dev\"",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint"
@@ -42,6 +44,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",
+    "concurrently": "^9.0.1",
     "deepl-node": "^1.12.0",
     "ebml": "2.2.4",
     "express": "^4.18.3",
@@ -56,6 +59,7 @@
     "next": "^14.2.3",
     "next-auth": "^4.24.7",
     "next-themes": "^0.2.1",
+    "pnpm": "^9.12.3",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.51.0",

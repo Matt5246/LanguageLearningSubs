@@ -107,3 +107,4 @@ async def translate(request: TranslateRequest):
 @app.get("/")
 async def home():
     return {'message': 'Welcome to the Language Learning FastAPI!'}
+

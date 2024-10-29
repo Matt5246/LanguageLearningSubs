@@ -3,7 +3,7 @@
   "version": "0.2.5",
   "private": true,
   "scripts": {
-    "fastapi-dev": "pip install -r requirements.txt && python -m uvicorn api.index:app --reload",
+    "fastapi-dev": "pip install -r requirements.txt && python -m uvicorn api.index:app --reload --port 8080",
     "next-dev": "prisma generate && next dev",
     "dev": "concurrently \"npm run next-dev\" \"npm run fastapi-dev\"",
     "build": "prisma generate && next build",

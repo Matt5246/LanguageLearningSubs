@@ -11,5 +11,5 @@ en-core-web-md @ https://github.com/explosion/spacy-models/releases/download/en_
 ja-core-news-md @ https://github.com/explosion/spacy-models/releases/download/ja_core_news_md-3.7.0/ja_core_news_md-3.7.0-py3-none-any.whl#sha256=9620316189c3638feec33d3abd0375d532650860d4e6cd2b2a6232594e14d440
 SudachiDict-core==20240716
 SudachiPy==0.6.8
-pl-core-news-md @ https://github.com/explosion/spacy-models/releases/download/pl_core_news_md-3.7.0/pl_core_news_md-3.7.0-py3-none-any.whl#sha256=58a9f32e18525ed647bafbfcd1764191c633d717f0c88535b9481d4e5641af52
-zh-core-web-md @ https://github.com/explosion/spacy-models/releases/download/zh_core_web_md-3.7.0/zh_core_web_md-3.7.0-py3-none-any.whl#sha256=a528dbbcf7f323718be4b523559840dc850303046e25a62f9a1049b7ab9f9e68
+# pl-core-news-md @ https://github.com/explosion/spacy-models/releases/download/pl_core_news_md-3.7.0/pl_core_news_md-3.7.0-py3-none-any.whl#sha256=58a9f32e18525ed647bafbfcd1764191c633d717f0c88535b9481d4e5641af52
+# zh-core-web-md @ https://github.com/explosion/spacy-models/releases/download/zh_core_web_md-3.7.0/zh_core_web_md-3.7.0-py3-none-any.whl#sha256=a528dbbcf7f323718be4b523559840dc850303046e25a62f9a1049b7ab9f9e68

@@ -1,21 +1,65 @@
-'use client';
-import React, { useEffect, useState } from 'react';
+'use client'
+import React, { useEffect, useState, useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from "next/link";
+import { Search, SortAsc, SortDesc, Filter, BookOpen, Trophy, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSelector, useDispatch } from 'react-redux';
-import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
-import { selectFlashCardData } from '@/lib/features/subtitles/subtitleSlice';
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { motion } from 'framer-motion';
-import DeleteSubtitle from '@/app/home/subtitles/DeleteSubtitles'
-const Home = () => {
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { setSelectedSubtitle, selectFlashCardData } from '@/lib/features/subtitles/subtitleSlice';
+import DeleteSubtitle from '@/app/home/subtitles/DeleteSubtitles';
+
+interface GroupedSubtitles {
+    [key: string]: Subtitle[];
+}
+
+interface Subtitle {
+    SubtitleId?: string;
+    subtitleTitle?: string;
+    hardWords?: Array<{
+        word: string;
+        translation: string;
+        learnState: number;
+        lastReviewed?: string;
+    }>;
+}
+
+const sortOptions = {
+    'title-asc': (a: [string, Subtitle[]], b: [string, Subtitle[]]) => a[0].localeCompare(b[0]),
+    'title-desc': (a: [string, Subtitle[]], b: [string, Subtitle[]]) => b[0].localeCompare(a[0]),
+    'words-asc': (a: [string, Subtitle[]], b: [string, Subtitle[]]) =>
+        a[1].reduce((acc, s) => acc + (s.hardWords?.length || 0), 0) -
+        b[1].reduce((acc, s) => acc + (s.hardWords?.length || 0), 0),
+    'words-desc': (a: [string, Subtitle[]], b: [string, Subtitle[]]) =>
+        b[1].reduce((acc, s) => acc + (s.hardWords?.length || 0), 0) -
+        a[1].reduce((acc, s) => acc + (s.hardWords?.length || 0), 0),
+    'progress-asc': (a: [string, Subtitle[]], b: [string, Subtitle[]]) =>
+        getProgressPercentage(a[1]) - getProgressPercentage(b[1]),
+    'progress-desc': (a: [string, Subtitle[]], b: [string, Subtitle[]]) =>
+        getProgressPercentage(b[1]) - getProgressPercentage(a[1]),
+};
+
+function getProgressPercentage(subtitles: Subtitle[]): number {
+    const totalWords = subtitles.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
+    const learnedWords = subtitles.reduce((acc, s) =>
+        acc + (s.hardWords?.filter(w => w.learnState === 100)?.length || 0), 0);
+    return totalWords ? (learnedWords / totalWords) * 100 : 0;
+}
+
+export default function FlashcardPage() {
     const dispatch = useDispatch();
     const flashCardData = useSelector(selectFlashCardData) as Subtitle[];
+    const [search, setSearch] = useState('');
+    const [sort, setSort] = useState('title-asc');
+    const [filter, setFilter] = useState('all');
     const [groupedSubtitles, setGroupedSubtitles] = useState<GroupedSubtitles>({});
 
     useEffect(() => {
-
         const grouped = flashCardData.reduce((acc: GroupedSubtitles, subtitle: Subtitle) => {
             if (!acc[subtitle.subtitleTitle!]) {
                 acc[subtitle.subtitleTitle!] = [];
@@ -23,66 +67,148 @@ const Home = () => {
             acc[subtitle.subtitleTitle!].push(subtitle);
             return acc;
         }, {});
-
-        setGroupedSubtitles({ ...groupedSubtitles, ...grouped });
+        setGroupedSubtitles(grouped);
     }, [flashCardData]);
 
-    function handleLearnButtonClick(SubtitleId: string) {
+    const filteredAndSortedSubtitles = useMemo(() => {
+        return Object.entries(groupedSubtitles)
+            .filter(([title, data]) => {
+                const hasWords = data.some(subtitle => subtitle.hardWords!.length > 0);
+                const matchesSearch = title.toLowerCase().includes(search.toLowerCase()) ||
+                    data.some(subtitle =>
+                        subtitle.hardWords?.some(word =>
+                            word.word.toLowerCase().includes(search.toLowerCase()) ||
+                            word?.translation?.toLowerCase().includes(search.toLowerCase())
+                        )
+                    );
+                const progress = getProgressPercentage(data);
+
+                if (filter === 'not-started') return progress === 0 && hasWords;
+                if (filter === 'in-progress') return progress > 0 && progress < 100 && hasWords;
+                if (filter === 'completed') return progress === 100 && hasWords;
+                return hasWords && matchesSearch;
+            })
+            .sort(sortOptions[sort as keyof typeof sortOptions]);
+    }, [groupedSubtitles, search, sort, filter]);
+
+    const handleLearnButtonClick = (SubtitleId: string) => {
         dispatch(setSelectedSubtitle(SubtitleId));
-        redirect('/home/flashcards/learn');
     };
-    if (!flashCardData) return <>none</>;
+
+    if (!flashCardData?.length) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+                <BookOpen className="h-16 w-16 text-muted-foreground" />
+                <h2 className="text-2xl font-semibold">No Flashcards Yet</h2>
+                <p className="text-muted-foreground text-center max-w-md">
+                    Add your hard words to the database first to start learning with flashcards.
+                </p>
+            </div>
+        );
+    }
+
     return (
-        <div className="flex justify-center mt-6 mx-5">
-            {Object.keys(groupedSubtitles).length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                    {Object.entries(groupedSubtitles).map(([subtitleTitle, data], index) => (
-                        data.some(subtitle => subtitle.hardWords!.length > 0) && (
-                            <motion.div
-                                key={subtitleTitle}
-                                className="flex flex-col"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                            >
-                                <Card className="m-3 transition-transform transform group hover:scale-105 hover:shadow-lg min-h-[450px]">
-                                    <CardHeader>
+        <div className="container mx-auto py-8 space-y-6">
+            <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 md:items-center">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search by title or word..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-9"
+                    />
+                </div>
+                <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Sort by..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="title-asc">Title A-Z</SelectItem>
+                        <SelectItem value="title-desc">Title Z-A</SelectItem>
+                        <SelectItem value="words-asc">Words: Low to High</SelectItem>
+                        <SelectItem value="words-desc">Words: High to Low</SelectItem>
+                        <SelectItem value="progress-asc">Progress: Low to High</SelectItem>
+                        <SelectItem value="progress-desc">Progress: High to Low</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Tabs value={filter} onValueChange={setFilter} className="w-[400px]">
+                    <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="all">All</TabsTrigger>
+                        <TabsTrigger value="not-started">Not Started</TabsTrigger>
+                        <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+                        <TabsTrigger value="completed">Completed</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            </div>
+
+            <AnimatePresence>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredAndSortedSubtitles.map(([subtitleTitle, data], index) => (
+                        <motion.div
+                            key={subtitleTitle}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                        >
+                            <Card className="h-full flex flex-col">
+                                <CardHeader>
+                                    <div className="flex justify-between items-start">
                                         <CardTitle className="text-xl">{subtitleTitle}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="flex-grow ">
-                                        <p className='pb-3'>Word count: {data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0)}</p>
-                                        <p className={`space-y-2 ${data.reduce((acc, subtitle) => acc + subtitle.hardWords!.length, 0) > 10 ? 'h-[250px] overflow-y-auto' : ''}`}>
-                                            {data.map((subtitle, index) => (
-                                                <p key={index}>
-                                                    {subtitle.hardWords!.map((hardWord, idx) => (
-                                                        <p key={idx}>
-                                                            {hardWord.word} <a className="text-gray-500">{'->'}</a> {hardWord.translation} {hardWord.learnState === 100 && <a className="text-green-500">✓</a>}
-                                                        </p>
-                                                    ))}
-                                                </p>
-                                            ))}
-                                        </p>
-                                    </CardContent>
-                                    <CardFooter className="flex w-full justify-between fixed bottom-0 left-0">
+                                        <Badge variant={getProgressPercentage(data) === 100 ? "" : "secondary"}>
+                                            {Math.round(getProgressPercentage(data))}%
+                                        </Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex-grow">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center space-x-2">
+                                            <BookOpen className="h-4 w-4 text-muted-foreground" />
+                                            <span>{data.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0)} words</span>
+                                        </div>
+                                        <Progress value={getProgressPercentage(data)} className="h-2" />
+                                        <div className="h-[200px] overflow-y-auto space-y-2">
+                                            {data.map((subtitle) =>
+                                                subtitle.hardWords?.map((word, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        className="p-2 rounded-md bg-muted/50 flex justify-between items-center"
+                                                    >
+                                                        <div>
+                                                            <span className="font-medium">{word.word}</span>
+                                                            <span className="text-muted-foreground"> → </span>
+                                                            <span>{word.translation}</span>
+                                                        </div>
+                                                        {word.learnState === 100 && (
+                                                            <Trophy className="h-4 w-4 text-green-500" />
+                                                        )}
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                                <CardFooter className="border-t pt-4">
+                                    <div className="flex justify-between items-center w-full">
                                         <DeleteSubtitle SubtitleId={data[0].SubtitleId!} />
-                                        <Link href='/home/flashcards/learn'>
-                                            <Button variant="secondary" onClick={() => handleLearnButtonClick(data[0].SubtitleId!)}>
-                                                Learn
+                                        <Link href="/home/flashcards/learn">
+                                            <Button
+                                                variant="default"
+                                                onClick={() => handleLearnButtonClick(data[0].SubtitleId!)}
+                                                className="space-x-2"
+                                            >
+                                                <BookOpen className="h-4 w-4" />
+                                                <span>Learn</span>
                                             </Button>
                                         </Link>
-                                    </CardFooter>
-                                </Card>
-                            </motion.div>
-                        )
+                                    </div>
+                                </CardFooter>
+                            </Card>
+                        </motion.div>
                     ))}
                 </div>
-            ) : (
-                <p className="mt-12 text-center text-gray-500">
-                    Add your hard words to the database first to use this component.
-                </p>
-            )}
+            </AnimatePresence>
         </div>
     );
-};
-
-export default Home;
+}

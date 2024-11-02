@@ -34,7 +34,7 @@ function AvatarComponent() {
 
 	return (
 		<div className='flex'>
-			{typeof window !== 'undefined' && !useIsMobile() && <ModeToggle />}
+			{!useIsMobile() && typeof window !== 'undefined' && <ModeToggle />}
 			<Dialog>
 				<DropdownMenu>
 					<DropdownMenuTrigger>

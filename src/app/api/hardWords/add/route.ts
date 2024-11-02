@@ -4,10 +4,6 @@ import axios from 'axios';
 import { primaryTranslationServiceURL, fallbackTranslationServiceURL } from '@/lib/utils'
 
 const prisma = new PrismaClient();
-function generateRandomTitle() {
-    const randomNumber = Math.floor(Math.random() * 1000) + 1; 
-    return `Subtitle ${randomNumber}`;
-}
 async function fetchLemmaAndPOS(word: string, sourceLang: string) {
     try {
         const response = await axios.post('http://127.0.0.1:8080/nlp', { word, sourceLang });

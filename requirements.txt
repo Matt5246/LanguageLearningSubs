@@ -1,0 +1,15 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+gunicorn==22.0.0
+spacy==3.7.4
+transformers==4.39.2
+torch==2.2.2
+sacremoses==0.1.1
+sentencepiece==0.2.0
+de-core-news-md @ https://github.com/explosion/spacy-models/releases/download/de_core_news_md-3.7.0/de_core_news_md-3.7.0-py3-none-any.whl#sha256=1426896f135b7e6314637faa9025a3e580c9ba2785372ccffe723dc20b41c493
+en-core-web-md @ https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.7.1/en_core_web_md-3.7.1-py3-none-any.whl#sha256=6a0f857a2b4d219c6fa17d455f82430b365bf53171a2d919b9376e5dc9be032e
+ja-core-news-md @ https://github.com/explosion/spacy-models/releases/download/ja_core_news_md-3.7.0/ja_core_news_md-3.7.0-py3-none-any.whl#sha256=9620316189c3638feec33d3abd0375d532650860d4e6cd2b2a6232594e14d440
+SudachiDict-core==20240716
+SudachiPy==0.6.8
+# pl-core-news-md @ https://github.com/explosion/spacy-models/releases/download/pl_core_news_md-3.7.0/pl_core_news_md-3.7.0-py3-none-any.whl#sha256=58a9f32e18525ed647bafbfcd1764191c633d717f0c88535b9481d4e5641af52
+# zh-core-web-md @ https://github.com/explosion/spacy-models/releases/download/zh_core_web_md-3.7.0/zh_core_web_md-3.7.0-py3-none-any.whl#sha256=a528dbbcf7f323718be4b523559840dc850303046e25a62f9a1049b7ab9f9e68

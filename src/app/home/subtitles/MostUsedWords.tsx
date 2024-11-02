@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
@@ -87,6 +87,9 @@ export function MostUsedWordsButton({ selectedSubtitle }: MostUsedWordsButtonPro
         const filtered = topWords.filter(([, count]) => count >= frequency);
         setFilteredWords(filtered);
     }, [frequency, topWords]);
+    useEffect(() => {
+        setFilteredWords([]);
+    }, [selectedSubtitle]);
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -119,7 +122,7 @@ export function MostUsedWordsButton({ selectedSubtitle }: MostUsedWordsButtonPro
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>Close</Button>
-                    <Button variant="default" onClick={handleMostUsedWords} className="ml-2">Send request for words</Button>
+                    <Button variant="default" disabled={topWords.length > 0} onClick={handleMostUsedWords} className="ml-2">Send request for words</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

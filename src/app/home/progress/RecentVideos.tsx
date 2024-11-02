@@ -2,12 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PlayCircle } from "lucide-react";
 
-interface Video {
+export interface Video {
     subtitleTitle: string;
     youtubeUrl: string;
-    hardWords: Array<{ word: string; translation: string }>;
-    createdAt: string;
+    hardWords: any[];
+    createdAt: string | Date;
 }
+
 
 interface RecentVideosProps {
     videos: Video[];

@@ -1,35 +1,25 @@
 'use client'
 import Chart from './Chart'
 import HistoryList from './HistoryList'
-import RecentVideos from './recentVideos'
+import RecentVideos from './RecentVideos'
 import { SubtitlesState } from '@/lib/features/subtitles/subtitleSlice';
 import { useSelector } from 'react-redux';
 import { useMemo } from 'react';
 import WordCloud from './WordCloud';
 import ProgressHeader from './ProgressHeader';
+import { Video } from './RecentVideos';
 
 
-interface Video {
-    subtitleTitle: string;
-    youtubeUrl: string;
-    hardWords: Array<{ word: string; translation: string }>;
-    createdAt: string;
-}
-interface Word {
-    word: string;
-    translation: string;
-    count: number;
-}
 
 export default function Home() {
     const subtitles: Subtitle[] = useSelector(
         (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles
     );
     const videos: Video[] = subtitles.map(subtitle => ({
-        subtitleTitle: subtitle.subtitleTitle,
-        youtubeUrl: subtitle.youtubeUrl,
-        hardWords: subtitle.hardWords,
-        createdAt: subtitle.createdAt,
+        subtitleTitle: subtitle.subtitleTitle || '',
+        youtubeUrl: subtitle.youtubeUrl || '',
+        hardWords: subtitle.hardWords || [],
+        createdAt: subtitle.createdAt || '',
     }));
     const stats = useMemo(() => {
         const totalWords = subtitles.reduce(
@@ -43,13 +33,15 @@ export default function Home() {
         }, 0);
 
         const lastActivity = subtitles.reduce(
-            (latest, sub) =>
-                latest > sub.createdAt ? latest : sub.createdAt,
-            ""
+            (latest, sub) => {
+                const subDate = new Date(sub.createdAt || 0);
+                return new Date(latest) > subDate ? latest : subDate.toISOString();
+            },
+            new Date(0).toISOString()
         );
 
         const activityByDate = subtitles.reduce((acc, sub) => {
-            const date = new Date(sub.createdAt).toLocaleDateString('en-US', { weekday: 'short' });
+            const date = sub.createdAt ? new Date(sub.createdAt).toLocaleDateString('en-US', { weekday: 'short' }) : 'Invalid Date';
             acc[date] = (acc[date] || 0) + (sub.hardWords?.length || 0);
             return acc;
         }, {} as Record<string, number>);
@@ -76,19 +68,14 @@ export default function Home() {
     return (
         <>
             <Chart />
-            <div className='m-5 '>
-                <ProgressHeader
-                    totalSubtitles={stats.totalSubtitles}
-                    totalWords={stats.totalWords}
-                    totalTime={stats.totalTime}
-                    lastActivity={stats.lastActivity}
-                />
-            </div>
-            <div className='m-5 '>
-                <RecentVideos videos={videos} />
-            </div>
-
+            <ProgressHeader
+                totalSubtitles={stats.totalSubtitles}
+                totalWords={stats.totalWords}
+                totalTime={stats.totalTime}
+                lastActivity={stats.lastActivity}
+            />
             <HistoryList />
+            <RecentVideos videos={videos} />
         </>
     );
 }

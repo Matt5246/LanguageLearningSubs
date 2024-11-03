@@ -114,6 +114,7 @@ export default function FlashcardPage() {
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search by title or word..."
+                        disabled={!flashCardData.length}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-9"
@@ -156,7 +157,7 @@ export default function FlashcardPage() {
                                 <CardHeader>
                                     <div className="flex justify-between items-start">
                                         <CardTitle className="text-xl">{subtitleTitle}</CardTitle>
-                                        <Badge variant={getProgressPercentage(data) === 100 ? "" : "secondary"}>
+                                        <Badge variant={getProgressPercentage(data) === 100 ? "default" : "secondary"}>
                                             {Math.round(getProgressPercentage(data))}%
                                         </Badge>
                                     </div>

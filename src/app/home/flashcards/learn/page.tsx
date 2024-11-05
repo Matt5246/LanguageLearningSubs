@@ -95,6 +95,7 @@ export default function FlashCard() {
                 title: "Learning session complete!",
                 description: `You've learned ${wordCount} words successfully.`,
             });
+            setFilteredSubtitles([]);
         } catch (error) {
             console.error('Error updating words:', error);
             toast({

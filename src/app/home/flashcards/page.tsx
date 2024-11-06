@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { setSelectedSubtitle, selectFlashCardData } from '@/lib/features/subtitles/subtitleSlice';
 import DeleteSubtitle from '@/app/home/subtitles/DeleteSubtitles';
+import { Spinner } from '@/components/ui/spinner'
 
 interface GroupedSubtitles {
     [key: string]: Subtitle[];
@@ -53,6 +54,7 @@ function getProgressPercentage(subtitles: Subtitle[]): number {
 
 export default function FlashcardPage() {
     const dispatch = useDispatch();
+    const [isLoaded, setIsLoaded] = useState(false);
     const flashCardData = useSelector(selectFlashCardData) as Subtitle[];
     const [search, setSearch] = useState('');
     const [sort, setSort] = useState('title-asc');
@@ -67,6 +69,7 @@ export default function FlashcardPage() {
             acc[subtitle.subtitleTitle!].push(subtitle);
             return acc;
         }, {});
+        setIsLoaded(true);
         setGroupedSubtitles(grouped);
     }, [flashCardData]);
 
@@ -94,8 +97,13 @@ export default function FlashcardPage() {
     const handleLearnButtonClick = (SubtitleId: string) => {
         dispatch(setSelectedSubtitle(SubtitleId));
     };
-
-    if (!flashCardData?.length) {
+    if (!isLoaded || !flashCardData.length) {
+        return (
+            <h1 className="text-2xl font-bold mt-9 ml-9">Flash cards
+                <Spinner />
+            </h1>
+        );
+    } else if (!flashCardData || flashCardData.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
                 <BookOpen className="h-16 w-16 text-muted-foreground" />

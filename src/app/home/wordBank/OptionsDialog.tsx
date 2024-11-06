@@ -35,7 +35,7 @@ const OptionsDialog: React.FC<OptionsDialogContentProps> = ({ word }) => {
                     <DeleteWord hardWord={word?.word} />
                     <EditWord wordData={word} />
                 </div>
-                <DialogFooter className="sm:justify-start">
+                <DialogFooter className="sm:justify-end">
                     <DialogClose asChild>
                         <Button type="button" variant="secondary">
                             Close

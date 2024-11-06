@@ -128,7 +128,7 @@ const Home: React.FC = () => {
     return (
         <Drawer>
             <div className="min-h-screen bg-background">
-                <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                     <div className="container flex h-14 items-center">
                         <div className="flex items-center space-x-4">
                             <BookOpen className="h-6 w-6" />
@@ -203,7 +203,7 @@ const Home: React.FC = () => {
                                             <div className="sticky top-0 bg-background/95 backdrop-blur py-2">
                                                 <h2 className="text-2xl font-bold flex items-center">
                                                     {letter}
-                                                    <Separator className="ml-4 flex-1" />
+                                                    <Separator className="ml-4 flex-1 z-8" />
                                                 </h2>
                                             </div>
 

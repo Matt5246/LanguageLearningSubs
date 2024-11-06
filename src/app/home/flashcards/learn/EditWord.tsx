@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { MinusIcon, PlusIcon } from "@radix-ui/react-icons";
+import { Edit } from "lucide-react";
 import { Input } from '@/components/ui/input'
 import { Button } from "@/components/ui/button";
 import {
@@ -12,10 +12,11 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import DeleteWord from "./DeleteWord";
 
 interface EditWordDrawerProps {
     wordData: any;
-    onSave: (updatedWord: any) => void;
+    onSave?: (updatedWord: any) => void;
 }
 
 const EditWord: React.FC<EditWordDrawerProps> = ({ wordData, onSave }) => {
@@ -28,7 +29,9 @@ const EditWord: React.FC<EditWordDrawerProps> = ({ wordData, onSave }) => {
     const handleSaveEdit = async () => {
         try {
             const response = await axios.post('/api/hardWords/edit', { hardWord: editingWord });
-            onSave(editingWord); // Callback to save the updated word data in the parent component
+            if (onSave) {
+                onSave(editingWord);
+            }
             toast({
                 title: "Success",
                 description: "Word updated successfully!",
@@ -43,14 +46,15 @@ const EditWord: React.FC<EditWordDrawerProps> = ({ wordData, onSave }) => {
         }
         setIsDrawerOpen(false);
     };
-
     return (
         <>
             <Button
                 variant="outline"
                 onClick={() => setIsDrawerOpen(true)}
+                className="flex items-center space-x-2 xs:space-x-0"
             >
-                Edit word
+                <Edit size={24} />
+                <span className="hidden sm:inline">Edit word</span>
             </Button>
             <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                 <DrawerContent>

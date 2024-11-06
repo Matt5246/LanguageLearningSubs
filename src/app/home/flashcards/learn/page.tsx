@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -18,6 +18,7 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { useOnKeyPress } from '@/hooks/useOnKeyPress';
 import { useIsMobile } from '@/hooks/useMobile';
 import axios from 'axios';
+import DeleteWord from './DeleteWord';
 
 interface HardWord {
     word: string;
@@ -70,11 +71,10 @@ export default function FlashCard() {
         const currentSetLearned = filteredSubtitles.every(filteredWord =>
             subtitles.some(subtitle => subtitle.word === filteredWord.word && subtitle.learnState === 100)
         );
-        console.log('currentSetLearned:', filteredSubtitles);
+
         if (currentSetLearned && filteredSubtitles.length > 0) {
             setLearningComplete(true);
             handleLearningComplete();
-            console.log('Learning complete!');
         }
     }, [subtitles, filteredSubtitles]);
 
@@ -253,16 +253,19 @@ export default function FlashCard() {
                                 <CardTitle className="text-xl">
                                     Word {currentWordIndex + 1} of {filteredSubtitles.length}
                                 </CardTitle>
-                                <EditWord wordData={currentSubtitle} onSave={(word) => {
-                                    const updatedSubtitles = subtitles.map(w =>
-                                        w.word === word.word ? word : w
-                                    );
-                                    setSubtitles(updatedSubtitles);
-                                    toast({
-                                        title: "Word updated",
-                                        description: "Changes saved successfully"
-                                    });
-                                }} />
+                                <div className='flex space-x-2'>
+                                    <DeleteWord hardWord={currentSubtitle.word} />
+                                    <EditWord wordData={currentSubtitle} onSave={(word) => {
+                                        const updatedSubtitles = subtitles.map(w =>
+                                            w.word === word.word ? word : w
+                                        );
+                                        setSubtitles(updatedSubtitles);
+                                        toast({
+                                            title: "Word updated",
+                                            description: "Changes saved successfully"
+                                        });
+                                    }} />
+                                </div>
                             </div>
                         </CardHeader>
 
@@ -346,6 +349,14 @@ export default function FlashCard() {
                     </Card>
                 </motion.div>
             </AnimatePresence>
+            <Button
+                onClick={handleLearningComplete}
+                className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full md:fixed bottom-6 right-6 z-50 shadow-lg w-full md:w-auto"
+            >
+                <Save className="h-5 w-5" />
+                <span >Save Progress</span>
+            </Button>
+
         </div>
     );
 }

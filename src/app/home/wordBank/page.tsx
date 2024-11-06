@@ -18,6 +18,21 @@ import {
     ArrowUpCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import DeleteWord, { DeleteWordBadge } from '../flashcards/learn/DeleteWord';
+import { Drawer } from '@/components/ui/drawer'
+import { Badge } from '@/components/ui/badge'
+import EditWord from '../flashcards/learn/EditWord'
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
 
 interface Subtitle {
     hardWords: Word[];
@@ -124,7 +139,7 @@ const Home: React.FC = () => {
     };
 
     return (
-        <>
+        <Drawer>
             <div className="min-h-screen bg-background">
                 <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                     <div className="container flex h-14 items-center">
@@ -186,50 +201,55 @@ const Home: React.FC = () => {
                                 ))}
                             </Card>
                         </div>
-
                         <ScrollArea className="h-[calc(100vh-15rem)]">
-                            <AnimatePresence>
-                                {Object.entries(filteredGroups).map(([letter, words]) => (
-                                    <motion.div
-                                        key={letter}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        className="mb-8"
-                                        id={`section-${letter}`}
-                                    >
-                                        <div className="sticky top-0 bg-background/95 backdrop-blur z-10 py-2">
-                                            <h2 className="text-2xl font-bold flex items-center">
-                                                {letter}
-                                                <Separator className="ml-4 flex-1" />
-                                            </h2>
-                                        </div>
+                            <Dialog>
+                                <AnimatePresence>
+                                    {Object.entries(filteredGroups).map(([letter, words]) => (
+                                        <motion.div
+                                            key={letter}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            className="mb-8"
+                                            id={`section-${letter}`}
+                                        >
+                                            <div className="sticky top-0 bg-background/95 backdrop-blur py-2">
+                                                <h2 className="text-2xl font-bold flex items-center">
+                                                    {letter}
+                                                    <Separator className="ml-4 flex-1" />
+                                                </h2>
+                                            </div>
 
-                                        {words.map((word, index) => (
-                                            <motion.div
-                                                key={word.word}
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                transition={{ delay: index * 0.05 }}
-                                                className={`group p-4 rounded-lg hover:bg-accent transition-colors ${FONT_SIZES[fontSize]}`}
-                                            >
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="font-semibold group-hover:text-primary">
-                                                            {word.word}
-                                                        </h3>
-                                                        <p className="text-muted-foreground mt-1">
-                                                            {word.translation}
-                                                        </p>
+                                            {words.map((word, index) => (
+                                                <motion.div
+                                                    key={word.word}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    transition={{ delay: index * 0.05 }}
+                                                    className={`group p-4 rounded-lg hover:bg-accent transition-colors ${FONT_SIZES[fontSize]}`}
+                                                >
+                                                    <div className="flex justify-between items-start">
+                                                        <div>
+                                                            <h3 className="font-semibold group-hover:text-primary">
+                                                                {word.word}
+                                                            </h3>
+                                                            <p className="text-muted-foreground mt-1">
+                                                                {word.translation}
+                                                            </p>
+                                                        </div>
+
+                                                        <OptionsDialogContent word={word} />
+
                                                     </div>
-                                                    <TextQuote className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                </div>
-                                            </motion.div>
-                                        ))}
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
+
+                                                </motion.div>
+                                            ))}
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </Dialog>
                         </ScrollArea>
+
                     </div>
                 </main>
 
@@ -251,8 +271,40 @@ const Home: React.FC = () => {
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </div></>
+            </div>
+        </Drawer>
     );
 };
 
 export default Home;
+interface OptionsDialogContentProps {
+    word: any;
+}
+const OptionsDialogContent: React.FC<OptionsDialogContentProps> = ({ word }) => {
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <TextQuote className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Manage hardWord</DialogTitle>
+                    <DialogDescription>
+                        All options to manage your word. <strong>{word?.word}</strong>
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex items-center space-x-2">
+                    <DeleteWord hardWord={word?.word} />
+                    <EditWord wordData={word} />
+                </div>
+                <DialogFooter className="sm:justify-start">
+                    <DialogClose asChild>
+                        <Button type="button" variant="secondary">
+                            Close
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+};

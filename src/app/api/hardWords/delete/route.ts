@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function DELETE(req: Request) {
     if (req.method === 'DELETE') {
         try {
-            const { email, youtubeUrl, hardWord } = await req.json();
+            const { email, hardWord } = await req.json();
 
             if (!email) {
                 throw new Error('Email is required');
@@ -18,13 +18,12 @@ export async function DELETE(req: Request) {
             }
 
             const subtitle = await prisma.subtitle.findFirst({
-                where: { userId: user.id, youtubeUrl },
+                where: { userId: user.id, hardWords: { some: { word: hardWord } },},
             });
             if (!subtitle) {
                 throw new Error('Subtitle not found');
             }
 
-            // Find and delete the hard word associated with the subtitle
             const deletedHardWord = await prisma.hardWord.deleteMany({
                 where: { Subtitle: { SubtitleId: subtitle.SubtitleId }, word: hardWord },
             });

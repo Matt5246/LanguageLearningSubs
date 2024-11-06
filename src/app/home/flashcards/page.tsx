@@ -133,7 +133,7 @@ export default function FlashcardPage() {
                         <SelectItem value="progress-desc">Progress: High to Low</SelectItem>
                     </SelectContent>
                 </Select>
-                <Tabs value={filter} onValueChange={setFilter} className="w-[400px]">
+                <Tabs value={filter} onValueChange={setFilter} className="sm:w-[400px] w-[310px]">
                     <TabsList className="grid w-full grid-cols-4">
                         <TabsTrigger value="all">All</TabsTrigger>
                         <TabsTrigger value="not-started">Not Started</TabsTrigger>
@@ -213,3 +213,6 @@ export default function FlashcardPage() {
         </div>
     );
 }
+
+
+

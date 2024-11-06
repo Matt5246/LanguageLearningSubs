@@ -1,10 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
 import { createSelector } from '@reduxjs/toolkit';
-
-
-
-
 
 export interface SubtitlesState {
     subtitles: Subtitle[];
@@ -68,6 +63,13 @@ const subtitlesSlice = createSlice({
         initializeSubtitles(state, action: PayloadAction<Subtitle[]>) {
             state.subtitles = action.payload;
         },
+        updateHardWords(state, action: PayloadAction<{ SubtitleId: string, hardWords: HardWord[] }>) {
+            const { SubtitleId, hardWords } = action.payload;
+            const subtitle = state.subtitles.find(sub => sub.SubtitleId === SubtitleId);
+            if (subtitle) {
+                subtitle.hardWords = hardWords;
+            }
+        }
     },
 });
 
@@ -84,6 +86,7 @@ export const {
     setPlayedSeconds,
     toggleAutoScroll,
     swapTranslation,
+    updateHardWords,
 } = subtitlesSlice.actions;
 
 

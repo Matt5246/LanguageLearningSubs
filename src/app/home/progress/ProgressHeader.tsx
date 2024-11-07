@@ -1,15 +1,23 @@
 import { useState } from "react";
-import { Calendar, Clock, Film, Book, TrendingUp, Settings } from "lucide-react";
+import { Calendar, Clock, Film, Book, TrendingUp, Settings, TrendingDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { useEffect } from "react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
 
 interface ProgressHeaderProps {
-    totalSubtitles: number;
-    totalWords: number;
+    totalSubtitles: { totalSubtitles: number; totalSubtitlesTrend: number };
+    totalWords: { totalWords: number, totalWordsTrend: number };
     totalTime: number;
     lastActivity: string;
 }
@@ -20,8 +28,8 @@ export default function ProgressHeader({ totalSubtitles, totalWords, totalTime, 
 
     return (
         <div className="m-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <VideoWatchedCard totalSubtitles={totalSubtitles} goal={subtitlesGoal} setGoal={setSubtitlesGoal} />
-            <WordsLearnedCard totalWords={totalWords} goal={wordsGoal} setGoal={setWordsGoal} />
+            <VideoWatchedCard totalSubtitles={totalSubtitles.totalSubtitles} trend={totalSubtitles.totalSubtitlesTrend} goal={subtitlesGoal} setGoal={setSubtitlesGoal} />
+            <WordsLearnedCard totalWords={totalWords.totalWords} trend={totalWords.totalWordsTrend} goal={wordsGoal} setGoal={setWordsGoal} />
             <TimeDisplayCard totalTime={totalTime} />
             <LastActivityCard lastActivity={lastActivity} />
         </div>
@@ -41,12 +49,19 @@ interface ProgressCardProps {
 function ProgressCard({ icon, title, value, goal, setGoal, unit, trend }: ProgressCardProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [tempGoal, setTempGoal] = useState(goal);
-    const progress = (value / goal) * 100;
+    const [storedGoal, setStoredGoal] = useLocalStorage(`${title}-goal`, goal);
+    useEffect(() => {
+        if (storedGoal !== goal) {
+            setGoal(storedGoal);
+        }
+    }, []);
 
     const handleSave = () => {
         setGoal(tempGoal);
+        setStoredGoal(tempGoal);
         setIsOpen(false);
     };
+    const progress = Math.min(100, (value / goal) * 100);
 
     return (
         <Card className="overflow-hidden">
@@ -56,14 +71,49 @@ function ProgressCard({ icon, title, value, goal, setGoal, unit, trend }: Progre
                         {icon}
                     </div>
                     <div className="flex items-center space-x-2">
-                        {trend && (
-                            <div className="flex items-center text-sm text-green-500">
-                                <TrendingUp className="h-4 w-4 mr-1" />
-                                {trend}%
+
+                        {trend ? (
+                            <div className="flex items-center text-sm ">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex text-green-500">
+                                            <TrendingUp className="h-4 w-4 mr-1" />
+                                            {trend}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>updated last month</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
+                        ) : (
+                            <div className="flex items-center text-sm ">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex text-red-500">
+                                            <TrendingDown className="h-4 w-4 mr-1" />
+                                            {trend}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>updated last month</p>
+                                    </TooltipContent>
+                                </Tooltip>
                             </div>
                         )}
+
                         <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)}>
-                            <Settings className="h-4 w-4" />
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="flex">
+                                        <Settings className="h-4 w-4" />
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>updated your goal</p>
+                                </TooltipContent>
+                            </Tooltip>
                         </Button>
                     </div>
                 </div>
@@ -95,7 +145,7 @@ function ProgressCard({ icon, title, value, goal, setGoal, unit, trend }: Progre
                                 id="goal"
                                 type="number"
                                 value={tempGoal}
-                                onChange={(e) => setTempGoal(Number(e.target.value))}
+                                onChange={(e) => setTempGoal(Math.max(0, Number(e.target.value)))}
                                 className="col-span-3"
                             />
                         </div>
@@ -109,7 +159,7 @@ function ProgressCard({ icon, title, value, goal, setGoal, unit, trend }: Progre
     );
 }
 
-function VideoWatchedCard({ totalSubtitles, goal, setGoal }: { totalSubtitles: number; goal: number; setGoal: (goal: number) => void }) {
+function VideoWatchedCard({ totalSubtitles, trend, goal, setGoal }: { totalSubtitles: number; trend: number; goal: number; setGoal: (goal: number) => void }) {
     return (
         <ProgressCard
             icon={<Film className="h-6 w-6 text-primary" />}
@@ -118,12 +168,12 @@ function VideoWatchedCard({ totalSubtitles, goal, setGoal }: { totalSubtitles: n
             goal={goal}
             setGoal={setGoal}
             unit="videos"
-            trend={5}
+            trend={trend}
         />
     );
 }
 
-function WordsLearnedCard({ totalWords, goal, setGoal }: { totalWords: number; goal: number; setGoal: (goal: number) => void }) {
+function WordsLearnedCard({ totalWords, trend, goal, setGoal }: { totalWords: number; trend: number; goal: number; setGoal: (goal: number) => void }) {
     return (
         <ProgressCard
             icon={<Book className="h-6 w-6 text-primary" />}
@@ -132,7 +182,7 @@ function WordsLearnedCard({ totalWords, goal, setGoal }: { totalWords: number; g
             goal={goal}
             setGoal={setGoal}
             unit="words"
-            trend={12}
+            trend={trend}
         />
     );
 }

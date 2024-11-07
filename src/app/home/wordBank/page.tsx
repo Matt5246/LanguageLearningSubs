@@ -12,27 +12,14 @@ import {
     Search,
     BookOpen,
     ChevronUp,
-    TextQuote,
     ZoomIn,
     ZoomOut,
     ArrowUpCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import DeleteWord, { DeleteWordBadge } from '../flashcards/learn/DeleteWord';
 import { Drawer } from '@/components/ui/drawer'
-import { Badge } from '@/components/ui/badge'
-import EditWord from '../flashcards/learn/EditWord'
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+import { Dialog } from '@/components/ui/dialog'
+import OptionsDialog from './OptionsDialog'
 
 interface Subtitle {
     hardWords: Word[];
@@ -141,7 +128,7 @@ const Home: React.FC = () => {
     return (
         <Drawer>
             <div className="min-h-screen bg-background">
-                <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                     <div className="container flex h-14 items-center">
                         <div className="flex items-center space-x-4">
                             <BookOpen className="h-6 w-6" />
@@ -216,7 +203,7 @@ const Home: React.FC = () => {
                                             <div className="sticky top-0 bg-background/95 backdrop-blur py-2">
                                                 <h2 className="text-2xl font-bold flex items-center">
                                                     {letter}
-                                                    <Separator className="ml-4 flex-1" />
+                                                    <Separator className="ml-4 flex-1 z-8" />
                                                 </h2>
                                             </div>
 
@@ -238,7 +225,7 @@ const Home: React.FC = () => {
                                                             </p>
                                                         </div>
 
-                                                        <OptionsDialogContent word={word} />
+                                                        <OptionsDialog word={word} />
 
                                                     </div>
 
@@ -277,34 +264,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-interface OptionsDialogContentProps {
-    word: any;
-}
-const OptionsDialogContent: React.FC<OptionsDialogContentProps> = ({ word }) => {
-    return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <TextQuote className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Manage hardWord</DialogTitle>
-                    <DialogDescription>
-                        All options to manage your word. <strong>{word?.word}</strong>
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="flex items-center space-x-2">
-                    <DeleteWord hardWord={word?.word} />
-                    <EditWord wordData={word} />
-                </div>
-                <DialogFooter className="sm:justify-start">
-                    <DialogClose asChild>
-                        <Button type="button" variant="secondary">
-                            Close
-                        </Button>
-                    </DialogClose>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
-};

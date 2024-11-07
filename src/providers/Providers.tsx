@@ -5,7 +5,12 @@ import ReactQueryProvider from '@/providers/ReactQueryProvider'
 import { ThemeProvider } from '../components/theme-provider'
 import { Toaster } from "@/components/ui/toaster"
 import StoreProvider from './StoreProvider';
-
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 interface Props {
     children: ReactNode;
 }
@@ -18,10 +23,13 @@ const Providers = (props: Props) => {
             enableSystem
             disableTransitionOnChange
         >
-            <ReactQueryProvider>
-                <StoreProvider><SessionProvider >{props.children}</SessionProvider></StoreProvider>
-                <Toaster />
-            </ReactQueryProvider>
+
+            <TooltipProvider>
+                <ReactQueryProvider>
+                    <StoreProvider><SessionProvider >{props.children}</SessionProvider></StoreProvider>
+                    <Toaster />
+                </ReactQueryProvider>
+            </TooltipProvider>
         </ThemeProvider>
     )
 }

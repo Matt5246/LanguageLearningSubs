@@ -34,6 +34,7 @@ interface Subtitle {
     subtitleData?: SubtitleData[];
     hardWords?: HardWord[];
     createdAt?: Date;
+    updatedAt?: Date;
 }
 
 interface SubtitleData {

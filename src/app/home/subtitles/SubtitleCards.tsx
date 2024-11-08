@@ -4,7 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PlayCircle, Book, AlignLeft, Calendar, ExternalLink } from 'lucide-react';
+
 
 type GroupedSubtitles = {
     [key: string]: Subtitle[];
@@ -21,117 +26,98 @@ export function SubtitleCards({ groupedSubtitles }: { groupedSubtitles: GroupedS
     if (!isMounted) return null;
 
     return (
-        <div className=" columns-xs gap-1 space-y-4 mt-5">
-            {Object.entries(groupedSubtitles).map(([title, subtitles]) => (
-                <motion.div
-                    key={title}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    onClick={
-                        subtitles.length === 1
-                            ? () => dispatch(setSelectedSubtitle(subtitles[0].SubtitleId!))
-                            : undefined
-                    }
-                >
-                    <Card key={title} className="flex flex-col h-full break-inside-avoid transition-all duration-300 ease-in-out w-[250px]">
-                        <CardHeader className="p-4">
-                            <CardTitle className="text-2xl font-semibold text-gray-800 dark:text-gray-100 break-words">
-                                {title}
-                            </CardTitle>
-                        </CardHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-5">
+            <AnimatePresence>
+                {Object.entries(groupedSubtitles).map(([title, subtitles]) => (
+                    <motion.div
+                        key={title}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <Card className="overflow-hidden h-full shadow-lg hover:shadow-xl transition-shadow duration-300 w-[250px]">
+                            <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6">
+                                <CardTitle className="text-2xl font-bold truncate">{title}</CardTitle>
+                                <Badge variant="secondary" className="mt-2">
+                                    {subtitles.length} episode{subtitles.length > 1 ? 's' : ''}
+                                </Badge>
+                            </CardHeader>
 
-                        <CardContent className="p-4 flex-1">
-                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                {subtitles.length} episode{(subtitles.length > 1 ? 's' : '')}
-                            </p>
-                            <div className="grid grid-cols-1 gap-2">
-                                {subtitles.map((subtitle) => (
-                                    <motion.div
-                                        key={title}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Card
+                            <CardContent className="p-6">
+                                <ScrollArea className="h-[200px] pr-4">
+                                    {subtitles.map((subtitle) => (
+                                        <motion.div
                                             key={subtitle.SubtitleId}
-                                            className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-shadow duration-300 ease-in-out"
-                                            onClick={subtitles.length === 1
-                                                ? undefined
-                                                : () => dispatch(setSelectedSubtitle(subtitle.SubtitleId!))}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
                                         >
-                                            <CardContent className="p-4 space-y-1">
-                                                {subtitle.episode && (
-                                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                        Episode: {subtitle.episode}
-                                                    </p>
-                                                )}
-                                                {subtitle.subtitleData && subtitle.subtitleData.length > 0 && (
-                                                    <>
-                                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                            Subtitle Rows:
-                                                        </p>
-                                                        <p className="text-lg text-gray-900 dark:text-gray-100">
-                                                            {subtitle.subtitleData.length}
-                                                        </p>
-                                                    </>
-                                                )}
-                                                {subtitle.hardWords && subtitle.hardWords.length > 0 && (
-                                                    <>
-                                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                            Hard Words:
-                                                        </p>
-                                                        <p className="text-lg text-gray-900 dark:text-gray-100">
-                                                            {subtitle.hardWords.length}
-                                                        </p>
-                                                    </>
-                                                )}
-                                                {!subtitle.subtitleData && !subtitle.hardWords && (
-                                                    <p className="text-sm text-gray-700 dark:text-gray-300">No data</p>
-                                                )}
-                                                {subtitle.createdAt && (
-                                                    <>
-                                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                            Created At:
-                                                        </p>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                            {new Date(subtitle.createdAt).toLocaleDateString()}
-                                                        </p>
-                                                    </>
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                ))}
-                            </div>
-                        </CardContent>
-                        {subtitles.some((subtitle) => subtitle.youtubeUrl) && (
-                            <CardFooter className="p-4">
-                                <div>
+                                            <Card
+                                                className="mb-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                                onClick={() => dispatch(setSelectedSubtitle(subtitle?.SubtitleId || null))}
+                                            >
+                                                <CardContent className="p-4 space-y-2">
+                                                    {subtitle.episode && (
+                                                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                                            <PlayCircle className="w-4 h-4 mr-2" />
+                                                            Episode: {subtitle.episode}
+                                                        </div>
+                                                    )}
+                                                    {subtitle.subtitleData && (
+                                                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                                            <AlignLeft className="w-4 h-4 mr-2" />
+                                                            Subtitle Rows: {subtitle.subtitleData.length}
+                                                        </div>
+                                                    )}
+                                                    {subtitle.hardWords && (
+                                                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                                            <Book className="w-4 h-4 mr-2" />
+                                                            Hard Words: {subtitle.hardWords.length}
+                                                        </div>
+                                                    )}
+                                                    {subtitle.createdAt && (
+                                                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                                            <Calendar className="w-4 h-4 mr-2" />
+                                                            Created: {new Date(subtitle.createdAt).toLocaleDateString()}
+                                                        </div>
+                                                    )}
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    ))}
+                                </ScrollArea>
+                            </CardContent>
+
+                            {subtitles.some((subtitle) => subtitle.youtubeUrl) && (
+                                <CardFooter className="bg-gray-50 dark:bg-gray-800 p-4">
                                     {subtitles.map(
                                         (subtitle) =>
                                             subtitle.youtubeUrl && (
-                                                <p key={subtitle.SubtitleId} className="text-md">
+                                                <Button
+                                                    key={subtitle.SubtitleId}
+                                                    variant="outline"
+                                                    className="w-full"
+                                                    asChild
+                                                >
                                                     <a
                                                         href={subtitle.youtubeUrl}
                                                         target="_blank"
-                                                        className="text-blue-600 hover:underline dark:text-blue-400"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center justify-center"
                                                     >
+                                                        <ExternalLink className="w-4 h-4 mr-2" />
                                                         Watch on YouTube
                                                     </a>
-                                                </p>
+                                                </Button>
                                             )
                                     )}
-                                </div>
-                            </CardFooter>
-                        )}
-                    </Card>
-                </motion.div>
-            ))}
+                                </CardFooter>
+                            )}
+                        </Card>
+                    </motion.div>
+                ))}
+            </AnimatePresence>
         </div>
     );
 }

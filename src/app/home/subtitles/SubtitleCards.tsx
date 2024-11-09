@@ -36,8 +36,17 @@ export function SubtitleCards({ groupedSubtitles }: { groupedSubtitles: GroupedS
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
                         transition={{ duration: 0.3 }}
+
+                        whileHover={{ scale: 1.06 }}
+                        whileTap={{ scale: 0.98 }}
                     >
-                        <Card className="overflow-hidden h-full shadow-lg hover:shadow-xl transition-shadow duration-300 w-[250px]">
+                        <Card className="overflow-hidden h-full shadow-lg hover:shadow-xl transition-shadow duration-300 w-[250px] cursor-pointer"
+                            onClick={() => {
+                                if (subtitles.length === 1 || subtitles.length === 0) {
+                                    dispatch(setSelectedSubtitle(subtitles[0]?.SubtitleId || null));
+                                }
+                            }}
+                        >
                             <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-6">
                                 <CardTitle className="text-2xl font-bold truncate">{title}</CardTitle>
                                 <Badge variant="secondary" className="mt-2">
@@ -45,38 +54,36 @@ export function SubtitleCards({ groupedSubtitles }: { groupedSubtitles: GroupedS
                                 </Badge>
                             </CardHeader>
 
-                            <CardContent className="p-6">
-                                <ScrollArea className="h-[200px] pr-4">
+                            <CardContent className="px-6 py-2">
+                                <ScrollArea className="h-[250px] pr-4">
                                     {subtitles.map((subtitle) => (
                                         <motion.div
                                             key={subtitle.SubtitleId}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
                                         >
                                             <Card
                                                 className="mb-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                                                 onClick={() => dispatch(setSelectedSubtitle(subtitle?.SubtitleId || null))}
                                             >
                                                 <CardContent className="p-4 space-y-2">
-                                                    {subtitle.episode && (
+                                                    {subtitle?.episode && (
                                                         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                                             <PlayCircle className="w-4 h-4 mr-2" />
-                                                            Episode: {subtitle.episode}
+                                                            Episode: {subtitle?.episode}
                                                         </div>
                                                     )}
-                                                    {subtitle.subtitleData && (
+                                                    {subtitle?.subtitleData && (
                                                         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                                             <AlignLeft className="w-4 h-4 mr-2" />
                                                             Subtitle Rows: {subtitle.subtitleData.length}
                                                         </div>
                                                     )}
-                                                    {subtitle.hardWords && (
+                                                    {subtitle?.hardWords && (
                                                         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                                             <Book className="w-4 h-4 mr-2" />
                                                             Hard Words: {subtitle.hardWords.length}
                                                         </div>
                                                     )}
-                                                    {subtitle.createdAt && (
+                                                    {subtitle?.createdAt && (
                                                         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                                                             <Calendar className="w-4 h-4 mr-2" />
                                                             Created: {new Date(subtitle.createdAt).toLocaleDateString()}
@@ -89,7 +96,7 @@ export function SubtitleCards({ groupedSubtitles }: { groupedSubtitles: GroupedS
                                 </ScrollArea>
                             </CardContent>
 
-                            {subtitles.some((subtitle) => subtitle.youtubeUrl) && (
+                            {subtitles.some((subtitle) => subtitle.youtubeUrl) ? (
                                 <CardFooter className="bg-gray-50 dark:bg-gray-800 p-4">
                                     {subtitles.map(
                                         (subtitle) =>
@@ -113,7 +120,7 @@ export function SubtitleCards({ groupedSubtitles }: { groupedSubtitles: GroupedS
                                             )
                                     )}
                                 </CardFooter>
-                            )}
+                            ) : null}
                         </Card>
                     </motion.div>
                 ))}

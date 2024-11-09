@@ -28,7 +28,7 @@ export function SubtitleListView({ groupedSubtitles }: { groupedSubtitles: Group
     };
 
     return (
-        <ScrollArea className="h-[600px] w-full pr-4">
+        <ScrollArea className="h-[900px] w-full pr-4">
             <Accordion type="multiple" className="w-full">
                 {Object.entries(groupedSubtitles).map(([title, subtitles]) => (
                     <AccordionItem key={title} value={title}>

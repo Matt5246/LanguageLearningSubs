@@ -18,13 +18,15 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Grid, List, Clock } from 'lucide-react';
+import { Search, Grid, List, Clock, BookOpen } from 'lucide-react';
 import SubtitleListView from './SubtitleListView';
-
+import { useIsMobile } from '@/hooks/useMobile';
+import { Spinner } from '@/components/ui/spinner';
 
 
 export default function Home() {
   const dispatch = useDispatch();
+  const isMobile = useIsMobile();
   const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
   const selectedSub: Subtitle | undefined = useSelector(selectedSubtitle);
   const validData = Array.isArray(subtitlesData) ? subtitlesData : [];
@@ -46,7 +48,12 @@ export default function Home() {
       .filter(([title]) => title.toLowerCase().includes(searchTerm.toLowerCase()))
       .sort(([, a], [, b]) => new Date(b[0].createdAt!).getTime() - new Date(a[0].createdAt!).getTime())
 
-  }, [groupedSubtitles]);
+  }, [groupedSubtitles, searchTerm]);
+  const episodesFiltered = useMemo(() => {
+    return Object.entries(groupedSubtitles)
+      .filter(([title]) => title.toLowerCase().includes(searchTerm.toLowerCase()))
+      .sort(([, a], [, b]) => (b.length - a.length) || ((a[0].episode || 0) - (b[0].episode || 0)));
+  }, [groupedSubtitles, searchTerm]);
 
   useEffect(() => {
     setIsClient(true);
@@ -54,10 +61,27 @@ export default function Home() {
 
   const totalEpisodes = groupedSubtitles[selectedSub?.subtitleTitle || '']?.length || 0;
 
-  const filteredSubtitles = Object.entries(groupedSubtitles).filter(([title]) =>
-    title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSubtitles = Object.entries(groupedSubtitles)
+    .filter(([title]) => title.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort(([a], [b]) => a.localeCompare(b));
 
+  if (!isClient || !subtitlesData.length) {
+    return (
+      <h1 className="text-2xl font-bold mt-9 ml-9">Subtitles Page
+        <Spinner />
+      </h1>
+    );
+  } else if (!subtitlesData || subtitlesData.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <BookOpen className="h-16 w-16 text-muted-foreground" />
+        <h2 className="text-2xl font-semibold">No Data Yet.</h2>
+        <p className="text-muted-foreground text-center max-w-md">
+          Add your subtitles to the database first to see your progress.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className=''>
       {!selectedSub && (<div className='container mx-auto py-8'><h1 className="text-3xl font-bold mb-6">Subtitle Selection</h1>
@@ -95,7 +119,7 @@ export default function Home() {
             transition={{ duration: 0.2 }}
             className='m-0 sm:m-5'
           >
-            <Card>
+            <Card className='border-none'>
               <CardHeader>
                 <CardTitle>{selectedSub.subtitleTitle}</CardTitle>
                 <CardDescription>{selectedSub.episode ? `Episode: ${selectedSub.episode}` : 'No episode information'}</CardDescription>
@@ -136,9 +160,9 @@ export default function Home() {
             >
               <Tabs defaultValue="all" className="w-full">
                 <TabsList>
-                  <TabsTrigger value="all">All Subtitles</TabsTrigger>
-                  <TabsTrigger value="recent">Recently Added</TabsTrigger>
-                  <TabsTrigger value="popular">Most Popular</TabsTrigger>
+                  <TabsTrigger value="all">{isMobile ? 'All' : "All Subtitles"}</TabsTrigger>
+                  <TabsTrigger value="recent">{isMobile ? 'Recent' : "Recently Added"}</TabsTrigger>
+                  <TabsTrigger value="episode">{isMobile ? 'Episodes' : "Episodes number"}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="all">
                   <ScrollArea className="h-full">
@@ -167,36 +191,21 @@ export default function Home() {
                       <SubtitleListView groupedSubtitles={groupedSubtitles} />
                     )}
                   </ScrollArea>
-                  {/* <ScrollArea className="h-full">
-                    <div className="space-y-4">
-                      {recentlyAddedSubtitles.map((subtitle) => (
-                        <Card key={subtitle.SubtitleId} className="hover:shadow-md transition-shadow duration-200">
-                          <CardHeader>
-                            <CardTitle className="text-lg flex items-center">
-                              <Clock className="w-5 h-5 mr-2 text-muted-foreground" />
-                              {subtitle.subtitleTitle}
-                            </CardTitle>
-                            <CardDescription>
-                              {subtitle.episode ? `Episode: ${subtitle.episode}` : 'No episode information'}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-sm text-muted-foreground">
-                              Added: {new Date(subtitle.createdAt!).toLocaleString()}
-                            </p>
-                          </CardContent>
-                          <CardFooter>
-                            <Button onClick={() => dispatch(setSelectedSubtitle(subtitle?.SubtitleId || null))}>
-                              View Details
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      ))}
-                    </div>
-                  </ScrollArea> */}
+
                 </TabsContent>
-                <TabsContent value="popular">
-                  <p>Most popular subtitles will be displayed here.</p>
+                <TabsContent value="episode">
+                  <ScrollArea className="h-full">
+                    {viewMode === 'grid' && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                        {episodesFiltered.map(([title, subtitles]) => (
+                          <SubtitleCards key={title} groupedSubtitles={{ [title]: subtitles }} />
+                        ))}
+                      </div>
+                    )}
+                    {viewMode === 'list' && (
+                      <SubtitleListView groupedSubtitles={groupedSubtitles} />
+                    )}
+                  </ScrollArea>
                 </TabsContent>
               </Tabs>
             </motion.div>

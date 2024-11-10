@@ -12,20 +12,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
-
 type GroupedSubtitles = {
     [key: string]: Subtitle[];
 };
 
 export function SubtitleListView({ groupedSubtitles }: { groupedSubtitles: GroupedSubtitles }) {
     const dispatch = useDispatch();
-    const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
-
-    const toggleGroup = (title: string) => {
-        setExpandedGroups(prev =>
-            prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
-        );
-    };
 
     return (
         <ScrollArea className="h-[900px] w-full pr-4">
@@ -35,12 +27,7 @@ export function SubtitleListView({ groupedSubtitles }: { groupedSubtitles: Group
                         <AccordionTrigger className="hover:no-underline">
                             <div className="flex items-center justify-between w-full">
                                 <div className="flex items-center space-x-2">
-                                    <motion.div
-                                        initial={false}
-                                        animate={{ rotate: expandedGroups.includes(title) ? 90 : 0 }}
-                                    >
-                                        <ChevronRight className="h-4 w-4" />
-                                    </motion.div>
+                                    <ChevronRight className="h-4 w-4" />
                                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 text-lg font-semibold">{title}</span>
                                 </div>
                                 <Badge variant="secondary">
@@ -63,7 +50,6 @@ export function SubtitleListView({ groupedSubtitles }: { groupedSubtitles: Group
                                                 <CardTitle className="text-lg flex items-center justify-between">
                                                     <span>{subtitle?.subtitleTitle}</span>
 
-                                                    <div className='flex items-center justify-center'><ChevronRight className="h-4 w-4 text-muted-foreground ml-1" /></div>
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 gap-2">

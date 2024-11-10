@@ -1,17 +1,13 @@
 'use client';
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlayIcon, UploadIcon } from '@radix-ui/react-icons';
-import { SubtitlePopoverContent } from '@/components/AddSubtitlesButton';
 import { Popover, PopoverTrigger } from '@/components/ui/popover';
-import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
-} from "@/components/ui/hover-card"
-import { CalendarDays } from "lucide-react"
-import { motion } from 'framer-motion';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { SubtitlePopoverContent } from '@/components/AddSubtitlesButton';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PlayCircle, Upload, FolderOpen, ChevronLeft, FileVideo, FileText, Calendar, HardDrive } from 'lucide-react';
 
 interface FileBrowserProps {
     onVideoSelect: (url: string, vidTitle: string) => void;
@@ -29,7 +25,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
         if (event.target.files) {
             const filesArray = Array.from(event.target.files);
             setFolders(filesArray);
-            setCurrentPath([]); // Reset path when new files are selected
+            setCurrentPath([]);
         }
     };
 
@@ -40,12 +36,12 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
 
     const handleBackClick = () => {
         if (currentPath.length > 0) {
-            setCurrentPath((prev) => prev.slice(0, -1)) // Go back one level in the folder structure
-            setSelectedFolder(null)
+            setCurrentPath((prev) => prev.slice(0, -1));
+            setSelectedFolder(null);
         } else {
-            setFolders([])
-            setSelectedFolder(null)
-            setSubtitleText('')
+            setFolders([]);
+            setSelectedFolder(null);
+            setSubtitleText('');
         }
     };
 
@@ -84,68 +80,90 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                 return acc;
             },
             { videos: [], subtitles: [] }
-        )
+        );
 
         return (
-            <div className='my-5'>
+            <div className='my-5 space-y-6'>
                 {groupedFiles.videos.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
-                        {groupedFiles.videos.map((file, idx) => (
-                            <motion.div
-                                key={idx}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                <Card
-                                    className={`flex flex-col h-full cursor-pointer hover:bg-blue-300 hover:opacity-60 ${fileTitle === file.name ? 'bg-blue-300 opacity-60' : ''}`}
+                    <div>
+                        <h3 className="text-lg font-semibold mb-3">Videos</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            {groupedFiles.videos.map((file, idx) => (
+                                <motion.div
                                     key={idx}
-                                    onClick={() => handleFileClick(file)}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    transition={{ duration: 0.2 }}
                                 >
-                                    <CardHeader>
-                                        <CardTitle className='text-lg'>🎞️ {file.name}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className='flex-grow'></CardContent>
-                                    <CardFooter className="flex justify-between items-center mt-2">
-                                        <PlayIcon />
-                                        <span>size: {(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                                    </CardFooter>
-                                </Card>
-                            </motion.div>
-                        ))}
+                                    <Card
+                                        className={`flex flex-col h-full cursor-pointer transition-colors duration-200 ${fileTitle === file.name ? 'bg-primary/10' : 'hover:bg-primary/5'
+                                            }`}
+                                        onClick={() => handleFileClick(file)}
+                                    >
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className='text-sm font-medium truncate'>{file.name}</CardTitle>
+                                        </CardHeader>
+                                        <CardContent className='flex-grow flex items-center justify-center p-4'>
+                                            <FileVideo className="w-12 h-12 text-primary/60" />
+                                        </CardContent>
+                                        <CardFooter className="flex justify-between items-center text-xs text-muted-foreground">
+                                            <PlayCircle className="w-4 h-4" />
+                                            <span>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                        </CardFooter>
+                                    </Card>
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
                 {groupedFiles.subtitles.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
-                        {groupedFiles.subtitles.map((file, index) => (
-                            <HoverCard key={file.name + index}>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Card className="flex flex-col cursor-pointer hover:bg-blue-300 hover:opacity-60" onClick={() => handleFileClick(file)}>
-                                            <HoverCardTrigger >
-                                                <CardContent className="flex justify-between items-center space-x-2 mt-5 ">
-                                                    <span className="truncate">{file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '')}</span>
-                                                    <motion.div whileHover={{ scale: 1.2 }}>
-                                                        <UploadIcon />
-                                                    </motion.div>
-                                                </CardContent>
-                                            </HoverCardTrigger>
-                                        </Card>
-                                    </PopoverTrigger>
-                                    <HoverCardContent className="p-4 space-y-2">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-md font-semibold break-words break-all">{file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '')}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-xs text-muted-foreground ">
-                                            <span className="flex justify-between items-center"><CalendarDays className="mr-2 h-4 w-4 opacity-70" />{"modified "}{new Date(file.lastModified).toLocaleDateString()}</span>
-                                            <span>{(file.size / 1024).toFixed(2)} KB</span>
-                                        </div>
-                                    </HoverCardContent>
-                                    <SubtitlePopoverContent handleAddSubtitles={handleAddSubtitles} defaultSubs={{ text: subtitleText, title: file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '') }} />
-                                </Popover>
-                            </HoverCard>
-                        ))}
+                    <div>
+                        <h3 className="text-lg font-semibold mb-3">Subtitles</h3>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            {groupedFiles.subtitles.map((file, index) => (
+                                <HoverCard key={file.name + index}>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Card className="flex flex-col cursor-pointer transition-colors duration-200 hover:bg-primary/5">
+                                                <HoverCardTrigger>
+                                                    <CardContent className="flex flex-col items-center justify-center space-y-2 p-4">
+                                                        <FileText className="w-8 h-8 text-primary/60" />
+                                                        <span className="text-sm font-medium text-center truncate w-full">
+                                                            {file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '')}
+                                                        </span>
+                                                        <motion.div whileHover={{ scale: 1.2 }}>
+                                                            <Upload className="w-4 h-4" />
+                                                        </motion.div>
+                                                    </CardContent>
+                                                </HoverCardTrigger>
+                                            </Card>
+                                        </PopoverTrigger>
+                                        <HoverCardContent className="p-4 space-y-2 w-64">
+                                            <div className="space-y-1">
+                                                <h4 className="text-sm font-semibold">{file.name}</h4>
+                                                <p className="text-xs text-muted-foreground">
+                                                    <Calendar className="inline mr-1 h-3 w-3" />
+                                                    Modified: {new Date(file.lastModified).toLocaleDateString()}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    <HardDrive className="inline mr-1 h-3 w-3" />
+                                                    Size: {(file.size / 1024).toFixed(2)} KB
+                                                </p>
+                                            </div>
+                                        </HoverCardContent>
+                                        <SubtitlePopoverContent
+                                            handleAddSubtitles={handleAddSubtitles}
+                                            defaultSubs={{
+                                                text: subtitleText,
+                                                title: file.name.replace(/(\.srt|\.ass|\.txt|\s*\.\*\s*)$/, '')
+                                            }}
+                                        />
+                                    </Popover>
+                                </HoverCard>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>
@@ -167,72 +185,67 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
         );
 
         return (
-            <>
-                {foldersInCurrentPath.map((folderName, index) => (
-                    <motion.div
-                        key={folderName + index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                    >
-                        <Button
-                            className={`cursor-pointer ml-1.5 ${selectedFolder === folderName ? 'bg-blue-500 text-white' : ''}`}
-                            onClick={() => handleFolderClick(folderName)}
+            <div className="flex flex-wrap gap-2 mt-4">
+                <AnimatePresence>
+                    {foldersInCurrentPath.map((folderName, index) => (
+                        <motion.div
+                            key={folderName + index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.2, delay: index * 0.05 }}
                         >
-                            📁 {folderName}
-                        </Button>
-                    </motion.div>
-                ))}
-                {foldersInCurrentPath.length === 0 && (
-                    <div className='text-xl ml-auto text-center w-full'>{currentPath[currentPath.length - 1]}</div>
-                )}
-            </>
+                            <Button
+                                variant="outline"
+                                className={`cursor-pointer ${selectedFolder === folderName ? 'bg-primary text-primary-foreground' : ''}`}
+                                onClick={() => handleFolderClick(folderName)}
+                            >
+                                <FolderOpen className="w-4 h-4 mr-2" />
+                                {folderName}
+                            </Button>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
         );
     };
 
     return (
-        <div className="p-0 md:p-5">
-
-            <div className='flex w-full'>
-                {currentPath.length === 0 && (
-                    <div>
-                        {
-                            folders.length === 0 && (
-                                <>
-                                    <h1 className="text-2xl font-bold">Upload Your Data</h1>
-                                    <p className="text-md mt-2 mb-4">Please select a folder to upload your video and subtitle files.</p>
-                                </>
-                            )
-                        }
-                        <input
-                            type="file"
-                            //@ts-ignore because webkitdirectory works and allows folder selection
-                            webkitdirectory="true"
-                            multiple
-                            onChange={handleFolderSelection}
-                        />
-                    </div>
-                )}
-                {currentPath.length === 0 ? (
-                    <>{renderFolders()}</>
-                ) : (
-                    <>
-                        <div className='flex w-full flex-col'>
-                            <div className='flex w-full'>
-                                <Button variant="secondary" onClick={handleBackClick} disabled={currentPath.length === 0 && folders.length === 0}>
-                                    Back
-                                </Button>
-                                {renderFolders()}
-                            </div>
-                            <div className='flex w-full'>
-                                {renderFiles()}
-
-                            </div>
+        <div className="p-4 space-y-6">
+            {currentPath.length === 0 && folders.length === 0 ? (
+                <div className="text-center space-y-4">
+                    <h1 className="text-3xl font-bold">Upload Your Data</h1>
+                    <p className="text-lg text-muted-foreground">Please select a folder to upload your video and subtitle files.</p>
+                    <label htmlFor="folder-upload" className="inline-block">
+                        <div className="bg-primary text-primary-foreground rounded-lg px-4 py-2 cursor-pointer hover:bg-primary/90 transition-colors duration-200">
+                            <FolderOpen className="inline-block w-5 h-5 mr-2" />
+                            Choose Folder
                         </div>
-                    </>
-                )}
-            </div>
-
+                    </label>
+                    <input
+                        id="folder-upload"
+                        type="file"
+                        webkitdirectory="true"
+                        multiple
+                        className="hidden"
+                        onChange={handleFolderSelection}
+                    />
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                        <Button variant="outline" onClick={handleBackClick} disabled={currentPath.length === 0 && folders.length === 0}>
+                            <ChevronLeft className="w-4 h-4 mr-2" />
+                            Back
+                        </Button>
+                        <div className="text-lg font-semibold">
+                            {currentPath.length > 0 ? currentPath.join(' / ') : 'Root'}
+                        </div>
+                    </div>
+                    {renderFolders()}
+                    {renderFiles()}
+                </div>
+            )}
         </div>
     );
 };

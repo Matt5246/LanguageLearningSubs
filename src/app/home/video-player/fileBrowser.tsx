@@ -7,12 +7,33 @@ import { Popover, PopoverTrigger } from '@/components/ui/popover';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { SubtitlePopoverContent } from '@/components/AddSubtitlesButton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, Upload, FolderOpen, ChevronLeft, FileVideo, FileText, Calendar, HardDrive } from 'lucide-react';
+import {
+    PlayCircle,
+    Upload,
+    FolderOpen,
+    ChevronLeft,
+    FileVideo,
+    FileText,
+    Calendar,
+    HardDrive,
+    ArrowUpDown,
+    SortAsc,
+    SortDesc
+} from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface FileBrowserProps {
     onVideoSelect: (url: string, vidTitle: string) => void;
     handleAddSubtitles?: any;
 }
+
+type SortOption = 'name' | 'size' | 'date';
+type SortDirection = 'asc' | 'desc';
 
 const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSelect }) => {
     const [folders, setFolders] = useState<File[]>([]);
@@ -20,6 +41,8 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
     const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
     const [subtitleText, setSubtitleText] = useState<string>('');
     const [fileTitle, setFileTitle] = useState<string>('');
+    const [sortBy, setSortBy] = useState<SortOption>('name');
+    const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
     const handleFolderSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -59,13 +82,74 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
         }
     };
 
+    const toggleSortDirection = () => {
+        setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    };
+
+    const sortFiles = (files: File[]) => {
+        return [...files].sort((a, b) => {
+            let comparison = 0;
+
+            switch (sortBy) {
+                case 'name':
+                    comparison = a.name.localeCompare(b.name);
+                    break;
+                case 'size':
+                    comparison = a.size - b.size;
+                    break;
+                case 'date':
+                    comparison = a.lastModified - b.lastModified;
+                    break;
+            }
+
+            return sortDirection === 'asc' ? comparison : -comparison;
+        });
+    };
+
     const getFolderContent = () => {
-        return folders.filter((file) => {
+        const filteredFiles = folders.filter((file) => {
             const filePathParts = file.webkitRelativePath.split('/');
             const currentFolderDepth = currentPath.length;
             return filePathParts.slice(0, currentFolderDepth).join('/') === currentPath.join('/');
         });
+
+        return sortFiles(filteredFiles);
     };
+
+    const renderSortControls = () => (
+        <div className="flex items-center gap-2 ">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                        <ArrowUpDown className="h-4 w-4 mr-2" />
+                        Sort by {sortBy}
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => setSortBy('name')}>
+                        Name
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('size')}>
+                        Size
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy('date')}>
+                        Date
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleSortDirection}
+            >
+                {sortDirection === 'asc' ? (
+                    <SortAsc className="h-4 w-4" />
+                ) : (
+                    <SortDesc className="h-4 w-4" />
+                )}
+            </Button>
+        </div>
+    );
 
     const renderFiles = () => {
         const filesToRender = getFolderContent();
@@ -120,7 +204,6 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                 {groupedFiles.subtitles.length > 0 && (
                     <div>
                         <h3 className="text-lg font-semibold mb-3">Subtitles</h3>
-
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {groupedFiles.subtitles.map((file, index) => (
                                 <HoverCard key={file.name + index}>
@@ -183,7 +266,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                     })
                     .map((file) => file.webkitRelativePath.split('/')[currentPath.length])
             )
-        );
+        ).sort((a, b) => sortDirection === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
 
         return (
             <div className="flex flex-wrap gap-2 mt-4">
@@ -226,6 +309,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                     <input
                         id="folder-upload"
                         type="file"
+                        // @ts-ignore - webkitdirectory is not a standard attribute
                         webkitdirectory="true"
                         multiple
                         className="hidden"
@@ -234,14 +318,17 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                 </div>
             ) : (
                 <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                        <Button variant="outline" onClick={handleBackClick} disabled={currentPath.length === 0 && folders.length === 0}>
-                            <ChevronLeft className="w-4 h-4 mr-2" />
-                            Back
-                        </Button>
-                        <div className="text-lg font-semibold">
-                            {currentPath.length > 0 ? currentPath.join(' / ') : 'Root'}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                            <Button variant="outline" onClick={handleBackClick} disabled={currentPath.length === 0 && folders.length === 0}>
+                                <ChevronLeft className="w-4 h-4 mr-2" />
+                                Back
+                            </Button>
+                            <div className="text-lg font-semibold">
+                                {currentPath.length > 0 ? currentPath.join(' / ') : 'Root'}
+                            </div>
                         </div>
+                        {renderSortControls()}
                     </div>
                     {renderFolders()}
                     {renderFiles()}

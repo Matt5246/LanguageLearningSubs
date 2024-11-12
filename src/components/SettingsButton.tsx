@@ -9,7 +9,7 @@ interface GearButtonProps {
 
 export const GearButton: React.FC<GearButtonProps> = ({ onClick, className }) => {
     return (
-        <Button variant="secondary" className={`p-2 ml-2 group ${className}`} onClick={onClick}>
+        <Button variant="secondary" className={`p-2 group ${className}`} onClick={onClick}>
             <GearIcon className="w-5 h-5 transition-transform duration-1000 group-hover:rotate-180" />
         </Button>
     );

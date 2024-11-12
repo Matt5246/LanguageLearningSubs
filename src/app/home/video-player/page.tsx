@@ -1,41 +1,123 @@
 'use client'
 import { useState, useEffect } from "react"
+import { useSelector, useDispatch } from 'react-redux'
+import { useQuery } from "@tanstack/react-query"
+import { useSession } from "next-auth/react"
+import axios from 'axios'
 import VideoPlayer from "@/components/VideoPlayer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-    ResizableHandle,
-    ResizablePanel,
-    ResizablePanelGroup,
-} from "@/components/ui/resizable"
-import axios from 'axios'
-import { useQuery } from "@tanstack/react-query"
-import { useToast } from "@/components/ui/use-toast"
-import { useSession } from "next-auth/react"
-import { useAppDispatch } from '@/lib/hooks'
-import { SubtitlesState, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'
-import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack"
-import { useIsMobile } from '@/hooks/useMobile'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer"
-import { useSelector } from 'react-redux'
+import { Card, CardContent } from "@/components/ui/card"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import { useToast } from "@/components/ui/use-toast"
 import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown"
-import mkvExtract from "@/lib/mkvExtract"
-import SettingsDrawerContent from "@/components/SettingsDrawer"
-import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton"
+import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack"
 import { AddSubtitlesButton } from "@/components/AddSubtitlesButton"
+import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton"
+import { GearButton } from "@/components/SettingsButton"
 import TranslateSubtitle from "../subtitles/TranslateSubtitle"
 import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
-import { getSubs } from "@/components/NavBar"
 import FileBrowser from "./fileBrowser"
-import { GearButton } from "@/components/SettingsButton"
-import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
-} from "@/components/ui/hover-card"
+import SettingsDrawerContent from "@/components/SettingsDrawer"
+import { useIsMobile } from '@/hooks/useMobile'
+import { SubtitlesState, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'
+import { getSubs } from "@/components/NavBar"
+import mkvExtract from "@/lib/mkvExtract"
+import { Save, Subtitles, Upload } from "lucide-react"
+
+interface VideoUploadAreaProps {
+    onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    videoFile: File | null;
+    url: string;
+}
+interface SubtitleAreaProps {
+    subtitleConverted: Caption[];
+    height: string;
+}
+interface ControlButtonsProps {
+    selectedSub: Subtitle | null;
+    handleAddSubtitles: (subtitleConverted: any, updateTitle: any) => void;
+    refetch2: () => void;
+    isFetching: boolean;
+    titleAndEpisode: { subtitleTitle: string; episode: string | null } | undefined;
+    subtitleConverted: any;
+}
+
+const VideoUploadArea: React.FC<VideoUploadAreaProps> = ({ onDrop, onChange, videoFile, url }) => (
+    <div
+        className="relative h-full border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center"
+        onDrop={onDrop}
+        onDragOver={(e) => e.preventDefault()}
+    >
+        {!videoFile && !url ? (
+            <div className="text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <p className="mt-1 text-sm text-gray-600">Drag and drop your video here or</p>
+                <Input
+                    type="file"
+                    className="mt-2 mx-auto w-64"
+                    onChange={onChange}
+                />
+            </div>
+        ) : (
+            <VideoPlayer url={url} track={[]} />
+        )}
+    </div>
+)
+
+const SubtitleArea: React.FC<SubtitleAreaProps> = ({ subtitleConverted, height }) => (
+    subtitleConverted?.length > 0 ? (
+        <DataTable captions={subtitleConverted as Caption[]} height={height} />
+    ) : (
+        <div className="flex flex-col items-center justify-center h-full min-h-[64px]">
+
+            <Subtitles className="h-12 w-12 text-gray-400 mb-4" />
+            <p className="text-center text-gray-600">No subtitles detected. Add subtitles or select a video with embedded subtitles.</p>
+        </div>
+    )
+)
+
+const ControlButtons: React.FC<ControlButtonsProps> = ({ selectedSub, handleAddSubtitles, refetch2, isFetching, titleAndEpisode, subtitleConverted }) => (
+    <div className="flex gap-2">
+        {!selectedSub && (
+            <>
+                <AddSubtitlesButton handleAddSubtitles={handleAddSubtitles} />
+                <HoverCard>
+                    <HoverCardTrigger>
+                        <Button onClick={() => refetch2()} disabled={isFetching}>
+                            <Save className="w-4 h-4 mr-2" />
+                            {isFetching ? 'Saving...' : 'Save Subtitles'}
+                        </Button>
+                    </HoverCardTrigger>
+                    {titleAndEpisode && (
+                        <HoverCardContent className="p-4 shadow-lg rounded-lg">
+                            <div className="text-sm">
+                                <span className="font-semibold">{titleAndEpisode?.subtitleTitle}</span>
+                                <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
+                                    {titleAndEpisode?.episode && (
+                                        <p>Episode: <span className="font-medium">{titleAndEpisode?.episode}</span></p>
+                                    )}
+                                    <p>Rows: <span className="font-medium">{subtitleConverted?.length}</span></p>
+                                </div>
+                            </div>
+                        </HoverCardContent>
+                    )}
+                </HoverCard>
+                <DrawerTrigger asChild>
+                    <GearButton />
+                </DrawerTrigger>
+            </>
+        )}
+
+    </div>
+)
 
 const Home = () => {
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch();
     const { toast } = useToast();
     const session = useSession();
     const isMobile = useIsMobile();
@@ -57,7 +139,6 @@ const Home = () => {
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
-        console.log('file', file)
         if (file.type.startsWith('video/')) {
             setVideoFile(file);
             setUrl(URL.createObjectURL(file));
@@ -70,22 +151,14 @@ const Home = () => {
                     else if (f.name.endsWith(".ttf"))
                         fonts.push(URL.createObjectURL(new Blob([f.data])));
                 }
-                console.log(
-                    // 'file prev:', file.preview,
-                    'subtitle', subtitle,
-                    'fonts', fonts
-                );
             })
+            setVideoTitle(file.name)
         } else {
             toast({
                 title: "Error!",
                 description: "Please drop a video file here!",
             })
         }
-        setVideoTitle(file.name)
-    };
-    const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-        event.preventDefault();
     };
 
     const { isFetching, refetch: refetch2 } = useQuery({
@@ -103,40 +176,27 @@ const Home = () => {
                     targetLang: targetLanguage || null,
                     hardWords: [],
                 }
-                console.log(subtitle)
                 if (!userEmail) {
                     throw new Error('User email not found in session.');
                 }
-                const res = await axios.post('/api/subtitles/create', {
+                await axios.post('/api/subtitles/create', {
                     ...subtitle
-                },
-                    {
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
-                ).then(() => (getSubs(userEmail ?? "")
-                    .then((subtitles) => {
-                        dispatch(initializeSubtitles(subtitles));
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching subtitles:', error);
-                    }))
-
-                ).catch((e) => toast({
-                    title: "Error saving subtitles",
-                    description: e ? e.toString() : "Something went wrong while saving subtitles.",
-                    variant: 'destructive',
-                }));
-
-                // dispatch(setSelectedSubtitle(res?.SubtitleId || null))
-
-                console.log("success")
-            } catch (error) {
+                });
+                const subtitles = await getSubs(userEmail ?? "");
+                dispatch(initializeSubtitles(subtitles));
+                toast({
+                    title: "Success",
+                    description: "Subtitles saved successfully.",
+                });
+            } catch (error: string | any) {
                 console.error('Error saving subtitles:', error);
                 toast({
                     title: "Error saving subtitles",
-                    description: error ? error.toString() : "Something went wrong while saving subtitles.",
+                    description: error.toString(),
                     variant: 'destructive',
                 });
             }
@@ -144,6 +204,7 @@ const Home = () => {
         enabled: false,
         retry: true,
     })
+
     useEffect(() => {
         if (selectedSub?.subtitleData) {
             if (selectedSub?.youtubeUrl !== null) {
@@ -161,156 +222,178 @@ const Home = () => {
         setUrl(videoUrl)
         setVideoTitle(vidTitle)
     };
+
     const handleAddSubtitlesButton = (subtitleConverted: any, updateTitle: any) => {
         setSubtitleConverted(subtitleConverted)
         setTitleAndEpisode(updateTitle)
     }
+
     return (
-        <div className="m-4 h-[1000px]" >
+        <div className="m-2 h-[1000px]">
             <Drawer>
-                {isMobile ?
-                    <>
-                        <div className="rounded-lg border min-h-[300px]">
-                            <div className="flex flex-col h-full p-2">
-                                <div className="flex flex-wrap space-x-2">
+                <Tabs defaultValue="video" className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="video">Video Player</TabsTrigger>
+                        <TabsTrigger value="subtitles">Subtitles</TabsTrigger>
+                        <TabsTrigger value="both">Both</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="video">
+                        <Card>
+                            <CardContent className="p-3">
+                                <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 mb-2">
                                     <SubtitlesDropDown data={subtitlesData as any[]} />
-                                    {!videoTitle && !url.startsWith('blob:') ? <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" /> : <div className="mx-auto flex items-center">{videoTitle}</div>}
-
-                                    {userEmail ?
-                                        <>
-                                            {selectedSub ? null : <>
-                                                <AddSubtitlesButton handleAddSubtitles={handleAddSubtitlesButton} />
-                                                <Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
-                                            </>
-                                            }
-                                        </>
-                                        : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
-                                    <DrawerTrigger asChild>
-                                        <GearButton />
-                                    </DrawerTrigger>
+                                    {!videoTitle && !url.startsWith('blob:') ? (
+                                        <Input type="text" value={url} disabled placeholder="Your video URL" className="hidden sm:inline flex-1" />
+                                    ) : (
+                                        <div className="flex-grow text-center">{videoTitle}</div>
+                                    )}
+                                    {userEmail ? (
+                                        <ControlButtons
+                                            selectedSub={selectedSub}
+                                            handleAddSubtitles={handleAddSubtitlesButton}
+                                            refetch2={refetch2}
+                                            isFetching={isFetching}
+                                            titleAndEpisode={titleAndEpisode}
+                                            subtitleConverted={subtitleConverted}
+                                        />
+                                    ) : (
+                                        <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
+                                    )}
                                 </div>
-                                <div className="flex justify-center mt-10 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
-                                    {!videoFile && !url && (
-                                        <div>
-                                            <p className="text-gray-600 mb-3">Drop your video here</p>
-                                            <Input
-                                                type="file"
-                                                className="w-[220px] "
+                                <div className="h-[400px]">
+                                    <VideoUploadArea
+                                        onDrop={handleDrop}
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setVideoFile(file);
+                                                setUrl(URL.createObjectURL(file));
+                                                setVideoTitle(file.name);
+                                            }
+                                        }}
+                                        videoFile={videoFile}
+                                        url={url}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="subtitles">
+                        <Card className="h-[500px] border-none">
+                            <SubtitleArea subtitleConverted={subtitleConverted} height='500px' />
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="both">
+                        {isMobile ? (
+                            <div className="space-y-4">
+                                <Card>
+                                    <CardContent className="p-3">
+                                        <div className="flex flex-col space-y-4 mb-2">
+                                            <SubtitlesDropDown data={subtitlesData as any[]} />
+                                            {!videoTitle && !url.startsWith('blob:') ? (
+                                                <Input type="text" value={url} disabled placeholder="Your video URL" className="w-[300px] hidden sm:inline" />
+                                            ) : (
+                                                <div className="text-center">{videoTitle}</div>
+                                            )}
+                                            {userEmail ? (
+                                                <ControlButtons
+                                                    selectedSub={selectedSub}
+                                                    handleAddSubtitles={handleAddSubtitlesButton}
+                                                    refetch2={refetch2}
+                                                    isFetching={isFetching}
+                                                    titleAndEpisode={titleAndEpisode}
+                                                    subtitleConverted={subtitleConverted}
+                                                />
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
+                                            )}
+                                        </div>
+                                        <div className="h-[300px]">
+                                            <VideoUploadArea
+                                                onDrop={handleDrop}
                                                 onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
                                                         setVideoFile(file);
                                                         setUrl(URL.createObjectURL(file));
+                                                        setVideoTitle(file.name);
                                                     }
                                                 }}
+                                                videoFile={videoFile}
+                                                url={url}
                                             />
                                         </div>
-                                    )}
-
-                                    {url && <VideoPlayer url={url} track={subtitleConverted} />}
-                                </div>
+                                    </CardContent>
+                                </Card>
+                                <SubtitleArea subtitleConverted={subtitleConverted} height='500px' />
                             </div>
-                        </div>
+                        ) : (
+                            <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
+                                <ResizablePanel defaultSize={65}>
+                                    <div className="flex flex-col h-full p-3">
+                                        <div className="flex flex-wrap items-center gap-4 mb-2">
+                                            <SubtitlesDropDown data={subtitlesData as any[]} />
+                                            {!videoTitle && !url.startsWith('blob:') ? (
+                                                <Input type="text" value={url} disabled placeholder="Your video URL" className="flex-1 hidden sm:inline" />
+                                            ) : (
+                                                <div className="flex-grow text-center">{videoTitle}</div>
+                                            )}
 
-                        {subtitleConverted?.length > 0 ?
-                            <DataTable captions={subtitleConverted as Caption[]} height="500px" />
-                            : <div className="flex justify-center items-center h-full">
-                                <p className="text-center">No subtitles detected.</p>
-                            </div>}
-
-
-                    </>
-                    : <ResizablePanelGroup
-                        direction="horizontal"
-                        className="rounded-lg border"
-                    >
-                        <ResizablePanel defaultSize={65}>
-                            <div className="flex flex-col h-full p-2">
-                                <div className="flex">
-                                    <SubtitlesDropDown data={subtitlesData as any[]} />
-                                    {!videoTitle && !url.startsWith('blob:') ? <Input type="text" value={url} disabled placeholder="Your video URL" className="mx-2" /> : <div className="mx-auto flex items-center">{videoTitle}</div>}
-                                    {userEmail ?
-                                        <>
-                                            {selectedSub ? null : <>
-                                                <AddSubtitlesButton handleAddSubtitles={handleAddSubtitlesButton} />
-                                                <HoverCard>
-                                                    <HoverCardTrigger><Button onClick={() => refetch2()} disabled={isFetching}> {isFetching ? 'Loading...' : 'Save Subtitles'}</Button>
-                                                    </HoverCardTrigger>
-                                                    {titleAndEpisode && <HoverCardContent className="p-4 shadow-lg rounded-lg">
-                                                        <div className="text-sm ">
-                                                            <span className="font-normal break-words break-all">{titleAndEpisode?.subtitleTitle}</span>
-                                                            <div className="flex flex justify-between items-center mt-2 text-xs text-muted-foreground">
-                                                                {titleAndEpisode?.episode && <p className="font-semibold">Episode: <span className="font-normal">{titleAndEpisode?.episode}</span></p>}
-                                                                <p className="font-semibold">Rows: <span className="font-normal">{subtitleConverted?.length}</span></p>
-                                                            </div>
-                                                        </div>
-                                                    </HoverCardContent>}
-
-                                                </HoverCard>
-
-                                            </>
-                                            }
-
-                                        </>
-                                        : <span className="text-nowrap m-2 font-bold">Log in to save subs</span>}
-
-                                    <DrawerTrigger asChild >
-                                        <GearButton />
-                                    </DrawerTrigger>
-
-                                </div>
-                                <div className="p-2 h-full" onDrop={handleDrop} onDragOver={handleDragOver}>
-                                    {!videoFile && !url && (
-                                        <div className="flex justify-center items-center h-full">
-                                            <p className="mr-4 text-gray-600">Drop your video here</p>
-                                            <Input
-                                                type="file"
-                                                className="w-[220px] "
+                                            {userEmail ? (
+                                                <ControlButtons
+                                                    selectedSub={selectedSub}
+                                                    handleAddSubtitles={handleAddSubtitlesButton}
+                                                    refetch2={refetch2}
+                                                    isFetching={isFetching}
+                                                    titleAndEpisode={titleAndEpisode}
+                                                    subtitleConverted={subtitleConverted}
+                                                />
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
+                                            )}
+                                        </div>
+                                        <div className="flex-grow h-[600px]">
+                                            <VideoUploadArea
+                                                onDrop={handleDrop}
                                                 onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
                                                         setVideoFile(file);
                                                         setUrl(URL.createObjectURL(file));
+                                                        setVideoTitle(file.name);
                                                     }
                                                 }}
+                                                videoFile={videoFile}
+                                                url={url}
                                             />
                                         </div>
-                                    )}
-                                    {url && <VideoPlayer url={url} track={subtitleConverted} />}
-                                </div>
-
-                            </div>
-
-                        </ResizablePanel>
-                        <ResizableHandle withHandle />
-                        <ResizablePanel defaultSize={35} >
-                            {subtitleConverted?.length > 0 ?
-                                <DataTable captions={subtitleConverted as Caption[]} height="1000px" />
-                                : <div className="flex justify-center items-center h-full">
-                                    <p className="text-center">No subtitles detected.</p>
-                                </div>}
-
-                        </ResizablePanel>
-                    </ResizablePanelGroup>}
-                <SettingsDrawerContent selectedSub={selectedSub} setTargetLanguage={setTargetLanguage} setSourceLanguage={setSourceLanguage} />
+                                    </div>
+                                </ResizablePanel>
+                                <ResizableHandle withHandle />
+                                <ResizablePanel defaultSize={35}>
+                                    <SubtitleArea subtitleConverted={subtitleConverted} height='1000px' />
+                                </ResizablePanel>
+                            </ResizablePanelGroup>
+                        )}
+                    </TabsContent>
+                </Tabs>
+                <SettingsDrawerContent
+                    selectedSub={selectedSub}
+                    setTargetLanguage={setTargetLanguage}
+                    setSourceLanguage={setSourceLanguage}
+                />
             </Drawer>
             <div className="my-4 space-x-4">
-
                 <ToggleAutoScrollButton />
-                {selectedSub ? <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} /> : null}
-                {selectedSub ? <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} /> : null}
+                {selectedSub && <TranslateSubtitle selectedSubtitle={selectedSub as Subtitle} SubtitleId={selectedSub?.SubtitleId} />}
+                {selectedSub && <SwapTranslationButton selectedSubtitle={selectedSub as Subtitle} />}
             </div>
             <hr />
             <div className="my-5">
                 <FileBrowser onVideoSelect={handleVideoSelect} handleAddSubtitles={handleAddSubtitlesButton} />
             </div>
-        </div>
+        </div >
     );
 };
 
 export default Home;
-
-
-
-
-

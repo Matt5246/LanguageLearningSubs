@@ -19,7 +19,7 @@ export function AddSubtitlesButton({ handleAddSubtitles, defaultSubs }: AddSubti
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button className="mr-2 w-[115px]">Add Subtitles</Button>
+                <Button className="w-[115px]">Add Subtitles</Button>
             </PopoverTrigger>
             <SubtitlePopoverContent handleAddSubtitles={handleAddSubtitles} defaultSubs={defaultSubs} />
         </Popover>

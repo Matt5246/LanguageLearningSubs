@@ -126,7 +126,8 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                                 <HoverCard key={file.name + index}>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Card className="flex flex-col cursor-pointer transition-colors duration-200 hover:bg-primary/5">
+                                            <Card className="flex flex-col cursor-pointer transition-colors duration-200 hover:bg-primary/5"
+                                                onClick={() => handleFileClick(file)}>
                                                 <HoverCardTrigger>
                                                     <CardContent className="flex flex-col items-center justify-center space-y-2 p-4">
                                                         <FileText className="w-8 h-8 text-primary/60" />

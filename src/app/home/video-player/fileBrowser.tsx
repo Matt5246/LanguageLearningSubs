@@ -173,30 +173,48 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                         <h3 className="text-lg font-semibold mb-3">Videos</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {groupedFiles.videos.map((file, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    <Card
-                                        className={`flex flex-col h-full cursor-pointer transition-colors duration-200 ${fileTitle === file.name ? 'bg-primary/10' : 'hover:bg-primary/5'
-                                            }`}
-                                        onClick={() => handleFileClick(file)}
+                                <HoverCard key={idx}>
+                                    <motion.div
+                                        key={idx}
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
                                     >
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className='text-sm font-medium truncate'>{file.name}</CardTitle>
-                                        </CardHeader>
-                                        <CardContent className='flex-grow flex items-center justify-center p-4'>
-                                            <FileVideo className="w-12 h-12 text-primary/60" />
-                                        </CardContent>
-                                        <CardFooter className="flex justify-between items-center text-xs text-muted-foreground">
-                                            <PlayCircle className="w-4 h-4" />
-                                            <span>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                                        </CardFooter>
-                                    </Card>
-                                </motion.div>
+                                        <Card
+                                            className={`flex flex-col h-full cursor-pointer transition-colors duration-200 ${fileTitle === file.name ? 'bg-primary/10' : 'hover:bg-primary/5'
+                                                }`}
+                                            onClick={() => handleFileClick(file)}
+                                        >
+                                            <HoverCardTrigger>
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className='text-sm font-medium truncate'>{file.name}</CardTitle>
+                                                </CardHeader>
+                                                <CardContent className='flex-grow flex items-center justify-center p-4'>
+                                                    <FileVideo className="w-12 h-12 text-primary/60" />
+                                                </CardContent>
+                                                <CardFooter className="flex justify-between items-center text-xs text-muted-foreground">
+                                                    <PlayCircle className="w-4 h-4" />
+                                                    <span>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                                </CardFooter>
+                                            </HoverCardTrigger>
+                                        </Card>
+                                    </motion.div>
+                                    <HoverCardContent className="p-4 space-y-2 w-64">
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-semibold">{file.name}</h4>
+                                            <p className="text-xs text-muted-foreground">
+                                                <Calendar className="inline mr-1 h-3 w-3" />
+                                                Modified: {new Date(file.lastModified).toLocaleDateString()}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                <HardDrive className="inline mr-1 h-3 w-3" />
+                                                Size: {(file.size / 1024 / 1024).toFixed(2)} MB
+                                            </p>
+                                        </div>
+                                    </HoverCardContent>
+                                </HoverCard>
                             ))}
+
                         </div>
                     </div>
                 )}
@@ -320,8 +338,9 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                            <Button variant="outline" onClick={handleBackClick} disabled={currentPath.length === 0 && folders.length === 0}>
-                                <ChevronLeft className="w-4 h-4 mr-2" />
+                            <Button variant="outline" onClick={handleBackClick} disabled={currentPath.length === 0 && folders.length === 0}
+                                className='mr-3'>
+                                <ChevronLeft className="w-4 h-4 mr-1" />
                                 Back
                             </Button>
                             <div className="text-lg font-semibold">

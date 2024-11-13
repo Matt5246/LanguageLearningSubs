@@ -49,7 +49,7 @@ interface ControlButtonsProps {
 
 const VideoUploadArea: React.FC<VideoUploadAreaProps> = ({ onDrop, onChange, videoFile, url }) => (
     <div
-        className="relative h-full border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center"
+        className={`relative h-full ${videoFile ? 'border-2 border-dashed border-gray-300' : 'border-none'}  rounded-lg flex items-center justify-center`}
         onDrop={onDrop}
         onDragOver={(e) => e.preventDefault()}
     >
@@ -238,14 +238,14 @@ const Home = () => {
                         <TabsTrigger value="both">Both</TabsTrigger>
                     </TabsList>
                     <TabsContent value="video">
-                        <Card>
-                            <CardContent className="p-3">
-                                <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 mb-2">
+                        <Card className="">
+                            <CardContent className={`p-3 ${isMobile ? "h-[500px]" : "h-[900px]"} `}>
+                                <div className="flex space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 mb-2">
                                     <SubtitlesDropDown data={subtitlesData as any[]} />
                                     {!videoTitle && !url.startsWith('blob:') ? (
                                         <Input type="text" value={url} disabled placeholder="Your video URL" className="hidden sm:inline flex-1" />
                                     ) : (
-                                        <div className="flex-grow text-center">{videoTitle}</div>
+                                        <div className="flex-grow text-center hidden sm:inline">{videoTitle}</div>
                                     )}
                                     {userEmail ? (
                                         <ControlButtons
@@ -260,7 +260,7 @@ const Home = () => {
                                         <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
                                     )}
                                 </div>
-                                <div className="h-[400px]">
+                                <div className={`${isMobile ? "h-[430px]" : "h-[830px]"} `}>
                                     <VideoUploadArea
                                         onDrop={handleDrop}
                                         onChange={(e) => {
@@ -279,7 +279,7 @@ const Home = () => {
                         </Card>
                     </TabsContent>
                     <TabsContent value="subtitles">
-                        <Card className="h-[500px] border-none">
+                        <Card className={`h-[500px] ${subtitleConverted?.length > 0 ? 'border-none' : ''}`}>
                             <SubtitleArea subtitleConverted={subtitleConverted} height='500px' />
                         </Card>
                     </TabsContent>
@@ -352,7 +352,7 @@ const Home = () => {
                                                 <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
                                             )}
                                         </div>
-                                        <div className="flex-grow h-[600px]">
+                                        <div className="flex-grow h-[800px]">
                                             <VideoUploadArea
                                                 onDrop={handleDrop}
                                                 onChange={(e) => {

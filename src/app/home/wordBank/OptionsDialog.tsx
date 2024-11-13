@@ -31,11 +31,12 @@ const OptionsDialog: React.FC<OptionsDialogContentProps> = ({ word }) => {
                         All options to manage your word. <strong>{word?.word}</strong>
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex items-center space-x-2">
-                    <DeleteWord hardWord={word?.word} />
-                    <EditWord wordData={word} />
-                </div>
+
                 <DialogFooter className="sm:justify-end">
+                    <div className="flex items-center space-x-2 flex-1">
+                        <DeleteWord hardWord={word?.word} />
+                        <EditWord wordData={word} />
+                    </div>
                     <DialogClose asChild>
                         <Button type="button" variant="secondary">
                             Close

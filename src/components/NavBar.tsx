@@ -53,7 +53,7 @@ const components: { title: string; href: string; description: string }[] = [
     },
     {
         title: "Word Bank",
-        href: "/home/wordBank",
+        href: "/home/word-bank",
         description:
             "Your saved words are listed here. You can easily find what you need.",
     },
@@ -114,12 +114,12 @@ export default function Navigation() {
                                     Discover effective methods for language acquisition through subtitles.
                                 </ListItem>
                             </Link>
-                            <Link href="/home/">
+                            <Link href="/home/learning">
                                 <ListItem title="Learning technics">
                                     Unlock the secrets of successful language learning.
                                 </ListItem>
                             </Link>
-                            <Link href="/home/">
+                            <Link href="/home/about">
                                 <ListItem title="About me">
                                     Learn more about the creator behind the scenes.
                                 </ListItem>

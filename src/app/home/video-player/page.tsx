@@ -373,6 +373,7 @@ const Home = () => {
                                 <ResizablePanel defaultSize={35}>
                                     <SubtitleArea subtitleConverted={subtitleConverted} height='1000px' />
                                 </ResizablePanel>
+
                             </ResizablePanelGroup>
                         )}
                     </TabsContent>

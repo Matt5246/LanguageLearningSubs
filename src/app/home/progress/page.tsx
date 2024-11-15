@@ -15,20 +15,26 @@ export default function Home() {
     const subtitles: Subtitle[] = useSelector(
         (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles
     );
+
     const [isLoaded, setIsLoaded] = useState(false);
-    const videos: Video[] = subtitles.map(subtitle => ({
-        subtitleTitle: subtitle.subtitleTitle || '',
-        youtubeUrl: subtitle.youtubeUrl || '',
-        hardWords: subtitle.hardWords || [],
-        createdAt: subtitle.createdAt || '',
-    }));
+    const videos: Video[] = useMemo(() => {
+        if (subtitles.length === 0 || (subtitles as any).error) return [];
+        console.log(subtitles);
+        return subtitles?.map(subtitle => ({
+            subtitleTitle: subtitle.subtitleTitle || '',
+            youtubeUrl: subtitle.youtubeUrl || '',
+            hardWords: subtitle.hardWords || [],
+            createdAt: subtitle.createdAt || '',
+        }));
+    }, [subtitles]);
     const stats = useMemo(() => {
-        const totalWords = subtitles.reduce(
+        if ((subtitles as any).error) return [];
+        const totalWords = subtitles?.reduce(
             (acc, sub) => acc + (sub.hardWords?.length || 0),
             0
         );
 
-        const totalWordsTrend = subtitles.filter(subtitle => {
+        const totalWordsTrend = subtitles?.filter(subtitle => {
             const subtitleDate = new Date(subtitle?.updatedAt || 0);
             const oneMonthAgo = new Date();
             oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
@@ -96,7 +102,7 @@ export default function Home() {
                 <Spinner />
             </h1>
         );
-    } else if (!subtitles || subtitles.length === 0) {
+    } else if (!subtitles || subtitles.length === 0 || !videos) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
                 <BookOpen className="h-16 w-16 text-muted-foreground" />
@@ -112,10 +118,10 @@ export default function Home() {
         <>
             <Chart />
             <ProgressHeader
-                totalSubtitles={{ totalSubtitles: stats.totalSubtitles, totalSubtitlesTrend: stats.totalSubtitlesTrend }}
-                totalWords={{ totalWords: stats.totalWords, totalWordsTrend: stats.totalWordsTrend }}
-                totalTime={stats.totalTime}
-                lastActivity={stats.lastActivity}
+                totalSubtitles={{ totalSubtitles: stats?.totalSubtitles, totalSubtitlesTrend: stats?.totalSubtitlesTrend }}
+                totalWords={{ totalWords: stats?.totalWords, totalWordsTrend: stats?.totalWordsTrend }}
+                totalTime={stats?.totalTime}
+                lastActivity={stats?.lastActivity}
             />
             <HistoryList />
             <RecentVideos videos={videos} />

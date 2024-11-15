@@ -31,7 +31,7 @@ interface HardWord {
     pos?: string; // Part of speech
     lemma?: string;
     createdAt?: string;
-    learnedAt?: string | null; 
+    learnedAt?: string | null;
     sentences?: sentences[];
 }
 
@@ -132,11 +132,14 @@ export const {
 export const selectFlashCardData = createSelector(
     (state: any) => state.subtitle.subtitles,
     (subtitles) => {
-        return subtitles?.map((subtitle: Subtitle) => ({
-            SubtitleId: subtitle.SubtitleId,
-            subtitleTitle: subtitle.subtitleTitle,
-            hardWords: subtitle.hardWords,
-        }));
+        if (subtitles && subtitles.length > 0) {
+            return subtitles?.map((subtitle: Subtitle) => ({
+                SubtitleId: subtitle.SubtitleId,
+                subtitleTitle: subtitle.subtitleTitle,
+                hardWords: subtitle.hardWords,
+            }));
+        }
+        return [];
     }
 );
 export const selectedSubtitle = createSelector(

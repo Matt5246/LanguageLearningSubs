@@ -35,3 +35,11 @@ export const AsiaLanguages = [
   { value: "ms", label: "Malay" },
   { value: "th", label: "Thai" },
 ]
+
+export function loadAutoScrollState(): boolean {
+  if (typeof window !== 'undefined') {
+      const storedAutoScrollState = localStorage.getItem('autoScrollEnabled');
+      return storedAutoScrollState ? JSON.parse(storedAutoScrollState) : true;
+  }
+  return true;
+}

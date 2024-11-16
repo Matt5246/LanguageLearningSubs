@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { createSelector } from '@reduxjs/toolkit';
-
+import { loadAutoScrollState } from '@/lib/utils';
 
 interface Subtitle {
     userId?: string;
@@ -108,7 +108,8 @@ const subtitlesSlice = createSlice({
             if (subtitle) {
                 subtitle.hardWords = hardWords;
             }
-        }
+        },
+        
     },
 });
 
@@ -161,38 +162,77 @@ export const updateSubtitleTranslation = (state: any, action: any) => {
     }
 };
 
-// function loadSubtitlesFromStorage(): Subtitle[] {
-//     if (typeof window !== 'undefined') {
-//         const storedSubtitles = localStorage.getItem('subtitles');
-//         if (storedSubtitles) {
-//             const subtitles = JSON.parse(storedSubtitles);
-//             if (subtitles.length > 0) {
-//                 return subtitles;
-//             }
-//         }
-//         return []
-//     }
-//     return [];
-// }
-function loadAutoScrollState(): boolean {
-    if (typeof window !== 'undefined') {
-        const storedAutoScrollState = localStorage.getItem('autoScrollEnabled');
-        return storedAutoScrollState ? JSON.parse(storedAutoScrollState) : true;
+export const selectSubtitleStats = createSelector(
+    (state: {subtitle: SubtitlesState}) => state.subtitle.subtitles,
+    (subtitles) => {
+        if (!subtitles || subtitles.length === 0) {
+            return {
+                totalSubtitles: 0,
+                totalWords: 0,
+                totalWordsTrend: 0,
+                totalSubtitlesTrend: 0,
+                totalTime: 0,
+                lastActivity: null,
+                activityData: [],
+            };
+        }
+
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+        const totalWords = subtitles.reduce(
+            (acc, sub) => acc + (sub.hardWords?.length || 0),
+            0
+        );
+
+        const totalWordsTrend = subtitles
+            .filter(sub => new Date(sub.updatedAt || 0) >= oneMonthAgo)
+            .reduce((acc, sub) => acc + (sub.hardWords?.length || 0), 0);
+       
+        const totalSubtitlesTrend = subtitles.filter(
+            sub => new Date(sub.updatedAt || 0) >= oneMonthAgo
+        ).length;
+
+        const totalTime = subtitles.reduce((acc, sub) => {
+            const lastRowTime = sub.subtitleData?.length ? sub.subtitleData[sub.subtitleData.length - 1].end : 0;
+            return acc + lastRowTime!;
+        }, 0);
+
+        const lastActivity = subtitles.reduce(
+            (latest, sub) => {
+                const subDate = new Date(sub.createdAt || 0);
+                return new Date(latest) > subDate ? latest : subDate.toISOString();
+            },
+            new Date(0).toISOString()
+        );
+
+        const activityByDate = subtitles.reduce((acc, sub) => {
+            const date = sub.createdAt ? new Date(sub.createdAt).toLocaleDateString('en-US', { weekday: 'short' }) : 'Invalid Date';
+            acc[date] = (acc[date] || 0) + (sub.hardWords?.length || 0);
+            return acc;
+        }, {} as Record<string, number>);
+
+        const activityData = Array.from({ length: 7 }, (_, i) => {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toLocaleDateString('en-US', { weekday: 'short' });
+            return {
+                date: dateStr,
+                words: activityByDate[dateStr] || 0,
+            };
+        }).reverse();
+
+        return {
+            totalSubtitles: subtitles.length,
+            totalWords,
+            totalWordsTrend,
+            totalSubtitlesTrend,
+            totalTime,
+            lastActivity,
+            activityData,
+        };
     }
-    return true;
-}
-
-// export const startPeriodicUpdates = () => (dispatch: any) => {
-//     const interval = setInterval(() => {
-//         dispatch(updateDataPeriodically());
-//     }, 10 * 60000); //x * 60s
-
-//     return () => clearInterval(interval);
-// };
-
-// const updateDataPeriodically = () => (dispatch: any) => {
-//     console.log('Updating or adding data periodically...');
-// };
+);
 
 export default subtitlesSlice.reducer;
 

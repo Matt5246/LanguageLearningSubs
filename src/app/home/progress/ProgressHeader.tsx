@@ -13,13 +13,14 @@ import {
 } from "@/components/ui/tooltip"
 import { useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { formatDistanceToNow } from 'date-fns'
 
 
 interface ProgressHeaderProps {
     totalSubtitles: { totalSubtitles: number; totalSubtitlesTrend: number };
     totalWords: { totalWords: number, totalWordsTrend: number };
     totalTime: number;
-    lastActivity: string;
+    lastActivity: string | null;
 }
 
 export default function ProgressHeader({ totalSubtitles, totalWords, totalTime, lastActivity }: ProgressHeaderProps) {
@@ -222,13 +223,13 @@ function TimeDisplayCard({ totalTime }: { totalTime: number }) {
     );
 }
 
-function LastActivityCard({ lastActivity }: { lastActivity: string }) {
+function LastActivityCard({ lastActivity }: { lastActivity: string | null }) {
+    if (!lastActivity) {
+        return null;
+    }
+
     const activityDate = new Date(lastActivity);
-    const today = new Date();
-    const diffTime = Math.abs(today.getTime() - activityDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    const progress = ((daysInMonth - diffDays) / daysInMonth) * 100;
+    const timeAgo = formatDistanceToNow(activityDate, { addSuffix: true });
 
     return (
         <Card className="overflow-hidden">
@@ -237,21 +238,36 @@ function LastActivityCard({ lastActivity }: { lastActivity: string }) {
                     <div className="bg-primary/10 p-3 rounded-full">
                         <Calendar className="h-6 w-6 text-primary" />
                     </div>
-                    <div className="text-sm text-muted-foreground">
-                        {diffDays} day{diffDays !== 1 ? 's' : ''} ago
+                    <div className="text-sm text-muted-foreground flex items-center">
+                        <Clock className="h-4 w-4 mr-1" />
+                        {timeAgo}
                     </div>
                 </div>
-                <h3 className="text-2xl font-bold mb-1">{activityDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</h3>
-                <p className="text-sm text-muted-foreground mb-4">Last Activity</p>
-                <Progress value={progress} className="h-2 mb-2" />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>1d</span>
-                    <span>{Math.floor(daysInMonth / 2)}d</span>
-                    <span>{daysInMonth}d</span>
-                </div>
-                <div className="mt-4 flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Weekly Goal</span>
-                    <span className="font-medium">{progress.toFixed(1)}%</span>
+                <h3 className="text-2xl font-bold mb-1">
+                    {activityDate.toLocaleDateString(undefined, {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    })}
+                </h3>
+                <p className="text-sm text-muted-foreground">Last Activity</p>
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground">Time</span>
+                        <span className="font-medium">
+                            {activityDate.toLocaleTimeString(undefined, {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}
+                        </span>
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-muted-foreground">Day of Week</span>
+                        <span className="font-medium">
+                            {activityDate.toLocaleDateString(undefined, { weekday: 'long' })}
+                        </span>
+                    </div>
                 </div>
             </CardContent>
         </Card>

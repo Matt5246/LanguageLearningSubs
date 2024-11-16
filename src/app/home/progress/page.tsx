@@ -9,12 +9,14 @@ import { BookOpen } from 'lucide-react';
 import ProgressHeader from './ProgressHeader';
 import { Video } from './RecentVideos';
 import { Spinner } from '@/components/ui/spinner'
+import { selectSubtitleStats } from '@/lib/features/subtitles/subtitleSlice';
 
 
 export default function Home() {
     const subtitles: Subtitle[] = useSelector(
         (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles
     );
+    const stats = useSelector(selectSubtitleStats);
 
     const [isLoaded, setIsLoaded] = useState(false);
     const videos: Video[] = useMemo(() => {
@@ -27,73 +29,8 @@ export default function Home() {
             createdAt: subtitle.createdAt || '',
         }));
     }, [subtitles]);
-    const stats = useMemo(() => {
-        if ((subtitles as any).error) return [];
-        const totalWords = subtitles?.reduce(
-            (acc, sub) => acc + (sub.hardWords?.length || 0),
-            0
-        );
-
-        const totalWordsTrend = subtitles?.filter(subtitle => {
-            const subtitleDate = new Date(subtitle?.updatedAt || 0);
-            const oneMonthAgo = new Date();
-            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-            return subtitleDate >= oneMonthAgo;
-        }
-        ).reduce(
-            (acc, sub) => acc + (sub.hardWords?.length || 0),
-            0
-        );
-        const totalSubtitlesTrend = subtitles.filter(subtitle => {
-            const subtitleDate = new Date(subtitle?.updatedAt || 0);
-            const oneMonthAgo = new Date();
-            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-            return subtitleDate >= oneMonthAgo;
-        }).length;
-
-
-        const totalTime = subtitles.reduce((acc, sub) => {
-            const lastRowTime = sub.subtitleData?.length ? sub.subtitleData[sub.subtitleData.length - 1].end : 0;
-            return acc + lastRowTime;
-        }, 0);
-
-        const lastActivity = subtitles.reduce(
-            (latest, sub) => {
-                const subDate = new Date(sub.createdAt || 0);
-                return new Date(latest) > subDate ? latest : subDate.toISOString();
-            },
-            new Date(0).toISOString()
-        );
-
-        const activityByDate = subtitles.reduce((acc, sub) => {
-            const date = sub.createdAt ? new Date(sub.createdAt).toLocaleDateString('en-US', { weekday: 'short' }) : 'Invalid Date';
-            acc[date] = (acc[date] || 0) + (sub.hardWords?.length || 0);
-            return acc;
-        }, {} as Record<string, number>);
-
-        const activityData = Array.from({ length: 7 }, (_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toLocaleDateString('en-US', { weekday: 'short' });
-            return {
-                date: dateStr,
-                words: activityByDate[dateStr] || 0,
-            };
-        }).reverse();
-
-        return {
-            totalSubtitles: subtitles.length,
-            totalSubtitlesTrend,
-            totalWords,
-            totalWordsTrend,
-            totalTime,
-            lastActivity,
-            activityData,
-        };
-    }, [subtitles]);
 
     useEffect(() => {
-
         setIsLoaded(true);
     }, [subtitles]);
     if (!isLoaded || !subtitles.length) {

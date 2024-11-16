@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import subtitleSlice from './features/subtitles/subtitleSlice'
 import userSlice from './features/user/userSlice'
+import achievementsSlice from './features/achievements/achievementsSlice'
 
 export const makeStore = () => {
     return configureStore({
         reducer: {
             subtitle: subtitleSlice,
-            user: userSlice
+            user: userSlice,
+            achievements: achievementsSlice
         }
     })
 }

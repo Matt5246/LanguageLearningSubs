@@ -5,41 +5,63 @@ import { useSelector, useDispatch } from 'react-redux';
 import { selectSubtitleStats } from '@/lib/features/subtitles/subtitleSlice';
 import { updateAchievementProgress } from '@/lib/features/achievements/achievementsSlice';
 
+
 export const useAchievements = () => {
   const dispatch = useDispatch();
   const stats = useSelector(selectSubtitleStats);
 
   useEffect(() => {
     // Vocabulary Achievements
+    const wordCount = stats.totalWords;
+    
+    dispatch(updateAchievementProgress({
+      id: 'vocab-beginner',
+      progress: wordCount
+    }));
+    dispatch(updateAchievementProgress({
+      id: 'vocab-starter',
+      progress: wordCount
+    }));
     dispatch(updateAchievementProgress({
       id: 'vocab-master-bronze',
-      progress: stats.totalWords
+      progress: wordCount
     }));
     dispatch(updateAchievementProgress({
       id: 'vocab-master-silver',
-      progress: stats.totalWords
+      progress: wordCount
     }));
     dispatch(updateAchievementProgress({
       id: 'vocab-master-gold',
-      progress: stats.totalWords
+      progress: wordCount
     }));
 
     // Video Achievements
+    const videoCount = stats.totalSubtitles;
+    
+    dispatch(updateAchievementProgress({
+      id: 'video-starter',
+      progress: videoCount
+    }));
     dispatch(updateAchievementProgress({
       id: 'video-explorer-bronze',
-      progress: stats.totalSubtitles
+      progress: videoCount
     }));
     dispatch(updateAchievementProgress({
       id: 'video-explorer-silver',
-      progress: stats.totalSubtitles
+      progress: videoCount
     }));
     dispatch(updateAchievementProgress({
       id: 'video-explorer-gold',
-      progress: stats.totalSubtitles
+      progress: videoCount
     }));
 
     // Study Time Achievements
     const hoursWatched = stats.totalTime / 3600;
+    
+    dispatch(updateAchievementProgress({
+      id: 'time-starter',
+      progress: Math.floor(hoursWatched)
+    }));
     dispatch(updateAchievementProgress({
       id: 'time-master-bronze',
       progress: Math.floor(hoursWatched)
@@ -54,11 +76,13 @@ export const useAchievements = () => {
     }));
 
     // Streak Achievements
-    const activeWeekDays = stats?.activityData.filter(day => day.words > 0).length;
-    dispatch(updateAchievementProgress({
-      id: 'early-bird',
-      progress: activeWeekDays
-    }));
+    const activeWeekDays = stats.activityData.filter(day => day.words > 0).length;
+    if (activeWeekDays > 0) {
+      dispatch(updateAchievementProgress({
+        id: 'daily-starter',
+        progress: 1
+      }));
+    }
     
     // Calculate consecutive days streak
     let currentStreak = 0;

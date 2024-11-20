@@ -2,6 +2,28 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { createSelector } from '@reduxjs/toolkit';
 import { loadAutoScrollState } from '@/lib/utils';
 
+
+
+interface SRSData {
+    interval: number;       // Days until next review
+    easeFactor: number;     // Multiplier for interval
+    repetitions: number;    // Number of successful reviews
+    dueDate: string;       // Next review date
+    lastReviewed: string;  // Last review date
+}
+
+interface HardWord {
+    learnState?: number;
+    word: string | undefined;
+    translation?: string;
+    pos?: string;
+    lemma?: string;
+    createdAt?: string;
+    learnedAt?: string | null;
+    sentences?: sentences[];
+    srs?: SRSData;         // Spaced Repetition System data
+}
+
 interface Subtitle {
     userId?: string;
     SubtitleId?: string | null;
@@ -39,7 +61,33 @@ interface sentences {
     sentence: string
     translation?: string
 }
+const calculateNextReview = (
+    currentInterval: number,
+    easeFactor: number,
+    quality: number // 0-5 rating of how well the word was remembered
+): { interval: number; easeFactor: number } => {
+    let newEaseFactor = easeFactor;
+    let newInterval = currentInterval;
 
+    // Adjust ease factor based on performance
+    newEaseFactor = Math.max(1.3, easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
+
+    // Calculate new interval
+    if (quality < 3) {
+        // Failed recall - reset intervals
+        newInterval = 1;
+    } else {
+        if (currentInterval === 0) {
+            newInterval = 1;
+        } else if (currentInterval === 1) {
+            newInterval = 6;
+        } else {
+            newInterval = Math.round(currentInterval * newEaseFactor);
+        }
+    }
+
+    return { interval: newInterval, easeFactor: newEaseFactor };
+};
 export interface SubtitlesState {
     subtitles: Subtitle[];
     selectedSubtitle: String | null;
@@ -109,7 +157,50 @@ const subtitlesSlice = createSlice({
                 subtitle.hardWords = hardWords;
             }
         },
-        
+        updateWordSRS(state, action: PayloadAction<{SubtitleId: string, word: string, quality: number; // 0-5 rating
+            }>){
+            const { SubtitleId, word, quality } = action.payload;
+            const subtitle = state.subtitles.find(sub => sub.SubtitleId === SubtitleId);
+            if (subtitle?.hardWords) {
+                const hardWord = subtitle.hardWords.find(hw => hw.word === word);
+                if (hardWord) {
+                    const now = new Date();
+                    if (!hardWord.srs) {
+                        // Initialize SRS data for new words
+                        hardWord.srs = {
+                            interval: 0,
+                            easeFactor: 2.5,
+                            repetitions: 0,
+                            dueDate: now.toISOString(),
+                            lastReviewed: now.toISOString()
+                        };
+                    }
+
+                    const { interval, easeFactor } = calculateNextReview(
+                        hardWord.srs.interval,
+                        hardWord.srs.easeFactor,
+                        quality
+                    );
+
+                    const nextReview = new Date();
+                    nextReview.setDate(nextReview.getDate() + interval);
+
+                    hardWord.srs = {
+                        interval,
+                        easeFactor,
+                        repetitions: hardWord.srs.repetitions + 1,
+                        dueDate: nextReview.toISOString(),
+                        lastReviewed: now.toISOString()
+                    };
+
+                    // Update learnState based on SRS progress
+                    hardWord.learnState = Math.min(
+                        Math.round((hardWord.srs.repetitions / 8) * 100),
+                        100
+                    );
+                }
+            }
+        }        
     },
 });
 
@@ -127,6 +218,7 @@ export const {
     toggleAutoScroll,
     swapTranslation,
     updateHardWords,
+    updateWordSRS,
 } = subtitlesSlice.actions;
 
 
@@ -233,6 +325,86 @@ export const selectSubtitleStats = createSelector(
         };
     }
 );
+
+
+
+// Add new selector for SRS-based flashcards
+export const selectSRSFlashcards = createSelector(
+    (state: any) => state.subtitle.subtitles,
+    (subtitles) => {
+        if (!subtitles || subtitles.length === 0) return [];
+
+        const now = new Date();
+        const allWords = subtitles.flatMap((subtitle: Subtitle) => 
+            (subtitle?.hardWords || []).map(word => ({
+            ...word,
+            SubtitleId: subtitle.SubtitleId,
+            subtitleTitle: subtitle.subtitleTitle
+            }))
+        );
+
+        // Filter and sort words based on SRS data
+        return allWords
+            .filter((word: HardWord )=> {
+                if (!word.srs) return true; // New words that need to be learned
+                return new Date(word.srs.dueDate) <= now; // Words due for review
+            })
+            .sort((a: { srs: { dueDate: string | number | Date; }; }, b: { srs: { dueDate: string | number | Date; }; }) => {
+                // Prioritize words in this order:
+                // 1. New words (no SRS data)
+                // 2. Overdue words
+                // 3. Words due today
+                if (!a.srs && !b.srs) return 0;
+                if (!a.srs) return -1;
+                if (!b.srs) return 1;
+
+                const aDueDate = new Date(a.srs.dueDate);
+                const bDueDate = new Date(b.srs.dueDate);
+                return aDueDate.getTime() - bDueDate.getTime();
+            });
+    }
+);
+
+// Selector for SRS statistics
+export const selectSrsStats = createSelector(
+    (state: any) => state.subtitle.subtitles,
+    (subtitles) => {
+        const now = new Date();
+        const allWords = subtitles.flatMap((subtitle: Subtitle) => subtitle.hardWords || []);
+        
+        const totalWords = allWords.length;
+        const wordsWithSRS = allWords.filter((word: HardWord )=> word.srs).length;
+        const dueWords = allWords.filter((word: HardWord ) => 
+            word.srs && new Date(word.srs.dueDate) <= now
+        ).length;
+        
+        const masteredWords = allWords.filter((word: HardWord ) => 
+            word.srs && word.srs.interval >= 30
+        ).length;
+
+        const upcomingReviews = allWords.reduce((acc: {[key: string]: number}, word: any) => {
+            if (word.srs) {
+                const dueDate = new Date(word.srs.dueDate).toLocaleDateString();
+                acc[dueDate] = (acc[dueDate] || 0) + 1;
+            }
+            return acc;
+        }, {});
+
+        return {
+            totalWords,
+            wordsWithSRS,
+            dueWords,
+            masteredWords,
+            upcomingReviews: Object.entries(upcomingReviews)
+                .sort(([dateA], [dateB]) => 
+                    new Date(dateA).getTime() - new Date(dateB).getTime()
+                )
+                .slice(0, 7) 
+        };
+    }
+);
+
+
 
 export default subtitlesSlice.reducer;
 

@@ -1,22 +1,21 @@
 'use client'
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateWordSRS, selectSRSFlashcards } from '@/lib/features/subtitles/subtitleSlice';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { BookOpen, ChevronLeft, ChevronRight, Clock, ArrowLeft } from "lucide-react";
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import InputFlashCard from './InputWord';
-import EditWord from './EditWord';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { useOnKeyPress } from '@/hooks/useOnKeyPress';
 import { useIsMobile } from '@/hooks/useMobile';
-import DeleteWord from './DeleteWord';
+import { useOnKeyPress } from '@/hooks/useOnKeyPress';
+import { selectSRSFlashcards, updateWordSRS } from '@/lib/features/subtitles/subtitleSlice';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { SubtitlesDropDown } from '../../subtitles/SubtitlesDropDown';
+import DeleteWord from './DeleteWord';
+import EditWord from './EditWord';
+import InputFlashCard from './InputWord';
 
 export default function FlashCard() {
     const dispatch = useDispatch();

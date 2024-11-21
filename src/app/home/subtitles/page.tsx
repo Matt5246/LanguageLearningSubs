@@ -1,27 +1,27 @@
 'use client';
 
-import { useSelector, useDispatch } from 'react-redux';
-import { SubtitlesState, setSelectedSubtitle, selectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { SubtitlesDropDown } from './SubtitlesDropDown';
 import { DataTable } from '@/components/Subtitles/SubtitlesListTanstack';
-import UpdateSubtitles from './UpdateSubtitles';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from '@/components/ui/spinner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from '@/hooks/useMobile';
+import { SubtitlesState, selectedSubtitle, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BookOpen, Grid, List } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import DeleteSubtitle from './DeleteSubtitles';
-import TranslateSubtitle from './TranslateSubtitle';
-import SwapTranslationButton from './SwapTranslationButton';
 import { MostUsedWordsButton } from './MostUsedWords';
 import { SubtitleCards } from './SubtitleCards';
-import { SubtitleNavigator } from './SubtitleNavigator';
-import { Button } from '@/components/ui/button';
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Grid, List, Clock, BookOpen } from 'lucide-react';
 import SubtitleListView from './SubtitleListView';
-import { useIsMobile } from '@/hooks/useMobile';
-import { Spinner } from '@/components/ui/spinner';
+import { SubtitleNavigator } from './SubtitleNavigator';
+import { SubtitlesDropDown } from './SubtitlesDropDown';
+import SwapTranslationButton from './SwapTranslationButton';
+import TranslateSubtitle from './TranslateSubtitle';
+import UpdateSubtitles from './UpdateSubtitles';
 
 
 export default function Home() {

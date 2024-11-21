@@ -1,20 +1,20 @@
 'use client'
-import React, { useEffect, useState, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from "next/link";
-import { Search, BookOpen, Trophy, Clock, Brain } from "lucide-react";
+import DeleteSubtitle from '@/app/home/subtitles/DeleteSubtitles';
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { setSelectedSubtitle, selectFlashCardData, selectSrsStats } from '@/lib/features/subtitles/subtitleSlice';
-import DeleteSubtitle from '@/app/home/subtitles/DeleteSubtitles';
 import { Spinner } from '@/components/ui/spinner';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { selectFlashCardData, selectSrsStats, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BookOpen, Brain, Clock, Search, Trophy } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface GroupedSubtitles {
     [key: string]: Subtitle[];

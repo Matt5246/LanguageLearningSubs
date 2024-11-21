@@ -4,12 +4,9 @@ import { loadAutoScrollState } from '@/lib/utils';
 
 
 
-interface SRSData {
-    interval: number;       // Days until next review
-    easeFactor: number;     // Multiplier for interval
+interface SRSData { 
     repetitions: number;    // Number of successful reviews
-    dueDate: string;       // Next review date
-    lastReviewed: string;  // Last review date
+    dueDate: string;     // Date for next review
 }
 
 interface HardWord {
@@ -57,37 +54,16 @@ interface HardWord {
     sentences?: sentences[];
 }
 
-interface sentences {
-    sentence: string
-    translation?: string
-}
-const calculateNextReview = (
-    currentInterval: number,
-    easeFactor: number,
-    quality: number // 0-5 rating of how well the word was remembered
-): { interval: number; easeFactor: number } => {
-    let newEaseFactor = easeFactor;
-    let newInterval = currentInterval;
-
-    // Adjust ease factor based on performance
-    newEaseFactor = Math.max(1.3, easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
-
-    // Calculate new interval
-    if (quality < 3) {
-        // Failed recall - reset intervals
-        newInterval = 1;
-    } else {
-        if (currentInterval === 0) {
-            newInterval = 1;
-        } else if (currentInterval === 1) {
-            newInterval = 6;
-        } else {
-            newInterval = Math.round(currentInterval * newEaseFactor);
-        }
-    }
-
-    return { interval: newInterval, easeFactor: newEaseFactor };
+export const calculateNextReviewDate = (
+    repetitions: number
+): string => {
+    const intervals = [5 / (24 * 60), 30 / (24 * 60), 1, 3, 7, 14, 30]; // Review intervals in days based on repetitions
+    const nextInterval = repetitions < intervals.length ? intervals[repetitions] : intervals[intervals.length - 1];
+    const nextReviewDate = new Date();
+    nextReviewDate.setTime(nextReviewDate.getTime() + nextInterval * 24 * 60 * 60 * 1000);
+    return nextReviewDate.toISOString();
 };
+
 export interface SubtitlesState {
     subtitles: Subtitle[];
     selectedSubtitle: String | null;
@@ -157,8 +133,10 @@ const subtitlesSlice = createSlice({
                 subtitle.hardWords = hardWords;
             }
         },
-        updateWordSRS(state, action: PayloadAction<{SubtitleId: string, word: string, quality: number; // 0-5 rating
-            }>){
+        updateWordSRS(
+            state,
+            action: PayloadAction<{ SubtitleId: string; word: string; quality: number }>
+        ) {
             const { SubtitleId, word, quality } = action.payload;
             const subtitle = state.subtitles.find(sub => sub.SubtitleId === SubtitleId);
             if (subtitle?.hardWords) {
@@ -168,39 +146,30 @@ const subtitlesSlice = createSlice({
                     if (!hardWord.srs) {
                         // Initialize SRS data for new words
                         hardWord.srs = {
-                            interval: 0,
-                            easeFactor: 2.5,
                             repetitions: 0,
                             dueDate: now.toISOString(),
-                            lastReviewed: now.toISOString()
                         };
                     }
+                    // Increment repetitions only for successful reviews
+                    if (quality >= 3) {
+                        hardWord.srs.repetitions += 1;
+                    } else {
+                        // Reset repetitions for failed reviews
+                        hardWord.srs.repetitions = 0;
+                    }
+                    // Calculate and set the next review date
+                    hardWord.srs.dueDate = calculateNextReviewDate(hardWord.srs.repetitions);
+                    // Optionally update learnState based on repetitions
+                    console.log('Updating Word SRS:', { word, repetition: hardWord.srs.repetitions, quality, dueDate: hardWord.srs.dueDate });
 
-                    const { interval, easeFactor } = calculateNextReview(
-                        hardWord.srs.interval,
-                        hardWord.srs.easeFactor,
-                        quality
-                    );
-
-                    const nextReview = new Date();
-                    nextReview.setDate(nextReview.getDate() + interval);
-
-                    hardWord.srs = {
-                        interval,
-                        easeFactor,
-                        repetitions: hardWord.srs.repetitions + 1,
-                        dueDate: nextReview.toISOString(),
-                        lastReviewed: now.toISOString()
-                    };
-
-                    // Update learnState based on SRS progress
                     hardWord.learnState = Math.min(
-                        Math.round((hardWord.srs.repetitions / 8) * 100),
+                        (hardWord.srs.repetitions / 5) * 100, // Scale repetitions to percentage
                         100
                     );
                 }
             }
-        }        
+        }
+           
     },
 });
 
@@ -326,46 +295,31 @@ export const selectSubtitleStats = createSelector(
     }
 );
 
-
-
-// Add new selector for SRS-based flashcards
 export const selectSRSFlashcards = createSelector(
     (state: any) => state.subtitle.subtitles,
     (subtitles) => {
         if (!subtitles || subtitles.length === 0) return [];
 
         const now = new Date();
-        const allWords = subtitles.flatMap((subtitle: Subtitle) => 
+        const allWords = subtitles.flatMap((subtitle: Subtitle) =>
             (subtitle?.hardWords || []).map(word => ({
-            ...word,
-            SubtitleId: subtitle.SubtitleId,
-            subtitleTitle: subtitle.subtitleTitle
+                ...word,
+                SubtitleId: subtitle.SubtitleId,
+                subtitleTitle: subtitle.subtitleTitle,
             }))
         );
 
-        // Filter and sort words based on SRS data
         return allWords
-            .filter((word: HardWord )=> {
-                if (!word.srs) return true; // New words that need to be learned
-                return new Date(word.srs.dueDate) <= now; // Words due for review
-            })
+            .filter((word: HardWord) => !word.srs || new Date(word.srs.dueDate).getTime() <= now.getTime())
             .sort((a: { srs: { dueDate: string | number | Date; }; }, b: { srs: { dueDate: string | number | Date; }; }) => {
-                // Prioritize words in this order:
-                // 1. New words (no SRS data)
-                // 2. Overdue words
-                // 3. Words due today
-                if (!a.srs && !b.srs) return 0;
-                if (!a.srs) return -1;
-                if (!b.srs) return 1;
+            if (!a.srs) return -1;
+            if (!b.srs) return 1;
 
-                const aDueDate = new Date(a.srs.dueDate);
-                const bDueDate = new Date(b.srs.dueDate);
-                return aDueDate.getTime() - bDueDate.getTime();
+            return new Date(a.srs.dueDate).getTime() - new Date(b.srs.dueDate).getTime();
             });
     }
 );
 
-// Selector for SRS statistics
 export const selectSrsStats = createSelector(
     (state: any) => state.subtitle.subtitles,
     (subtitles) => {
@@ -378,8 +332,8 @@ export const selectSrsStats = createSelector(
             word.srs && new Date(word.srs.dueDate) <= now
         ).length;
         
-        const masteredWords = allWords.filter((word: HardWord ) => 
-            word.srs && word.srs.interval >= 30
+        const masteredWords = allWords.filter((word: HardWord) => 
+            word.srs && word.srs.repetitions >= 5
         ).length;
 
         const upcomingReviews = allWords.reduce((acc: {[key: string]: number}, word: any) => {

@@ -51,6 +51,8 @@ interface HardWord {
     translation?: string;
     pos?: string; // Part of speech
     lemma?: string;
+    repetitions?: number;
+    dueDate?: Date;
     createdAt?: string;
     learnedAt?: string | null; 
     sentences?: sentences[];

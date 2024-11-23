@@ -9,9 +9,9 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { selectFlashCardData, selectSrsStats, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { selectFlashCardData, selectSRSStats, selectSRSFlashcards, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
 import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpen, Brain, Clock, Search, Trophy } from "lucide-react";
+import { BookOpen, Brain, Clock, Search, Trophy, Timer, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,12 +27,8 @@ interface Subtitle {
         word: string;
         translation: string;
         learnState: number;
-        srs?: {
-            interval: number;
-            easeFactor: number;
-            repetitions: number;
-            dueDate: string;
-        };
+        repetitions: number;
+        dueDate: string;
     }>;
 }
 
@@ -55,14 +51,14 @@ function getDueWordsCount(subtitles: Subtitle[]): number {
     const now = new Date();
     return subtitles.reduce((acc, s) =>
         acc + (s.hardWords?.filter(w =>
-            !w.srs || new Date(w.srs.dueDate) <= now
+            new Date(w.dueDate) <= now
         ).length || 0), 0);
 }
 
 function getProgressPercentage(subtitles: Subtitle[]): number {
     const totalWords = subtitles.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
     const masteredWords = subtitles.reduce((acc, s) =>
-        acc + (s.hardWords?.filter(w => w.srs?.interval || 0 >= 30)?.length || 0), 0);
+        acc + (s.hardWords?.filter(w => w?.repetitions || 0 >= 3)?.length || 0), 0);
     return totalWords ? (masteredWords / totalWords) * 100 : 0;
 }
 
@@ -70,12 +66,13 @@ export default function FlashcardPage() {
     const dispatch = useDispatch();
     const [isLoaded, setIsLoaded] = useState(false);
     const flashCardData = useSelector(selectFlashCardData) as Subtitle[];
-    const srsStats = useSelector(selectSrsStats);
+    const srsStats = useSelector(selectSRSStats);
+
     const [search, setSearch] = useState('');
     const [sort, setSort] = useState('due-desc');
     const [filter, setFilter] = useState('all');
     const [groupedSubtitles, setGroupedSubtitles] = useState<GroupedSubtitles>({});
-    console.log(srsStats);
+
     useEffect(() => {
         const grouped = flashCardData.reduce((acc: GroupedSubtitles, subtitle: Subtitle) => {
             if (!acc[subtitle.subtitleTitle!]) {
@@ -204,7 +201,7 @@ export default function FlashcardPage() {
                         const dueWords = getDueWordsCount(data);
                         const totalWords = data.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
                         const masteredWords = data.reduce((acc, s) =>
-                            acc + (s.hardWords?.filter(w => w.srs?.interval || 0 >= 30)?.length || 0), 0);
+                            acc + (s.hardWords?.filter(w => w?.repetitions >= 3)?.length || 0), 0);
 
                         return (
                             <motion.div
@@ -220,7 +217,7 @@ export default function FlashcardPage() {
                                             <CardTitle className="text-xl">{subtitleTitle}</CardTitle>
                                             <div className="flex space-x-2">
                                                 {dueWords > 0 && (
-                                                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                                                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 ">
                                                         {dueWords} due
                                                     </Badge>
                                                 )}
@@ -246,9 +243,13 @@ export default function FlashcardPage() {
                                             <div className="h-[200px] overflow-y-auto space-y-2">
                                                 {data.map((subtitle) =>
                                                     subtitle.hardWords?.map((word, idx) => {
-                                                        const isDue = !word.srs || new Date(word.srs.dueDate) <= new Date();
-                                                        const isMastered = word.srs?.interval || 0 >= 30;
-
+                                                        const now = new Date();
+                                                        const dueDate = word?.dueDate ? new Date(word.dueDate) : null;
+                                                        const isWaitingForReview = dueDate && dueDate > now;
+                                                        const isDue = dueDate && dueDate <= now;
+                                                        const isNotStudied = !word || !word.repetitions || word.repetitions === 0;
+                                                        const isMastered = word?.repetitions >= 3;
+                                                        console.log(dueDate ? dueDate : "");
                                                         return (
                                                             <div
                                                                 key={idx}
@@ -260,12 +261,48 @@ export default function FlashcardPage() {
                                                                     <span>{word.translation}</span>
                                                                 </div>
                                                                 <div className="flex space-x-2">
-                                                                    {isDue && (
-                                                                        <Clock className="h-4 w-4 text-yellow-500" />
-                                                                    )}
-                                                                    {isMastered && (
-                                                                        <Trophy className="h-4 w-4 text-green-500" />
-                                                                    )}
+                                                                    <HoverCard>
+                                                                        <HoverCardTrigger>
+                                                                            {isWaitingForReview && (
+                                                                                <Clock
+                                                                                    className="h-4 w-4 text-blue-500"
+                                                                                    title="Waiting for review"
+                                                                                />
+
+
+                                                                            )}
+                                                                            {isDue && (
+                                                                                <Star
+                                                                                    className="h-4 w-4 text-yellow-500"
+                                                                                    title="Ready for review"
+                                                                                />
+                                                                            )}
+                                                                            {isMastered && (
+                                                                                <Trophy
+                                                                                    className="h-4 w-4 text-green-500"
+                                                                                    title="Mastered"
+                                                                                />
+                                                                            )}
+                                                                            {isNotStudied && (
+                                                                                <BookOpen
+                                                                                    className="h-4 w-4 text-blue-500"
+                                                                                />
+                                                                            )}
+                                                                        </HoverCardTrigger>
+                                                                        <HoverCardContent className="w-auto p-2 ">
+                                                                            {word?.dueDate && word.dueDate.toLocaleString(undefined, {
+                                                                                year: 'numeric',
+                                                                                month: '2-digit',
+                                                                                day: '2-digit',
+                                                                                hour: '2-digit',
+                                                                                minute: '2-digit',
+                                                                                second: '2-digit'
+                                                                            })}
+                                                                            {word?.repetitions && (
+                                                                                <div>Repetitions: {word.repetitions}</div>
+                                                                            )}
+                                                                        </HoverCardContent>
+                                                                    </HoverCard>
                                                                 </div>
                                                             </div>
                                                         );

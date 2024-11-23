@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from '@/hooks/useMobile';
 import { useOnKeyPress } from '@/hooks/useOnKeyPress';
-import { selectSRSFlashcards, updateWordSRS } from '@/lib/features/subtitles/subtitleSlice';
+import { calculateNextReviewDate, selectSRSFlashcards, updateHardWords, updateWordSRS } from '@/lib/features/subtitles/subtitleSlice';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import Link from "next/link";
@@ -16,68 +16,84 @@ import { SubtitlesDropDown } from '../../subtitles/SubtitlesDropDown';
 import DeleteWord from './DeleteWord';
 import EditWord from './EditWord';
 import InputFlashCard from './InputWord';
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 
 export default function FlashCard() {
     const dispatch = useDispatch();
-
     const selectedSubId = useSelector((state: any) => state.subtitle.selectedSubtitle);
     const allSubtitles = useSelector((state: any) => state.subtitle.subtitles);
     const srsFlashcards = useSelector(selectSRSFlashcards);
     const [currentWordIndex, setCurrentWordIndex] = useState(0);
     const [showAnswer, setShowAnswer] = useState(false);
+    const [completed, setCompleted] = useState(false);
     const [studyMode, setStudyMode] = useState<'flashcard' | 'write' | 'context'>('flashcard');
-    const [filteredCards, setFilteredCards] = useState(srsFlashcards);
+    const [filteredCards, setFilteredCards] = useState(srsFlashcards.filter((card: any) => card.SubtitleId === selectedSubId));
     const { toast } = useToast();
     const isMobile = useIsMobile();
 
     useEffect(() => {
         if (selectedSubId) {
-            const filtered = srsFlashcards.filter((card: any) => card.SubtitleId === selectedSubId);
-            setFilteredCards(filtered);
+            setFilteredCards(srsFlashcards.filter((card: any) => card.SubtitleId === selectedSubId));
             setCurrentWordIndex(0);
         } else {
             setFilteredCards(srsFlashcards);
         }
     }, [selectedSubId, srsFlashcards]);
 
+
+    const handleLearningComplete = async () => {
+        try {
+            // const wordsToUpdate = filteredCards
+            //     .filter(word => word.learnState !== 0)
+            //     .map(word => ({
+            //         ...word,
+            //     }));
+            await axios.post('/api/hardWords/update', {
+                SubtitleId: selectedSubId,
+                hardWords: allSubtitles.find((sub: any) => sub.SubtitleId === selectedSubId)?.hardWords
+            });
+            setShowAnswer(false);
+            console.log('filteredCards:', filteredCards);
+            console.log('allsubtitles:', allSubtitles.find((sub: any) => sub.SubtitleId === selectedSubId)?.hardWords);
+            toast({
+                title: "Learning session complete!",
+                description: `You've learned ${filteredCards?.length} words successfully.`,
+            });
+            setFilteredCards([]);
+        } catch (error) {
+            console.error('Error updating words:', error);
+            toast({
+                title: "Error updating progress",
+                description: "Failed to save your progress. Please try again.",
+                variant: "destructive"
+            });
+        }
+    };
     const currentCard = filteredCards[currentWordIndex];
 
     const handleAnswer = (quality: number) => {
         if (currentCard) {
             dispatch(updateWordSRS({
-                SubtitleId: currentCard.SubtitleId,
-                word: currentCard.word,
+                SubtitleId: currentCard?.SubtitleId || '',
+                word: currentCard?.word || '',
                 quality
             }));
-
-            const nextReviewDate = getNextReviewDate(quality);
+            const nextReview = calculateNextReviewDate(currentCard?.repetitions || 0).toLocaleDateString();
             toast({
-                title: quality >= 3 ? "Good job!" : "Keep practicing",
-                description: quality >= 3
-                    ? `Next review: ${nextReviewDate}`
+                title: quality > 3 ? "Good job!" : "Keep practicing",
+                description: quality > 3
+                    ? `Next review: ${currentCard?.dueDate}`
                     : "You'll see this card again soon.",
             });
-
+            console.log('filteredCards:', filteredCards);
             handleNextWord();
+            if (filteredCards.length === 1) {
+                setCompleted(true);
+            }
         }
     };
 
-    const getNextReviewDate = (quality: number) => {
-        const now = new Date();
-        let days = 0;
-
-        if (quality === 5) days = currentCard.srs?.interval ? currentCard.srs.interval * 2.5 : 4;
-        else if (quality === 4) days = currentCard.srs?.interval ? currentCard.srs.interval * 2 : 3;
-        else if (quality === 3) days = currentCard.srs?.interval ? currentCard.srs.interval * 1.5 : 2;
-        else days = 1;
-
-        now.setDate(now.getDate() + Math.round(days));
-        return now.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric'
-        });
-    };
 
     const handleNextWord = () => {
         setShowAnswer(false);
@@ -104,6 +120,10 @@ export default function FlashCard() {
     useOnKeyPress(() => setShowAnswer(true), ['Enter', ' ']);
 
     if (!currentCard) {
+        if (completed) {
+            handleLearningComplete();
+            setCompleted(false);
+        }
         return (
             <div className="container max-w-4xl mx-auto py-8">
                 <div className="flex items-center space-x-2 mb-8">
@@ -161,16 +181,15 @@ export default function FlashCard() {
                     <HoverCardTrigger asChild>
                         <Button variant="outline" className="space-x-2">
                             <Clock className="h-4 w-4" />
-                            <span>Due: {currentCard.srs ? getDueDate(currentCard.srs.dueDate) : 'New'}</span>
+                            <span>Due: {currentCard.dueDate ? currentCard.dueDate.toString() : 'New'}</span>
                         </Button>
                     </HoverCardTrigger>
                     <HoverCardContent className="w-80">
                         <div className="space-y-2">
                             <h4 className="font-semibold">Card Details</h4>
                             <p>From: {currentCard.subtitleTitle}</p>
-                            <p>Interval: {currentCard.srs?.interval || 0} days</p>
-                            <p>Ease: {(currentCard.srs?.easeFactor || 2.5).toFixed(2)}x</p>
-                            <p>Reviews: {currentCard.srs?.repetitions || 0}</p>
+                            <p>Word: {currentCard.word}</p>
+                            <p>Reviews: {currentCard?.repetitions || 0}</p>
                         </div>
                     </HoverCardContent>
                 </HoverCard>
@@ -199,7 +218,7 @@ export default function FlashCard() {
                                     Card {currentWordIndex + 1} of {filteredCards.length}
                                 </CardTitle>
                                 <div className='flex space-x-2'>
-                                    <DeleteWord hardWord={currentCard.word} />
+                                    {currentCard?.word && <DeleteWord hardWord={currentCard?.word} />}
                                     <EditWord wordData={currentCard} />
                                 </div>
                             </div>

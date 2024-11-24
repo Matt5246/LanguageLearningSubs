@@ -27,7 +27,7 @@ import UpdateSubtitles from './UpdateSubtitles';
 export default function Home() {
   const dispatch = useDispatch();
   const isMobile = useIsMobile();
-  const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
+  const subtitlesData: Subtitle[] = useSelector((state: { subtitle: { subtitles: Subtitle[] } }) => state.subtitle.subtitles);
   const selectedSub: Subtitle | undefined = useSelector(selectedSubtitle);
   const validData = Array.isArray(subtitlesData) ? subtitlesData : [];
   const [isClient, setIsClient] = useState(false);

@@ -26,15 +26,22 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ModeToggle } from './toggleTheme'
+import {
+	Drawer,
+	DrawerContent,
+	DrawerTrigger,
+} from "@/components/ui/drawer"
 import { useIsMobile } from '@/hooks/useMobile'
+import { ThemeCustomizer } from '@/components/theme/theme-customizer'
+import { Customizer } from '@/components/theme/theme-customizer'
+import { Button } from '@/components/ui/button'
 
 function AvatarComponent() {
 
 
 	return (
-		<div className='flex'>
-			{!useIsMobile() && typeof window !== 'undefined' && <ModeToggle />}
+		<div className="tems-center flex items-center">
+			{!useIsMobile() && typeof window !== 'undefined' && <ThemeCustomizer />}
 			<Dialog>
 				<DropdownMenu>
 					<DropdownMenuTrigger>
@@ -47,6 +54,14 @@ function AvatarComponent() {
 						<DropdownMenuLabel>My Account</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<Link href="/home/profile"><DropdownMenuItem>Profile</DropdownMenuItem></Link>
+						<Drawer >
+							<DrawerTrigger asChild>
+								<p className='text-sm pl-2 py-1.5'>Theme</p>
+							</DrawerTrigger>
+							<DrawerContent className="p-6 pt-0">
+								<Customizer />
+							</DrawerContent>
+						</Drawer>
 
 						<DialogTrigger asChild>
 							<DropdownMenuItem>Settings</DropdownMenuItem>

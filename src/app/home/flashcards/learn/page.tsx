@@ -18,6 +18,7 @@ import EditWord from './EditWord';
 import InputFlashCard from './InputWord';
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import { getDueDate } from "@/lib/utils";
 
 export default function FlashCard() {
     const dispatch = useDispatch();
@@ -29,6 +30,11 @@ export default function FlashCard() {
     const [completed, setCompleted] = useState(false);
     const [studyMode, setStudyMode] = useState<'flashcard' | 'write' | 'context'>('flashcard');
     const [filteredCards, setFilteredCards] = useState(srsFlashcards.filter((card: any) => card.SubtitleId === selectedSubId));
+    const [initialFilteredCards, setInitialFilteredCards] = useState(filteredCards);
+
+    useEffect(() => {
+        setInitialFilteredCards(filteredCards);
+    }, []);
     const { toast } = useToast();
     const isMobile = useIsMobile();
 
@@ -40,7 +46,6 @@ export default function FlashCard() {
             setFilteredCards(srsFlashcards);
         }
     }, [selectedSubId, srsFlashcards]);
-
 
     const handleLearningComplete = async () => {
         try {
@@ -58,7 +63,7 @@ export default function FlashCard() {
             console.log('allsubtitles:', allSubtitles.find((sub: any) => sub.SubtitleId === selectedSubId)?.hardWords);
             toast({
                 title: "Learning session complete!",
-                description: `You've learned ${filteredCards?.length} words successfully.`,
+                description: `You've learned ${initialFilteredCards?.length} words successfully.`,
             });
             setFilteredCards([]);
         } catch (error) {
@@ -79,11 +84,18 @@ export default function FlashCard() {
                 word: currentCard?.word || '',
                 quality
             }));
-            const nextReview = calculateNextReviewDate(currentCard?.repetitions || 0).toLocaleDateString();
+            const nextReview = calculateNextReviewDate(currentCard?.repetitions || 1).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+            }
+            );
             toast({
                 title: quality > 3 ? "Good job!" : "Keep practicing",
                 description: quality > 3
-                    ? `Next review: ${currentCard?.dueDate}`
+                    ? `Next review: ${nextReview}`
                     : "You'll see this card again soon.",
             });
             console.log('filteredCards:', filteredCards);
@@ -146,16 +158,6 @@ export default function FlashCard() {
         );
     }
 
-    const getDueDate = (date: string) => {
-        const dueDate = new Date(date);
-        return dueDate.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric'
-        });
-    };
-
     return (
         <div className="container max-w-4xl mx-auto py-8 space-y-6">
             <div className="flex items-center justify-between">
@@ -166,7 +168,11 @@ export default function FlashCard() {
                             Back to Sets
                         </Button>
                     </Link>
-                    <h2 className="text-2xl font-bold">SRS Review</h2>
+                    <div className="text-2xl font-bold whitespace-nowrap">
+                        <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                            {currentCard.subtitleTitle} Flashcards
+                        </p>
+                    </div>
                 </div>
                 <SubtitlesDropDown data={allSubtitles as any[]} />
             </div>
@@ -181,7 +187,7 @@ export default function FlashCard() {
                     <HoverCardTrigger asChild>
                         <Button variant="outline" className="space-x-2">
                             <Clock className="h-4 w-4" />
-                            <span>Due: {currentCard.dueDate ? currentCard.dueDate.toString() : 'New'}</span>
+                            <span>Due: {currentCard.dueDate ? getDueDate(currentCard?.dueDate) : 'New'}</span>
                         </Button>
                     </HoverCardTrigger>
                     <HoverCardContent className="w-80">

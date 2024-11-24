@@ -28,7 +28,10 @@ export default function InputFlashCard({ word, translation, onCorrect, onIncorre
                 setTimeout(onCorrect, 2000)
             } else {
                 setFeedbackMessage("Incorrect. Try again.");
-                setShowFeedback(true);
+                setTimeout(() => {
+                    setFeedbackMessage("");
+                    setShowFeedback(true);
+                }, 3000);
             }
         }
 
@@ -42,12 +45,7 @@ export default function InputFlashCard({ word, translation, onCorrect, onIncorre
                         <div className="flex flex-col space-y-1.5">
                             <CardTitle className='text-xl'>{word}</CardTitle>
                         </div>
-                        <div className="flex flex-col space-y-1.5 text-xl">
-                            {showFeedback && (
-                                <p className={`text-lg ${feedbackMessage === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
-                                    {feedbackMessage}
-                                </p>
-                            )}
+                        <div className="flex flex-col space-y-1 text-xl">
                             <Input
                                 value={userAnswer}
                                 onChange={(e) => {
@@ -58,7 +56,11 @@ export default function InputFlashCard({ word, translation, onCorrect, onIncorre
                                 className="mt-3"
                             />
                         </div>
-
+                        {showFeedback && (
+                            <p className={`text-lg ${feedbackMessage === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
+                                {feedbackMessage}
+                            </p>
+                        )}
                     </div>
                 </CardContent>
             ) : (

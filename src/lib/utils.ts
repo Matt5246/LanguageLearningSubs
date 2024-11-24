@@ -43,3 +43,14 @@ export function loadAutoScrollState(): boolean {
   }
   return true;
 }
+
+export const getDueDate = (date: string | Date) => {
+  const dueDate = new Date(date);
+  return dueDate.toLocaleDateString(navigator.language, {
+      year: '2-digit',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric'
+  });
+};

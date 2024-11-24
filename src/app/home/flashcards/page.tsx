@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { selectFlashCardData, selectSRSStats, selectSRSFlashcards, setSelectedSubtitle } from '@/lib/features/subtitles/subtitleSlice';
+import { getDueDate } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, Brain, Clock, Search, Trophy, Timer, Star } from "lucide-react";
 import Link from "next/link";
@@ -151,7 +152,7 @@ export default function FlashcardPage() {
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>Total Words:</div>
                                     <div>{srsStats.totalWords}</div>
-                                    <div>In SRS:</div>
+                                    <div>Learning:</div>
                                     <div>{srsStats.wordsWithSRS}</div>
                                     <div>Mastered:</div>
                                     <div>{srsStats.masteredWords}</div>
@@ -201,7 +202,7 @@ export default function FlashcardPage() {
                         const dueWords = getDueWordsCount(data);
                         const totalWords = data.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
                         const masteredWords = data.reduce((acc, s) =>
-                            acc + (s.hardWords?.filter(w => w?.repetitions >= 3)?.length || 0), 0);
+                            acc + (s.hardWords?.filter(w => w?.repetitions > 4)?.length || 0), 0);
 
                         return (
                             <motion.div
@@ -217,7 +218,7 @@ export default function FlashcardPage() {
                                             <CardTitle className="text-xl">{subtitleTitle}</CardTitle>
                                             <div className="flex space-x-2">
                                                 {dueWords > 0 && (
-                                                    <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 ">
+                                                    <Badge variant="default" className="bg-yellow-100 text-yellow-800 whitespace-nowrap">
                                                         {dueWords} due
                                                     </Badge>
                                                 )}
@@ -248,7 +249,7 @@ export default function FlashcardPage() {
                                                         const isWaitingForReview = dueDate && dueDate > now;
                                                         const isDue = dueDate && dueDate <= now;
                                                         const isNotStudied = !word || !word.repetitions || word.repetitions === 0;
-                                                        const isMastered = word?.repetitions >= 3;
+                                                        const isMastered = word?.repetitions > 4;
                                                         console.log(dueDate ? dueDate : "");
                                                         return (
                                                             <div
@@ -263,44 +264,16 @@ export default function FlashcardPage() {
                                                                 <div className="flex space-x-2">
                                                                     <HoverCard>
                                                                         <HoverCardTrigger>
-                                                                            {isWaitingForReview && (
-                                                                                <Clock
-                                                                                    className="h-4 w-4 text-blue-500"
-                                                                                    title="Waiting for review"
-                                                                                />
-
-
-                                                                            )}
-                                                                            {isDue && (
-                                                                                <Star
-                                                                                    className="h-4 w-4 text-yellow-500"
-                                                                                    title="Ready for review"
-                                                                                />
-                                                                            )}
-                                                                            {isMastered && (
-                                                                                <Trophy
-                                                                                    className="h-4 w-4 text-green-500"
-                                                                                    title="Mastered"
-                                                                                />
-                                                                            )}
-                                                                            {isNotStudied && (
-                                                                                <BookOpen
-                                                                                    className="h-4 w-4 text-blue-500"
-                                                                                />
-                                                                            )}
+                                                                            {isWaitingForReview && (<Clock className={`h-4 w-4 ${word?.repetitions < 3 ? 'text-blue-500' : 'text-orange-500'}`} />)}
+                                                                            {isDue && (<Star className={`h-4 w-4 ${word?.repetitions < 3 ? 'text-yellow-500' : 'text-orange-500'}`} />)}
+                                                                            {isMastered && (<Trophy className="h-4 w-4 text-green-500" />)}
+                                                                            {isNotStudied && (<BookOpen className="h-4 w-4 text-blue-500" />)}
                                                                         </HoverCardTrigger>
-                                                                        <HoverCardContent className="w-auto p-2 ">
-                                                                            {word?.dueDate && word.dueDate.toLocaleString(undefined, {
-                                                                                year: 'numeric',
-                                                                                month: '2-digit',
-                                                                                day: '2-digit',
-                                                                                hour: '2-digit',
-                                                                                minute: '2-digit',
-                                                                                second: '2-digit'
-                                                                            })}
+                                                                        <HoverCardContent className="w-auto p-2 text-sm">
                                                                             {word?.repetitions && (
                                                                                 <div>Repetitions: {word.repetitions}</div>
                                                                             )}
+                                                                            {word?.dueDate && <p className='text-xs'>{getDueDate(word.dueDate)}</p>}
                                                                         </HoverCardContent>
                                                                     </HoverCard>
                                                                 </div>

@@ -84,7 +84,7 @@ export default function HistoryList() {
     }, [handleObserver]);
 
     return (
-        <Card className="col-span-full m-5">
+        <Card className="col-span-full">
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">

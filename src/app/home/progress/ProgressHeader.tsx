@@ -28,7 +28,7 @@ export default function ProgressHeader({ totalSubtitles, totalWords, totalTime, 
     const [wordsGoal, setWordsGoal] = useState(1000);
 
     return (
-        <div className="m-5 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <VideoWatchedCard totalSubtitles={totalSubtitles.totalSubtitles} trend={totalSubtitles.totalSubtitlesTrend} goal={subtitlesGoal} setGoal={setSubtitlesGoal} />
             <WordsLearnedCard totalWords={totalWords.totalWords} trend={totalWords.totalWordsTrend} goal={wordsGoal} setGoal={setWordsGoal} />
             <TimeDisplayCard totalTime={totalTime} />
@@ -132,27 +132,28 @@ function ProgressCard({ icon, title, value, goal, setGoal, unit, trend }: Progre
                 </div>
             </CardContent>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent>
+                <DialogContent className="flex flex-col space-y-2">
                     <DialogHeader>
                         <DialogTitle>Set Goal for {title}</DialogTitle>
                         <DialogDescription>Enter your desired goal for {title.toLowerCase()}.</DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="goal" className="text-right">
-                                Goal
-                            </Label>
-                            <Input
-                                id="goal"
-                                type="number"
-                                value={tempGoal}
-                                onChange={(e) => setTempGoal(Math.max(0, Number(e.target.value)))}
-                                className="col-span-3"
-                            />
-                        </div>
+                    <div className="flex items-center py-4">
+                        <Label htmlFor="goal" className="mr-4">
+                            Goal
+                        </Label>
+                        <Input
+                            id="goal"
+                            type="number"
+                            value={tempGoal}
+                            onChange={(e) => setTempGoal(Math.max(0, Number(e.target.value)))}
+                            className="w-full"
+                        />
                     </div>
-                    <DialogFooter>
-                        <Button onClick={handleSave}>Save changes</Button>
+                    <DialogFooter className="flex gap-4">
+                        <Button variant="secondary" onClick={() => setIsOpen(false)} className="flex-1">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSave} className="flex-1">Save changes</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

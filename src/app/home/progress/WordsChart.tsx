@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Spinner } from '@/components/ui/spinner'
+import { selectChartData } from "@/lib/features/subtitles/chartData"
 import { BarChart2, LineChartIcon } from "lucide-react"
 import { useState } from "react"
 import { useSelector } from 'react-redux'
@@ -22,80 +23,25 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-const getWeekNumber = (date: Date): string => {
-    const startDate = new Date(date.getFullYear(), 0, 1);
-    const days = Math.floor((date.valueOf() - startDate.valueOf()) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil((days + 1) / 7);
-    return `${date.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
-};
-
-const generateChartData = (allHardWords: HardWord[], period: 'day' | 'week' | 'month') => {
-    const groupedData: { [key: string]: { hardWords: number; learned: number } } = {};
-
-    allHardWords.forEach(hardWord => {
-        const createdDate = new Date(hardWord.createdAt!);
-        const learnedDate = hardWord.learnedAt ? new Date(hardWord.learnedAt) : null; // Skip if not learned
-
-        const getPeriodKey = (date: Date): string => {
-            switch (period) {
-                case 'day':
-                    return date.toISOString().split('T')[0]; // YYYY-MM-DD
-                case 'week':
-                    return getWeekNumber(date); // YYYY-Www
-                case 'month':
-                    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
-                default:
-                    return '';
-            }
-        };
-
-        const createdPeriodKey = getPeriodKey(createdDate);
-
-        if (!groupedData[createdPeriodKey]) {
-            groupedData[createdPeriodKey] = { hardWords: 0, learned: 0 };
-        }
-
-        groupedData[createdPeriodKey].hardWords += 1;
-
-        if (learnedDate) {
-            const learnedPeriodKey = getPeriodKey(learnedDate);
-
-            if (!groupedData[learnedPeriodKey]) {
-                groupedData[learnedPeriodKey] = { hardWords: 0, learned: 0 };
-            }
-
-            groupedData[learnedPeriodKey].learned += 1;
-        }
-    });
-
-    return Object.entries(groupedData).map(([date, counts]) => ({
-        date,
-        ...counts,
-    }));
-};
-
 export default function Component() {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("hardWords");
     const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
-    const [isLoaded, setIsLoaded] = useState(false)
-    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: { subtitles: Subtitle[] } }) => state.subtitle.subtitles);
+    const chartData = useSelector(state => selectChartData(state, period));
     const [chartType, setChartType] = useState(false)
-    const allHardWords = subtitlesData.flatMap(subtitle => subtitle.hardWords || []);
-    const chartData = generateChartData(allHardWords, period);
 
-    const total = {
-        hardWords: chartData.reduce((acc, curr) => acc + curr.hardWords, 0),
-        learned: chartData.reduce((acc, curr) => acc + curr.learned, 0)
-    }
-    if (!allHardWords) {
+    if (!chartData) {
         return (
             <h1 className="text-2xl font-bold mt-9 ml-9">Checking for data
                 <Spinner />
             </h1>
         );
     }
-    if (!subtitlesData || subtitlesData.length === 0) {
+    if (!chartData || chartData.length === 0) {
         return null;
+    }
+    const total = {
+        hardWords: chartData.reduce((acc, curr) => acc + curr.hardWords, 0),
+        learned: chartData.reduce((acc, curr) => acc + curr.learned, 0)
     }
     chartData.sort((a, b) => {
         const aDate = new Date(a.date);
@@ -112,7 +58,7 @@ export default function Component() {
 
 
     return (
-        <Card className="m-5">
+        <Card>
             <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
                 <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
                     <CardTitle>Your progress diagram</CardTitle>

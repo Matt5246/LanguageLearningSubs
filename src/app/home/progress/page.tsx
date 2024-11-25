@@ -1,27 +1,24 @@
 'use client'
-import Chart from './Chart'
-import HistoryList from './HistoryList'
-import RecentVideos from './RecentVideos'
-import { SubtitlesState } from '@/lib/features/subtitles/subtitleSlice';
-import { useSelector } from 'react-redux';
-import { useMemo, useState, useEffect } from 'react';
-import { BookOpen } from 'lucide-react';
-import ProgressHeader from './ProgressHeader';
-import { Video } from './RecentVideos';
-import { Spinner } from '@/components/ui/spinner'
+import { Spinner } from '@/components/ui/spinner';
 import { selectSubtitleStats } from '@/lib/features/subtitles/subtitleSlice';
-
+import { BookOpen } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { CardsMetric } from './ExerciseChart';
+import HistoryList from './HistoryList';
+import ProgressHeader from './ProgressHeader';
+import RecentVideos, { Video } from './RecentVideos';
+import Chart from './WordsChart';
 
 export default function Home() {
     const subtitles: Subtitle[] = useSelector(
-        (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles
+        (state: { subtitle: { subtitles: Subtitle[] } }) => state.subtitle.subtitles
     );
+    const allHardWords = subtitles.flatMap(subtitle => subtitle.hardWords || []);
     const stats = useSelector(selectSubtitleStats);
-
     const [isLoaded, setIsLoaded] = useState(false);
     const videos: Video[] = useMemo(() => {
         if (subtitles.length === 0 || (subtitles as any).error) return [];
-        console.log(subtitles);
         return subtitles?.map(subtitle => ({
             subtitleTitle: subtitle.subtitleTitle || '',
             youtubeUrl: subtitle.youtubeUrl || '',
@@ -52,7 +49,7 @@ export default function Home() {
     }
 
     return (
-        <>
+        <div className='m-5 space-y-5'>
             <Chart />
             <ProgressHeader
                 totalSubtitles={{ totalSubtitles: stats?.totalSubtitles, totalSubtitlesTrend: stats?.totalSubtitlesTrend }}
@@ -61,7 +58,8 @@ export default function Home() {
                 lastActivity={stats?.lastActivity}
             />
             <HistoryList />
+            <CardsMetric />
             <RecentVideos videos={videos} />
-        </>
+        </div>
     );
 }

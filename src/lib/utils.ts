@@ -54,3 +54,9 @@ export const getDueDate = (date: string | Date) => {
       minute: 'numeric'
   });
 };
+export const getWeekNumber = (date: Date): string => {
+  const startDate = new Date(date.getFullYear(), 0, 1);
+  const days = Math.floor((date.valueOf() - startDate.valueOf()) / (24 * 60 * 60 * 1000));
+  const weekNumber = Math.ceil((days + 1) / 7);
+  return `${date.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+};

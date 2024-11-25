@@ -27,7 +27,7 @@ export default function RecentVideos({ videos }: RecentVideosProps) {
     }
 
     return (
-        <Card className="m-5 col-span-4 md:col-span-2">
+        <Card className="col-span-4 md:col-span-2">
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <span>Recent Videos</span>

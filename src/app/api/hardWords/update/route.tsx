@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         const { hardWords } = await req.json();
 
         const response = await Promise.all(hardWords.map(async (hardWordData: any) => {
-            const { id, learnState } = hardWordData;
+            const { id, learnState, dueDate, repetitions } = hardWordData;
 
             const existingHardWord = await prisma.hardWord.findFirst({
                 where: { id },
@@ -24,6 +24,10 @@ export async function POST(req: Request) {
 
             if (learnState === 100 && !existingHardWord.learnedAt) {
                 updateData.learnedAt = new Date();
+            }
+            if (dueDate && repetitions) {
+                updateData.dueDate = dueDate;
+                updateData.repetitions = repetitions;
             }
 
             await prisma.hardWord.update({

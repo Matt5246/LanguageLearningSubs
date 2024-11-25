@@ -25,6 +25,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 const iconMap: Record<string, any> = {
     Star,
@@ -40,6 +41,13 @@ const tierColors = {
     bronze: 'text-orange-400',
     silver: 'text-slate-400',
     gold: 'text-yellow-400'
+};
+const categoryColors = {
+    learning: 'bg-blue-500',
+    watching: 'bg-purple-500',
+    streak: 'bg-red-500',
+    vocabulary: 'bg-green-500',
+    milestone: 'bg-yellow-500'
 };
 export default function ProfilePage() {
     const stats = useSelector(selectSubtitleStats);
@@ -62,6 +70,14 @@ export default function ProfilePage() {
         const hours = Math.floor(seconds / 3600);
         return `${hours.toFixed(1)} hrs`;
     };
+    const sortedAchievements = [...achievements].sort((a, b) => {
+        if (!!a.unlockedAt !== !!b.unlockedAt) {
+            return a.unlockedAt ? -1 : 1;
+        }
+        const aProgress = (a.progress / a.maxProgress) * 100;
+        const bProgress = (b.progress / b.maxProgress) * 100;
+        return bProgress - aProgress;
+    });
     if (isLoading) {
         return (
             <h1 className="text-2xl font-bold mt-9 ml-9">Profile
@@ -209,31 +225,88 @@ export default function ProfilePage() {
                                 <CardHeader>
                                     <CardTitle className="text-xl flex items-center gap-2">
                                         <Star className="w-5 h-5 text-primary" />
+                                        Achievement Progress
+                                    </CardTitle>
+                                    <CardDescription>
+                                        {achievementStats.unlockedAchievements} of {achievementStats.totalAchievements} achievements unlocked
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <Progress
+                                        value={(achievementStats.unlockedAchievements / achievementStats.totalAchievements) * 100}
+                                        className="h-2 mb-4"
+                                    />
+                                    {achievementStats.recentAchievements.length > 0 && (
+                                        <div className="space-y-2">
+                                            <h4 className="text-sm font-medium">Recently Unlocked</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                                {achievementStats.recentAchievements.map((achievement) => (
+                                                    <Badge
+                                                        key={achievement.id}
+                                                        variant="secondary"
+                                                        className={`${tierColors[achievement.tier || 'bronze']}`}
+                                                    >
+                                                        {achievement.title}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-xl flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-primary" />
                                         Achievements
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {achievements.map((achievement) => {
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                        {sortedAchievements.map((achievement) => {
                                             const Icon = iconMap[achievement.icon] || Star;
                                             const tierColor = achievement.tier ? tierColors[achievement.tier] : 'text-primary';
+                                            const progress = (achievement.progress / achievement.maxProgress) * 100;
 
                                             return (
                                                 <HoverCard key={achievement.id}>
                                                     <HoverCardTrigger asChild>
-                                                        <div className="text-center p-4 bg-secondary/30 rounded-lg cursor-pointer transition-all hover:bg-secondary/40">
-                                                            <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-primary/10 flex items-center justify-center">
-                                                                <Icon className={`w-6 h-6 ${achievement.unlockedAt ? tierColor : 'text-muted-foreground'}`} />
-                                                            </div>
-                                                            <h3 className="font-medium text-sm">{achievement.title}</h3>
-                                                            <p className="text-xs text-muted-foreground mt-1">{achievement.description}</p>
-                                                            <Progress value={(achievement.progress / achievement.maxProgress) * 100} className="mt-2" />
-                                                            {achievement.unlockedAt && (
-                                                                <p className="text-xs text-primary mt-1">
-                                                                    Unlocked {formatDistance(new Date(achievement.unlockedAt), new Date(), { addSuffix: true })}
-                                                                </p>
-                                                            )}
-                                                        </div>
+                                                        <Card className={`cursor-pointer transition-all duration-300 ${achievement.unlockedAt ? 'bg-secondary/30' : ''
+                                                            }`}>
+                                                            <CardHeader className="pb-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className={`w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center ${achievement.unlockedAt ? 'animate-pulse' : ''
+                                                                        }`}>
+                                                                        <Icon className={`w-5 h-5 ${achievement.unlockedAt ? tierColor : 'text-muted-foreground'}`} />
+                                                                    </div>
+                                                                    <Badge
+                                                                        variant="secondary"
+                                                                        className={categoryColors[achievement.category]}
+                                                                    >
+                                                                        {achievement.category}
+                                                                    </Badge>
+                                                                </div>
+                                                                <CardTitle className="text-base mt-2">{achievement.title}</CardTitle>
+                                                                <CardDescription>{achievement.description}</CardDescription>
+                                                            </CardHeader>
+                                                            <CardContent>
+                                                                <div className="space-y-2">
+                                                                    <div className="flex justify-between text-sm">
+                                                                        <span>Progress</span>
+                                                                        <span className={achievement.unlockedAt ? 'text-primary' : ''}>
+                                                                            {achievement.progress} / {achievement.maxProgress}
+                                                                        </span>
+                                                                    </div>
+                                                                    <Progress value={progress} className="h-2" />
+                                                                    {achievement.unlockedAt && (
+                                                                        <p className="text-xs text-primary mt-2">
+                                                                            Unlocked {formatDistance(new Date(achievement.unlockedAt), new Date(), { addSuffix: true })}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </CardContent>
+                                                        </Card>
                                                     </HoverCardTrigger>
                                                     <HoverCardContent className="w-80">
                                                         <div className="space-y-2">
@@ -241,9 +314,9 @@ export default function ProfilePage() {
                                                                 <Icon className={`w-5 h-5 ${tierColor}`} />
                                                                 <h4 className="font-semibold">{achievement.title}</h4>
                                                                 {achievement.tier && (
-                                                                    <span className={`text-xs ${tierColor} capitalize`}>
+                                                                    <Badge variant="secondary" className={tierColor}>
                                                                         {achievement.tier}
-                                                                    </span>
+                                                                    </Badge>
                                                                 )}
                                                             </div>
                                                             <p className="text-sm text-muted-foreground">{achievement.description}</p>
@@ -254,7 +327,7 @@ export default function ProfilePage() {
                                                                         {achievement.progress} / {achievement.maxProgress}
                                                                     </span>
                                                                 </div>
-                                                                <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
+                                                                <Progress value={progress} />
                                                             </div>
                                                             {achievement.unlockedAt ? (
                                                                 <p className="text-xs text-primary">
@@ -365,6 +438,6 @@ export default function ProfilePage() {
                     </TabsContent>
                 </Tabs>
             </div>
-        </div>
+        </div >
     );
 }

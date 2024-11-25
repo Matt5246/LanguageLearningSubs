@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { BookOpen, Youtube, PlayCircle, User2, FileText, Brain, Languages, BookMarked } from "lucide-react";
 
+
 const features = [
   {
     icon: <Youtube className="w-12 h-12 text-primary/80" />,

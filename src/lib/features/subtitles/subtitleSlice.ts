@@ -2,6 +2,20 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { createSelector } from '@reduxjs/toolkit';
 import { loadAutoScrollState } from '@/lib/utils';
 
+
+interface HardWord {
+    learnState?: number;
+    word: string | undefined;
+    translation?: string;
+    pos?: string;
+    lemma?: string;
+    createdAt?: Date;
+    learnedAt?: Date | null;
+    sentences?: sentences[];
+    repetitions: number;    // Number of successful reviews
+    dueDate: Date;     // Date for next review
+}
+
 interface Subtitle {
     userId?: string;
     SubtitleId?: string | null;
@@ -24,22 +38,26 @@ interface SubtitleData {
     start?: number | GLfloat;
 }
 
-interface HardWord {
-    learnState?: number;
-    word: string | undefined;
-    translation?: string;
-    pos?: string; // Part of speech
-    lemma?: string;
-    createdAt?: string;
-    learnedAt?: string | null;
-    sentences?: sentences[];
-}
-
-interface sentences {
-    sentence: string
-    translation?: string
-}
-
+export const calculateNextReviewDate = (
+    repetitions: number
+): Date => {
+    const intervals = [5 / (24 * 60), 30 / (24 * 60), 1, 3, 7, 14, 30]; // Review intervals in days based on repetitions
+    const nextInterval = repetitions < intervals.length ? intervals[repetitions-1] : intervals[intervals.length - 1];
+    const nextReviewDate = new Date();
+    nextReviewDate.setTime(nextReviewDate.getTime() + nextInterval * 24 * 60 * 60 * 1000);
+    console.log("Next Review Date (Local):", nextReviewDate.toLocaleString());
+    return nextReviewDate;
+};
+// export const updateHardWordsAsync = createAsyncThunk(
+//     'subtitles/updateHardWordsAsync',
+//     async ({ SubtitleId, hardWords }) => {
+//       const response = await axios.post('/api/hardWords/update', {
+//         SubtitleId,
+//         hardWords,
+//       });
+//       return response.data;
+//     }
+//   );
 export interface SubtitlesState {
     subtitles: Subtitle[];
     selectedSubtitle: String | null;
@@ -109,7 +127,42 @@ const subtitlesSlice = createSlice({
                 subtitle.hardWords = hardWords;
             }
         },
+        updateWordSRS(
+            state,
+            action: PayloadAction<{ SubtitleId: string; word: string; quality: number }>
+        ) {
+            const { SubtitleId, word, quality } = action.payload;
+            const subtitle = state.subtitles.find(sub => sub.SubtitleId === SubtitleId);
+            if (subtitle?.hardWords) {
+                const hardWord = subtitle.hardWords.find(hw => hw.word === word);
+                if (hardWord) {
+                    if (quality >= 3) {
+                        hardWord.repetitions += 1; // Increment repetitions for successful reviews
+                    } else {
+                        hardWord.repetitions = 0; // Reset for failed reviews
+                    }
+                    // Update dueDate
+                    hardWord.dueDate = calculateNextReviewDate(hardWord.repetitions);
         
+                    // Optionally update learnState based on repetitions
+                    hardWord.learnState = Math.min(
+                        (hardWord.repetitions / 5) * 100, // Scale repetitions to a percentage
+                        100
+                    );
+        
+                    console.log('Updated Word SRS:', {
+                        word,
+                        repetitions: hardWord.repetitions,
+                        dueDate: hardWord.dueDate,
+                        learnState: hardWord.learnState,
+                    });
+                }
+                
+            }
+        }
+        
+        
+           
     },
 });
 
@@ -127,6 +180,7 @@ export const {
     toggleAutoScroll,
     swapTranslation,
     updateHardWords,
+    updateWordSRS,
 } = subtitlesSlice.actions;
 
 
@@ -230,6 +284,62 @@ export const selectSubtitleStats = createSelector(
             totalTime,
             lastActivity,
             activityData,
+        };
+    }
+);
+
+export const selectSRSFlashcards = createSelector(
+    (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles,
+    subtitles => {
+        const now = new Date();
+        return subtitles.flatMap(sub =>
+            (sub.hardWords || [])
+                .filter(hw => 
+                    // Include words that:
+                    // 1. Have no repetitions (new words)
+                    // 2. Have a dueDate that's in the past or equal to now
+                    (!hw.repetitions || hw.repetitions === 0) || 
+                    (hw.dueDate && new Date(hw.dueDate) <= now)
+                )
+                .map(hw => ({
+                    ...hw,
+                    SubtitleId: sub.SubtitleId,
+                    subtitleTitle: sub.subtitleTitle,
+                }))
+        ).sort((a, b) => {
+            // Sort order:
+            // 1. Due words first (by due date)
+            // 2. Then new words
+            // 3. Then waiting words
+            if (!a.repetitions && !b.repetitions) return 0;
+            if (!a.repetitions) return 1;
+            if (!b.repetitions) return -1;
+            if (!a.dueDate && !b.dueDate) return 0;
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        });
+    }
+);
+
+export const selectSRSStats = createSelector(
+    (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles,
+    subtitles => {
+        const allWords = subtitles.flatMap(sub => sub.hardWords || []);
+        const now = new Date();
+
+        return {
+            totalWords: allWords.length,
+            dueWords: allWords.filter(hw => 
+                // Count words that:
+                // 1. Have no repetitions (new words)
+                // 2. Have a dueDate that's in the past or equal to now
+                (!hw.repetitions || hw.repetitions === 0) || 
+                (hw.dueDate && new Date(hw.dueDate) <= now)
+            ).length,
+            // Changed mastery threshold to 5 repetitions
+            masteredWords: allWords.filter(hw => hw.repetitions >= 5).length,
+            wordsWithSRS: allWords.filter(hw => hw.repetitions > 0).length,
         };
     }
 );

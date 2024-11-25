@@ -1,9 +1,10 @@
 
 import NavBar from "@/components/NavBar";
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme/theme-provider"
 import AvatarComponent from '@/components/Avatar'
 import ReactQueryProvider from '@/providers/ReactQueryProvider'
-
+import { ThemeWrapper } from "@/components/theme/theme-wrapper";
+import '@/styles/themes.css'
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -12,12 +13,7 @@ export default function RootLayout({
   return (
     <>
       <ReactQueryProvider>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
+        <ThemeWrapper>
           <nav className="h-16 px-4 flex justify-between border-b shadow-md select-none">
             <NavBar />
             <AvatarComponent />
@@ -25,8 +21,8 @@ export default function RootLayout({
           <div className="select-none">
             {children}
           </div>
-        </ThemeProvider>
-      </ReactQueryProvider>
+        </ThemeWrapper>
+      </ReactQueryProvider >
     </>
   );
 }

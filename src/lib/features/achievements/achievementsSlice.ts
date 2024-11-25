@@ -25,14 +25,25 @@ const loadAchievements = (): Achievement[] => {
   }
   return [
     {
-      id: 'early-bird',
-      title: 'Weekly Warrior',
-      description: 'Study 5 days in a week',
+      id: 'vocab-beginner',
+      title: 'First Words',
+      description: 'Learn your first 10 words',
       progress: 0,
-      maxProgress: 5,
+      maxProgress: 10,
       unlockedAt: null,
-      category: 'streak',
-      icon: 'Star',
+      category: 'vocabulary',
+      icon: 'BookOpen',
+      tier: 'bronze'
+    },
+    {
+      id: 'vocab-starter',
+      title: 'Vocabulary Builder',
+      description: 'Learn 25 words',
+      progress: 0,
+      maxProgress: 25,
+      unlockedAt: null,
+      category: 'vocabulary',
+      icon: 'BookOpen',
       tier: 'bronze'
     },
     {
@@ -49,9 +60,9 @@ const loadAchievements = (): Achievement[] => {
     {
       id: 'vocab-master-silver',
       title: 'Vocabulary Expert',
-      description: 'Learn 200 words',
+      description: 'Learn 100 words',
       progress: 0,
-      maxProgress: 200,
+      maxProgress: 100,
       unlockedAt: null,
       category: 'vocabulary',
       icon: 'BookOpen',
@@ -67,6 +78,17 @@ const loadAchievements = (): Achievement[] => {
       category: 'vocabulary',
       icon: 'BookOpen',
       tier: 'gold'
+    },
+    {
+      id: 'video-starter',
+      title: 'First Watch',
+      description: 'Watch your first video',
+      progress: 0,
+      maxProgress: 1,
+      unlockedAt: null,
+      category: 'watching',
+      icon: 'Video',
+      tier: 'bronze'
     },
     {
       id: 'video-explorer-bronze',
@@ -102,6 +124,17 @@ const loadAchievements = (): Achievement[] => {
       tier: 'gold'
     },
     {
+      id: 'time-starter',
+      title: 'First Hour',
+      description: 'Study for 1 hour',
+      progress: 0,
+      maxProgress: 1,
+      unlockedAt: null,
+      category: 'learning',
+      icon: 'Clock',
+      tier: 'bronze'
+    },
+    {
       id: 'time-master-bronze',
       title: 'Time Tracker',
       description: 'Study for 5 hours',
@@ -133,6 +166,17 @@ const loadAchievements = (): Achievement[] => {
       category: 'learning',
       icon: 'Clock',
       tier: 'gold'
+    },
+    {
+      id: 'daily-starter',
+      title: 'First Day',
+      description: 'Complete your first day of learning',
+      progress: 0,
+      maxProgress: 1,
+      unlockedAt: null,
+      category: 'streak',
+      icon: 'Flame',
+      tier: 'bronze'
     },
     {
       id: 'daily-streak-bronze',
@@ -208,7 +252,11 @@ export const selectAchievementStats = createSelector(
   (achievements) => ({
     totalAchievements: achievements.length,
     unlockedAchievements: achievements.filter(a => a.unlockedAt).length,
-    nextAchievement: achievements.find(a => !a.unlockedAt)
+    nextAchievement: achievements.find(a => !a.unlockedAt),
+    recentAchievements: achievements
+      .filter(a => a.unlockedAt)
+      .sort((a, b) => new Date(b.unlockedAt!).getTime() - new Date(a.unlockedAt!).getTime())
+      .slice(0, 5)
   })
 );
 

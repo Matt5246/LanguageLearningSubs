@@ -63,6 +63,8 @@ model HardWord {
   translation String?
   pos         String? //Part of speech
   lemma       String?
+  repetitions Int?
+  dueDate     DateTime? // Date for next review
   learnState  Int        @default(0)
   createdAt   DateTime?  @default(now())
   learnedAt   DateTime?

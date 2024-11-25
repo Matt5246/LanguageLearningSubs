@@ -1,19 +1,15 @@
 "use client"
-import React, { useState } from 'react'
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress"
-import { useIsMobile } from '@/hooks/useMobile';
-import { useSelector } from 'react-redux';
-import { useToast } from "@/components/ui/use-toast";
+import { CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useState } from 'react';
 
 interface InputWord {
     word?: string;
     translation?: string;
-    handleEasy: () => void;
+    onCorrect: () => void;
+    onIncorrect: () => void;
 }
-export default function InputFlashCard({ word, translation, handleEasy }: InputWord) {
+export default function InputFlashCard({ word, translation, onCorrect, onIncorrect }: InputWord) {
     const [userAnswer, setUserAnswer] = useState("")
     const [showFeedback, setShowFeedback] = useState(false)
     const [feedbackMessage, setFeedbackMessage] = useState("")
@@ -23,16 +19,19 @@ export default function InputFlashCard({ word, translation, handleEasy }: InputW
             if (answer.trim().toLowerCase() === translation?.toLowerCase()) {
                 setFeedbackMessage("Correct!")
                 setShowFeedback(true)
-                setTimeout(handleEasy, 2000)
+                setTimeout(onCorrect, 2000)
             }
         } else {
             if (userAnswer.trim().toLowerCase() === translation?.toLowerCase()) {
                 setFeedbackMessage("Correct!")
                 setShowFeedback(true)
-                setTimeout(handleEasy, 2000)
+                setTimeout(onCorrect, 2000)
             } else {
                 setFeedbackMessage("Incorrect. Try again.");
-                setShowFeedback(true);
+                setTimeout(() => {
+                    setFeedbackMessage("");
+                    setShowFeedback(true);
+                }, 3000);
             }
         }
 
@@ -46,12 +45,7 @@ export default function InputFlashCard({ word, translation, handleEasy }: InputW
                         <div className="flex flex-col space-y-1.5">
                             <CardTitle className='text-xl'>{word}</CardTitle>
                         </div>
-                        <div className="flex flex-col space-y-1.5 text-xl">
-                            {showFeedback && (
-                                <p className={`text-lg ${feedbackMessage === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
-                                    {feedbackMessage}
-                                </p>
-                            )}
+                        <div className="flex flex-col space-y-1 text-xl">
                             <Input
                                 value={userAnswer}
                                 onChange={(e) => {
@@ -62,7 +56,11 @@ export default function InputFlashCard({ word, translation, handleEasy }: InputW
                                 className="mt-3"
                             />
                         </div>
-
+                        {showFeedback && (
+                            <p className={`text-lg ${feedbackMessage === 'Correct!' ? 'text-green-500' : 'text-red-500'}`}>
+                                {feedbackMessage}
+                            </p>
+                        )}
                     </div>
                 </CardContent>
             ) : (

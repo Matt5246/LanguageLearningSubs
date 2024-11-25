@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-import { useSelector } from 'react-redux'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { SubtitlesState } from '@/lib/features/subtitles/subtitleSlice'
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner } from '@/components/ui/spinner'
+import { BarChart2, LineChartIcon } from "lucide-react"
+import { useState } from "react"
+import { useSelector } from 'react-redux'
+import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis } from "recharts"
 
 const chartConfig = {
     views: {
@@ -14,11 +14,11 @@ const chartConfig = {
     },
     hardWords: {
         label: "Hard Words",
-        color: "hsl(var(--chart-1))",
+        color: "hsl(var(--primary))",
     },
     learned: {
         label: "Learned",
-        color: "hsl(var(--chart-2))",
+        color: "hsl(var(--muted-foreground))",
     },
 } satisfies ChartConfig
 
@@ -78,8 +78,8 @@ export default function Component() {
     const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("hardWords");
     const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
     const [isLoaded, setIsLoaded] = useState(false)
-    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles);
-
+    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: { subtitles: Subtitle[] } }) => state.subtitle.subtitles);
+    const [chartType, setChartType] = useState(false)
     const allHardWords = subtitlesData.flatMap(subtitle => subtitle.hardWords || []);
     const chartData = generateChartData(allHardWords, period);
 
@@ -142,12 +142,24 @@ export default function Component() {
                 </div>
             </CardHeader>
             <CardContent className="px-2 sm:p-6">
-                <div className="flex justify-end space-x-4 mb-4">
-                    <button onClick={() => setPeriod('day')} className={period === 'day' ? 'font-bold' : ''}>Day</button>
-                    <button onClick={() => setPeriod('week')} className={period === 'week' ? 'font-bold' : ''}>Week</button>
-                    <button onClick={() => setPeriod('month')} className={period === 'month' ? 'font-bold' : ''}>Month</button>
+                <div className="flex justify-between my-2 sm:my-0">
+                    <div className="flex-1 space-x-4">
+                        <button onClick={() => setChartType(false)} className={!chartType ? 'font-extrabold' : ''}>
+                            <BarChart2 className="inline-block w-4 h-4 mr-1" />
+                            Bar
+                        </button>
+                        <button onClick={() => setChartType(true)} className={chartType ? 'font-extrabold' : ''}>
+                            <LineChartIcon className="inline-block w-4 h-4 mr-1" />
+                            Line
+                        </button>
+                    </div>
+                    <div className="flex-1 space-x-4 text-right">
+                        <button onClick={() => setPeriod('day')} className={period === 'day' ? 'font-extrabold' : ''}>Day</button>
+                        <button onClick={() => setPeriod('week')} className={period === 'week' ? 'font-extrabold' : ''}>Week</button>
+                        <button onClick={() => setPeriod('month')} className={period === 'month' ? 'font-extrabold' : ''}>Month</button>
+                    </div>
                 </div>
-                <ChartContainer
+                {!chartType ? <ChartContainer
                     config={chartConfig}
                     className="aspect-auto h-[250px] w-full"
                 >
@@ -220,7 +232,63 @@ export default function Component() {
                         />
                         <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
                     </BarChart>
-                </ChartContainer>
+                </ChartContainer> :
+                    <ChartContainer
+                        config={chartConfig}
+                        className="aspect-auto h-[250px] w-full"
+                    >
+                        <LineChart
+                            accessibilityLayer
+                            data={chartData}
+                            margin={{
+                                left: 12,
+                                right: 12,
+                            }}
+                        >
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="date"
+                                tickLine={false}
+                                axisLine={false}
+                                tickMargin={8}
+                                minTickGap={32}
+                                tickFormatter={(value) => {
+                                    const date = new Date(value)
+                                    return date.toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                    })
+                                }}
+                            />
+                            <ChartTooltip
+                                content={
+                                    <ChartTooltipContent
+                                        className="w-[150px]"
+                                        nameKey="views"
+                                        labelFormatter={(value) => {
+                                            return new Date(value).toLocaleDateString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                                year: "numeric",
+                                            })
+                                        }}
+                                    />
+                                }
+                            />
+                            <Line
+                                dataKey={activeChart}
+                                type="monotone"
+                                stroke={`var(--color-${activeChart})`}
+                                strokeWidth={2}
+                                dot={{
+                                    fill: "hsl(var(--background))",
+                                }}
+                                activeDot={{
+                                    r: 6,
+                                }}
+                            />
+                        </LineChart>
+                    </ChartContainer>}
             </CardContent>
         </Card>
     );

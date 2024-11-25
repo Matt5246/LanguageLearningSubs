@@ -115,10 +115,7 @@ export default function FlashcardPage() {
 
     if (!isLoaded) {
         return (
-            <div className="flex items-center space-x-2">
-                <h1 className="text-2xl font-bold mt-9 ml-9">Flash cards</h1>
-                <Spinner />
-            </div>
+            <h1 className="text-2xl font-bold mt-9 ml-9">Flash cards <Spinner /></h1>
         );
     }
 
@@ -250,7 +247,7 @@ export default function FlashcardPage() {
                                                         const isDue = dueDate && dueDate <= now;
                                                         const isNotStudied = !word || !word.repetitions || word.repetitions === 0;
                                                         const isMastered = word?.repetitions > 4;
-                                                        console.log(dueDate ? dueDate : "");
+
                                                         return (
                                                             <div
                                                                 key={idx}

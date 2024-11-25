@@ -47,7 +47,7 @@ export function Customizer() {
     const [mounted, setMounted] = React.useState(false)
     const { setTheme: setMode, resolvedTheme: mode } = useTheme()
     const [config, setConfig] = useConfig()
-
+    const borderColor = `hsl(${baseColors.find(theme => theme.name === config.theme)?.activeColor[mode === "dark" ? "dark" : "light"]})`;
     React.useEffect(() => {
         setMounted(true)
     }, [])
@@ -107,10 +107,13 @@ export function Customizer() {
                                         }}
                                         className={cn(
                                             "justify-start",
-                                            isActive && "border-2 border-primary"
+                                            isActive && `border-2 `
                                         )}
                                         style={
                                             {
+                                                ...(isActive ? {
+                                                    borderColor: borderColor,
+                                                } : {}),
                                                 "--theme-primary": `hsl(${theme?.activeColor[mode === "dark" ? "dark" : "light"]
                                                     })`,
                                             } as React.CSSProperties
@@ -150,6 +153,14 @@ export function Customizer() {
                                         config.radius === parseFloat(value) &&
                                         "border-2 border-primary"
                                     )}
+                                    style={
+                                        {
+                                            ...(config.radius === parseFloat(value) ? {
+                                                borderColor: borderColor
+                                            } : {}),
+                                            "--radius": `calc(${value}rem)`,
+                                        } as React.CSSProperties
+                                    }
                                 >
                                     {value}
                                 </Button>
@@ -166,7 +177,14 @@ export function Customizer() {
                                     variant={"outline"}
                                     size="sm"
                                     onClick={() => setMode("light")}
-                                    className={cn(mode === "light" && "border-2 border-primary")}
+                                    className={cn(mode === "light" && "border-2")}
+                                    style={
+                                        {
+                                            ...(mode === "light" ? {
+                                                borderColor: borderColor
+                                            } : {})
+                                        } as React.CSSProperties
+                                    }
                                 >
                                     <Sun className="mr-1 -translate-x-1" />
                                     Light
@@ -176,6 +194,13 @@ export function Customizer() {
                                     size="sm"
                                     onClick={() => setMode("dark")}
                                     className={cn(mode === "dark" && "border-2 border-primary")}
+                                    style={
+                                        {
+                                            ...(mode === "dark" ? {
+                                                borderColor: borderColor
+                                            } : {})
+                                        } as React.CSSProperties
+                                    }
                                 >
                                     <Moon className="mr-1 -translate-x-1" />
                                     Dark

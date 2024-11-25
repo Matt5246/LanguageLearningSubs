@@ -34,14 +34,14 @@ import {
 import { useIsMobile } from '@/hooks/useMobile'
 import { ThemeCustomizer } from '@/components/theme/theme-customizer'
 import { Customizer } from '@/components/theme/theme-customizer'
-import { Button } from '@/components/ui/button'
+
 
 function AvatarComponent() {
-
+	const isMobile = useIsMobile()
 
 	return (
 		<div className="tems-center flex items-center">
-			{!useIsMobile() && typeof window !== 'undefined' && <ThemeCustomizer />}
+			{!isMobile && typeof window !== 'undefined' && <ThemeCustomizer />}
 			<Dialog>
 				<DropdownMenu>
 					<DropdownMenuTrigger>
@@ -54,14 +54,14 @@ function AvatarComponent() {
 						<DropdownMenuLabel>My Account</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<Link href="/home/profile"><DropdownMenuItem>Profile</DropdownMenuItem></Link>
-						<Drawer >
+						{isMobile && (<Drawer >
 							<DrawerTrigger asChild>
 								<p className='text-sm pl-2 py-1.5'>Theme</p>
 							</DrawerTrigger>
 							<DrawerContent className="p-6 pt-0">
 								<Customizer />
 							</DrawerContent>
-						</Drawer>
+						</Drawer>)}
 
 						<DialogTrigger asChild>
 							<DropdownMenuItem>Settings</DropdownMenuItem>

@@ -121,7 +121,7 @@ const Home = () => {
     const { toast } = useToast();
     const session = useSession();
     const isMobile = useIsMobile();
-    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle.subtitles ?? []);
+    const subtitlesData: Subtitle[] = useSelector((state: { subtitle: { subtitles: Subtitle[] } }) => state.subtitle.subtitles ?? []);
     const selectedSub: Subtitle | null = useSelector((state: any) =>
         Array.isArray(state.subtitle.subtitles)
             ? state.subtitle.subtitles.find((subtitle: any) => subtitle.SubtitleId === state.subtitle.selectedSubtitle)

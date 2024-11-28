@@ -1,16 +1,14 @@
 "use client"
-import React, { ReactNode } from 'react'
-import { SessionProvider } from 'next-auth/react';
-import ReactQueryProvider from '@/providers/ReactQueryProvider'
-import { ThemeProvider } from '../components/theme/theme-provider'
-import { Toaster } from "@/components/ui/toaster"
-import StoreProvider from './StoreProvider';
+import { Toaster } from "@/components/ui/toaster";
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip"
+    TooltipProvider
+} from "@/components/ui/tooltip";
+import ReactQueryProvider from '@/providers/ReactQueryProvider';
+import { SessionProvider } from 'next-auth/react';
+import { ReactNode } from 'react';
+import { ThemeProvider } from '../components/theme/theme-provider';
+import StoreProvider from './StoreProvider';
+
 interface Props {
     children: ReactNode;
 }

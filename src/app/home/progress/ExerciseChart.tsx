@@ -53,9 +53,10 @@ export function CardsMetric() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Exercise Minutes</CardTitle>
+                <CardTitle>All hard words</CardTitle>
                 <CardDescription>
-                    Your exercise minutes are ahead of where you normally are.
+                    A summary of all hard words tracked in the database.
+
                 </CardDescription>
             </CardHeader>
             <CardContent className="pb-4">

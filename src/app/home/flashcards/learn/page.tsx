@@ -8,7 +8,7 @@ import { useIsMobile } from '@/hooks/useMobile';
 import { useOnKeyPress } from '@/hooks/useOnKeyPress';
 import { calculateNextReviewDate, selectSRSFlashcards, updateHardWords, updateWordSRS } from '@/lib/features/subtitles/subtitleSlice';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Clock, Laugh, Repeat } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,6 +19,7 @@ import InputFlashCard from './InputWord';
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { getDueDate } from "@/lib/utils";
+import { Angry, ThumbsUp } from "lucide-react";
 
 export default function FlashCard() {
     const dispatch = useDispatch();
@@ -49,11 +50,6 @@ export default function FlashCard() {
 
     const handleLearningComplete = async () => {
         try {
-            // const wordsToUpdate = filteredCards
-            //     .filter(word => word.learnState !== 0)
-            //     .map(word => ({
-            //         ...word,
-            //     }));
             await axios.post('/api/hardWords/update', {
                 SubtitleId: selectedSubId,
                 hardWords: allSubtitles.find((sub: any) => sub.SubtitleId === selectedSubId)?.hardWords
@@ -126,7 +122,7 @@ export default function FlashCard() {
     };
 
     useOnKeyPress(() => handleAnswer(1), ['1']);
-    useOnKeyPress(() => handleAnswer(3), ['2']);
+    useOnKeyPress(() => handleAnswer(2), ['2']);
     useOnKeyPress(() => handleAnswer(4), ['3']);
     useOnKeyPress(() => handleAnswer(5), ['4']);
     useOnKeyPress(() => setShowAnswer(true), ['Enter', ' ']);
@@ -161,17 +157,20 @@ export default function FlashCard() {
     return (
         <div className="container max-w-4xl mx-auto py-8 space-y-6">
             <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
                     <Link href="/home/flashcards">
                         <Button variant="ghost" size="sm">
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Back to Sets
                         </Button>
                     </Link>
-                    <div className="text-2xl font-bold whitespace-nowrap">
-                        <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    <div className="text-2xl font-bold">
+                        {isMobile ? <p className="text-sm bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent truncate max-w-xs whitespace-normal mr-2">
+                            {currentCard.subtitleTitle}
+                        </p> : <p className="text-3xl whitespace-nowrap bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                             {currentCard.subtitleTitle} Flashcards
-                        </p>
+                        </p>}
+
                     </div>
                 </div>
                 <SubtitlesDropDown data={allSubtitles as any[]} />
@@ -236,7 +235,7 @@ export default function FlashCard() {
                         <CardContent>
                             {studyMode === 'flashcard' && (
                                 <div className="space-y-6">
-                                    <div className="text-center">
+                                    <div className="text-center break-words">
                                         <h3 className="text-3xl font-bold mb-4">{currentCard.word}</h3>
                                         {showAnswer && (
                                             <div className="space-y-4">
@@ -292,18 +291,18 @@ export default function FlashCard() {
                                 )}
 
                                 {showAnswer && studyMode === 'flashcard' && (
-                                    <div className="space-x-2">
-                                        <Button variant="destructive" onClick={() => handleAnswer(1)}>
-                                            Again (1)
+                                    <div className={`space-x-1 ${isMobile ? 'p-2' : ''}`}>
+                                        <Button variant="destructive" className={isMobile ? 'p-2' : ''} onClick={() => handleAnswer(1)}>
+                                            {isMobile ? <Angry /> : '1. Hard'}
                                         </Button>
-                                        <Button variant="outline" onClick={() => handleAnswer(3)}>
-                                            Hard (2)
+                                        <Button variant="outline" className={isMobile ? 'p-2' : ''} onClick={() => handleAnswer(2)}>
+                                            {isMobile ? <Repeat /> : '2. Try again'}
                                         </Button>
-                                        <Button variant="outline" onClick={() => handleAnswer(4)}>
-                                            Good (3)
+                                        <Button variant="outline" className={isMobile ? 'p-2' : ''} onClick={() => handleAnswer(4)}>
+                                            {isMobile ? <ThumbsUp /> : '3. Good'}
                                         </Button>
-                                        <Button onClick={() => handleAnswer(5)}>
-                                            Easy (4)
+                                        <Button className={isMobile ? 'p-2' : ''} onClick={() => handleAnswer(5)}>
+                                            {isMobile ? <Laugh /> : '4. Easy'}
                                         </Button>
                                     </div>
                                 )}
@@ -317,6 +316,16 @@ export default function FlashCard() {
                     </Card>
                 </motion.div>
             </AnimatePresence>
+            {isMobile ?
+                <div className="flex justify-end items-end">
+                    <Button onClick={handleLearningComplete} className="w-full">
+                        Save Progress
+                    </Button>
+                </div> : <Button onClick={handleLearningComplete}
+                    className="ml-4 absolute right-6 bottom-6">
+                    Save Progress
+                </Button>}
+
         </div>
     );
 }

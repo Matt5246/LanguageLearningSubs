@@ -138,6 +138,8 @@ const subtitlesSlice = createSlice({
                 if (hardWord) {
                     if (quality >= 3) {
                         hardWord.repetitions += 1; // Increment repetitions for successful reviews
+                    } else if (quality === 2) {
+                        
                     } else {
                         hardWord.repetitions = 0; // Reset for failed reviews
                     }
@@ -343,20 +345,6 @@ export const selectSRSStats = createSelector(
         };
     }
 );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export default subtitlesSlice.reducer;
 

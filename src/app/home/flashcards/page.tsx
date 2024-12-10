@@ -16,6 +16,8 @@ import { BookOpen, Brain, Clock, Search, Trophy, Timer, Star } from "lucide-reac
 import Link from "next/link";
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import WordChart from './WordChart';
+import { ChartConfig } from '@/components/ui/chart';
 
 interface GroupedSubtitles {
     [key: string]: Subtitle[];
@@ -56,10 +58,10 @@ function getDueWordsCount(subtitles: Subtitle[]): number {
         ).length || 0), 0);
 }
 
-function getProgressPercentage(subtitles: Subtitle[]): number {
+function getProgressPercentage(subtitles: Subtitle[], level: number): number {
     const totalWords = subtitles.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
     const masteredWords = subtitles.reduce((acc, s) =>
-        acc + (s.hardWords?.filter(w => w?.repetitions || 0 >= 3)?.length || 0), 0);
+        acc + (s.hardWords?.filter(w => w?.repetitions >= level)?.length || 0), 0);
     return totalWords ? (masteredWords / totalWords) * 100 : 0;
 }
 
@@ -97,21 +99,26 @@ export default function FlashcardPage() {
                             word?.translation?.toLowerCase().includes(search.toLowerCase())
                         )
                     );
-                const progress = getProgressPercentage(data);
+                const progress = getProgressPercentage(data, 3);
                 const dueWords = getDueWordsCount(data);
 
                 if (filter === 'not-started') return progress === 0 && hasWords;
                 if (filter === 'in-progress') return progress > 0 && progress < 100 && hasWords;
-                if (filter === 'completed') return progress === 100 && hasWords;
+                if (filter === 'completed') return getProgressPercentage(data, 4) === 100 && hasWords;
                 if (filter === 'due') return dueWords > 0;
                 return hasWords && matchesSearch;
             })
             .sort(sortOptions[sort as keyof typeof sortOptions]);
     }, [groupedSubtitles, search, sort, filter]);
-
+    const totalWords = useMemo(() => {
+        return filteredAndSortedSubtitles.reduce((acc, [_, subtitles]) =>
+            acc + subtitles.reduce((subAcc, subtitle) => subAcc + (subtitle.hardWords?.length || 0), 0)
+            , 0);
+    }, [filteredAndSortedSubtitles]);
     const handleLearnButtonClick = (SubtitleId: string) => {
         dispatch(setSelectedSubtitle(SubtitleId));
     };
+
 
     if (!isLoaded) {
         return (
@@ -146,13 +153,45 @@ export default function FlashcardPage() {
                         <HoverCardContent className="w-80">
                             <div className="space-y-2">
                                 <h4 className="font-semibold">SRS Statistics</h4>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div>Total Words:</div>
-                                    <div>{srsStats.totalWords}</div>
-                                    <div>Learning:</div>
-                                    <div>{srsStats.wordsWithSRS}</div>
-                                    <div>Mastered:</div>
-                                    <div>{srsStats.masteredWords}</div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between">
+                                        <div className="font-medium">Total Words:</div>
+                                        <div>{srsStats.totalWords}</div>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <div className="font-medium">Learning:</div>
+                                        <div>{srsStats.wordsWithSRS}</div>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <div className="font-medium">Mastered:</div>
+                                        <div>{srsStats.masteredWords}</div>
+                                    </div>
+                                    <div className="mt-2">
+                                        <div className="flex items-center space-x-2">
+                                            <Clock className='h-4 w-4 text-blue-500' />
+                                            <span>not ready for review</span>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Clock className='h-4 w-4 text-orange-500' />
+                                            <span>not ready for review (high priority)</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Star className='h-4 w-4 text-yellow-500' />
+                                        <span>Due for review</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Star className='h-4 w-4 text-orange-500' />
+                                        <span>Due for review (high priority)</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Trophy className="h-4 w-4 text-green-500" />
+                                        <span>Mastered</span>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <BookOpen className="h-4 w-4 text-blue-500" />
+                                        <span>Not studied yet (new)</span>
+                                    </div>
                                 </div>
                             </div>
                         </HoverCardContent>
@@ -300,6 +339,7 @@ export default function FlashcardPage() {
                             </motion.div>
                         );
                     })}
+                    <WordChart data={filteredAndSortedSubtitles} totalWords={totalWords} />
                 </div>
             </AnimatePresence>
         </div>

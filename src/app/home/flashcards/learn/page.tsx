@@ -325,7 +325,6 @@ export default function FlashCard() {
                     className="ml-4 absolute right-6 bottom-6">
                     Save Progress
                 </Button>}
-
         </div>
     );
 }

@@ -34,11 +34,12 @@ export default function Component({ data, totalWords }: { data: any, totalWords:
         );
     }
     const chartData = Array.isArray(data) ? data?.map(([subtitleTitle, data], index) => {
-        const totalWords = data.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
+        const totalWords = data.reduce((acc: any, s: { hardWords: string | any[] }) => acc + (s.hardWords?.length || 0), 0);
+        const fill = index < 5 ? `hsl(var(--chart-${index + 1}))` : `hsl(${Math.random() * 360}, 100%, 75%)`;
         return {
             subtitleTitle,
             totalWords,
-            fill: `hsl(var(--chart-${index + 1}))`
+            fill
         };
     }) : [];
 
@@ -50,7 +51,7 @@ export default function Component({ data, totalWords }: { data: any, totalWords:
 
 
     return (<>
-        {chartData &&
+        {totalWords > 0 &&
             <Card className="flex flex-col">
                 <CardHeader className="items-center pb-0">
                     <CardTitle>Words in Subtitles</CardTitle>
@@ -107,17 +108,16 @@ export default function Component({ data, totalWords }: { data: any, totalWords:
                             </Pie>
                             <ChartLegend
                                 content={<ChartLegendContent nameKey="subtitleTitle" />}
-                                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center truncate max-w-[300px] max-h-[80px]"
                             />
                         </PieChart>
                     </ChartContainer>
                 </CardContent>
-                <CardFooter className="flex-col gap-2 text-sm">
-                    <div className="flex items-center gap-2 font-medium leading-none">
-                        Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-                    </div>
-                    <div className="leading-none text-muted-foreground">
-                        Showing total words for the last 6 months
+                <CardFooter>
+                    <div className="text-sm leading-tight text-muted-foreground space-y-1">
+                        <div>Total words in subtitles: <span className="font-semibold text-foreground">{totalWords.toLocaleString()}</span></div>
+                        <div>Average words per subtitle: <span className="font-semibold text-foreground">{(totalWords / data?.length).toFixed(2)}</span></div>
+                        <div>Total number of subtitles: <span className="font-semibold text-foreground">{data?.length}</span></div>
                     </div>
                 </CardFooter>
             </Card>}</>

@@ -126,140 +126,137 @@ const Home: React.FC = () => {
     };
 
     return (
-        <Drawer>
-            <div className="h-screen bg-background">
-                <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                    <div className="container flex h-14 items-center">
-                        <div className="flex items-center space-x-4">
-                            <BookOpen className="h-6 w-6" />
-                            <h1 className="text-xl font-bold">Dictionary</h1>
-                        </div>
-                        <div className="flex flex-1 items-center space-x-4 justify-end">
-                            <div className="w-full max-w-sm">
-                                <div className="relative">
-                                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Search words..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value || "")}
-                                        className="pl-8"
-                                    />
-                                </div>
+        <div className="bg-background">
+            <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="container flex h-14 items-center">
+                    <div className="flex items-center space-x-4">
+                        <BookOpen className="h-6 w-6" />
+                        <h1 className="text-xl font-bold">Dictionary</h1>
+                    </div>
+                    <div className="flex flex-1 items-center space-x-4 justify-end">
+                        <div className="w-full max-w-sm">
+                            <div className="relative">
+                                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search words..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value || "")}
+                                    className="pl-8"
+                                />
                             </div>
                         </div>
                     </div>
-                </header>
-
-                <main className="container py-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <p className="text-muted-foreground">
-                            {Object.values(filteredGroups).flat().length} words found
-                        </p>
-                        <div className="flex items-center space-x-2">
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={decreaseFontSize}
-                            >
-                                <ZoomOut className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={increaseFontSize}
-                            >
-                                <ZoomIn className="h-4 w-4" />
-                            </Button>
-                        </div>
+                </div>
+            </header>
+            <main className="container pt-6 px-8 h-full flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                    <p className="text-muted-foreground">
+                        {Object.values(filteredGroups).flat().length} words found
+                    </p>
+                    <div className="flex items-center space-x-2">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={decreaseFontSize}
+                        >
+                            <ZoomOut className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={increaseFontSize}
+                        >
+                            <ZoomIn className="h-4 w-4" />
+                        </Button>
                     </div>
+                </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-6">
-                        <div className="hidden md:block sticky top-20 h-[calc(100vh-5rem)] space-y-2">
-                            <Card className="p-2 w-[60px]">
-                                {Object.keys(groupedWords).map(letter => (
-                                    <Button
+                <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] gap-6 flex-grow">
+                    <div className="hidden md:block sticky top-20 space-y-2">
+                        <Card className="p-2 w-[60px]">
+                            {Object.keys(groupedWords).map(letter => (
+                                <Button
+                                    key={letter}
+                                    variant={selectedLetter === letter ? "secondary" : "ghost"}
+                                    className="w-full justify-start"
+                                    onClick={() => scrollToLetter(letter)}
+                                >
+                                    {letter}
+                                </Button>
+                            ))}
+                        </Card>
+                    </div>
+                    <ScrollArea className="h-full">
+                        <Dialog>
+                            <AnimatePresence>
+                                {Object.entries(filteredGroups).map(([letter, words]) => (
+                                    <motion.div
                                         key={letter}
-                                        variant={selectedLetter === letter ? "secondary" : "ghost"}
-                                        className="w-full justify-start"
-                                        onClick={() => scrollToLetter(letter)}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        className="mb-8"
+                                        id={`section-${letter}`}
                                     >
-                                        {letter}
-                                    </Button>
-                                ))}
-                            </Card>
-                        </div>
-                        <ScrollArea className="h-[calc(100vh-15rem)]">
-                            <Dialog>
-                                <AnimatePresence>
-                                    {Object.entries(filteredGroups).map(([letter, words]) => (
-                                        <motion.div
-                                            key={letter}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -20 }}
-                                            className="mb-8"
-                                            id={`section-${letter}`}
-                                        >
-                                            <div className="sticky top-0 bg-background/95 backdrop-blur py-2">
-                                                <h2 className="text-2xl font-bold flex items-center">
-                                                    {letter}
-                                                    <Separator className="ml-4 flex-1 z-8" />
-                                                </h2>
-                                            </div>
+                                        <div className="sticky top-0 bg-background/95 backdrop-blur py-2">
+                                            <h2 className="text-2xl font-bold flex items-center">
+                                                {letter}
+                                                <Separator className="ml-4 flex-1 z-8" />
+                                            </h2>
+                                        </div>
 
-                                            {words.map((word, index) => (
-                                                <motion.div
-                                                    key={word.word}
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    transition={{ delay: index * 0.05 }}
-                                                    className={`group p-4 rounded-lg hover:bg-accent transition-colors ${FONT_SIZES[fontSize]}`}
-                                                >
-                                                    <div className="flex justify-between items-start">
-                                                        <div>
-                                                            <h3 className="font-semibold group-hover:text-primary">
-                                                                {word.word}
-                                                            </h3>
-                                                            <p className="text-muted-foreground mt-1">
-                                                                {word.translation}
-                                                            </p>
-                                                        </div>
-
-                                                        <OptionsDialog word={word} />
-
+                                        {words.map((word, index) => (
+                                            <motion.div
+                                                key={word.word}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                transition={{ delay: index * 0.05 }}
+                                                className={`group p-4 rounded-lg hover:bg-accent transition-colors ${FONT_SIZES[fontSize]}`}
+                                            >
+                                                <div className="flex justify-between items-start">
+                                                    <div>
+                                                        <h3 className="font-semibold group-hover:text-primary">
+                                                            {word.word}
+                                                        </h3>
+                                                        <p className="text-muted-foreground mt-1">
+                                                            {word.translation}
+                                                        </p>
                                                     </div>
 
-                                                </motion.div>
-                                            ))}
-                                        </motion.div>
-                                    ))}
-                                </AnimatePresence>
-                            </Dialog>
-                        </ScrollArea>
+                                                    <OptionsDialog word={word} />
 
-                    </div>
-                </main>
+                                                </div>
 
-                <AnimatePresence>
-                    {showScrollTop && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 20 }}
-                            className="fixed bottom-6 right-6"
+                                            </motion.div>
+                                        ))}
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </Dialog>
+                    </ScrollArea>
+
+                </div>
+            </main>
+
+            <AnimatePresence>
+                {showScrollTop && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 20 }}
+                        className="fixed bottom-6 right-6"
+                    >
+                        <Button
+                            size="icon"
+                            className="rounded-full h-12 w-12"
+                            onClick={scrollToTop}
                         >
-                            <Button
-                                size="icon"
-                                className="rounded-full h-12 w-12"
-                                onClick={scrollToTop}
-                            >
-                                <ChevronUp className="h-6 w-6" />
-                            </Button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
-        </Drawer>
+                            <ChevronUp className="h-6 w-6" />
+                        </Button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 };
 

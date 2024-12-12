@@ -20,6 +20,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { getDueDate } from "@/lib/utils";
 import { Angry, ThumbsUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function FlashCard() {
     const dispatch = useDispatch();
@@ -228,8 +229,12 @@ export default function FlashCard() {
                                 </div>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                From: {currentCard.subtitleTitle}
+                                From: {currentCard.subtitleTitle} {!currentCard?.repetitions && (
+                                    <Badge variant="outline" className="mt-2 bg-background">new</Badge>
+                                )}
+
                             </p>
+
                         </CardHeader>
 
                         <CardContent>
@@ -322,7 +327,7 @@ export default function FlashCard() {
                         Save Progress
                     </Button>
                 </div> : <Button onClick={handleLearningComplete}
-                    className="ml-4 absolute right-6 bottom-6">
+                    className="absolute right-6 bottom-6">
                     Save Progress
                 </Button>}
         </div>

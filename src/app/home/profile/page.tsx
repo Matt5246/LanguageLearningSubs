@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import EditProfilePopover from './editProfilePopover';
 
 const iconMap: Record<string, any> = {
     Star,
@@ -57,11 +58,12 @@ export default function ProfilePage() {
     const [isLoading, setIsLoading] = useState(true);
     const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "");
     const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
-
+    const [User, setUser] = useState({ ...user });
     useEffect(() => {
         if (stats && achievements && user) {
             setIsLoading(false);
         }
+        setUser({ ...user });
     }, [stats, achievements, user]);
 
     useAchievements();
@@ -78,6 +80,9 @@ export default function ProfilePage() {
         const bProgress = (b.progress / b.maxProgress) * 100;
         return bProgress - aProgress;
     });
+    function onSave(name: string) {
+        setUser((prevUser) => ({ ...prevUser, name }));
+    }
     if (isLoading) {
         return (
             <h1 className="text-2xl font-bold mt-9 ml-9">Profile
@@ -94,9 +99,9 @@ export default function ProfilePage() {
                             <User2 className="w-12 h-12 text-primary" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold">{user?.name}</h1>
+                            <h1 className="text-3xl font-bold">{User?.name}</h1>
                             <p className="text-muted-foreground">
-                                {user?.email}
+                                {User?.email}
                             </p>
                         </div>
                     </div>)}
@@ -162,7 +167,7 @@ export default function ProfilePage() {
                                 <CardHeader>
                                     <CardTitle className="text-xl flex items-center gap-2">
                                         <Clock className="w-5 h-5 text-primary" />
-                                        Activity
+                                        Activity per Day
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
@@ -204,14 +209,14 @@ export default function ProfilePage() {
                                         </div>
                                         <div className="space-y-2">
                                             <div className="flex justify-between text-sm">
-                                                <span>Subtitles Watched</span>
-                                                <span className="text-primary">{stats.totalSubtitles} videos</span>
+                                                <span>Subtitles Added</span>
+                                                <span className="text-primary">{stats.totalSubtitles} Subtitles</span>
                                             </div>
                                             <Progress value={Math.min((stats.totalSubtitles / 30) * 100, 100)} />
                                         </div>
                                         <div className="space-y-2">
                                             <div className="flex justify-between text-sm">
-                                                <span>Watch Time</span>
+                                                <span>Watch Time<span className='text-muted-foreground'> subtitles total time</span></span>
                                                 <span className="text-primary">{formatTime(stats.totalTime)}</span>
                                             </div>
                                             <Progress value={Math.min((stats.totalTime / 72000) * 100, 100)} />
@@ -361,6 +366,11 @@ export default function ProfilePage() {
                             <CardContent>
                                 <div className="space-y-6">
                                     <div className="space-y-4">
+                                        <h3 className="font-semibold">Account</h3>
+                                        <div className="grid gap-4 md:grid-cols-2">
+
+                                            <EditProfilePopover name={User?.name!} email={User?.email!} onSave={onSave} />
+                                        </div>
                                         <h3 className="font-semibold">Learning Preferences</h3>
                                         <div className="grid gap-4 md:grid-cols-2">
                                             <div className="space-y-2">

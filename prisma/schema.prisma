@@ -65,7 +65,6 @@ model HardWord {
   lemma       String?
   repetitions Int?
   dueDate     DateTime? // Date for next review
-  learnState  Int        @default(0)
   createdAt   DateTime?  @default(now())
   learnedAt   DateTime?
   userId      String?    @db.ObjectId

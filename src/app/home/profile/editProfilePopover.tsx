@@ -10,17 +10,20 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Edit } from 'lucide-react';
+import axios from 'axios';
 
 const EditProfilePopover: React.FC<{
   name: string;
   email: string;
-  onSave: (name: string, email: string) => void;
+  onSave: (name: string) => void;
 }> = ({ name, email, onSave }) => {
   const [newName, setNewName] = useState(name);
-  const [newEmail, setNewEmail] = useState(email);
+  const [newPassword, setNewPassword] = useState('');
 
   const handleSave = () => {
-    onSave(newName, newEmail);
+    axios.post('/api/profile/update', { name: newName, email, password: newPassword });
+
+    onSave(newName);
   };
 
   return (
@@ -40,13 +43,14 @@ const EditProfilePopover: React.FC<{
               onChange={(e) => setNewName(e.target.value)}
             />
           </div>
+
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="password">Password</Label>
             <Input
-              id="email"
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
+              id="password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
             />
           </div>
           <Button onClick={handleSave} className="w-full mt-4">

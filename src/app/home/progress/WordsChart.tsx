@@ -199,11 +199,25 @@ export default function Component() {
                                 tickMargin={8}
                                 minTickGap={32}
                                 tickFormatter={(value) => {
-                                    const date = new Date(value)
-                                    return date.toLocaleDateString("en-US", {
-                                        month: "short",
-                                        day: "numeric",
-                                    })
+                                    const date = new Date(value);
+                                    switch (period) {
+                                        case 'day':
+                                            return date.toLocaleDateString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                            });
+                                        case 'week':
+                                            const [year, week] = value.split('-W');
+                                            return `Week ${week} (${year})`;
+                                        case 'month':
+                                            const [yearMonth] = value.split('-');
+                                            return new Date(`${yearMonth}-01`).toLocaleDateString("en-US", {
+                                                month: "short",
+                                                year: "numeric",
+                                            });
+                                        default:
+                                            return '';
+                                    }
                                 }}
                             />
                             <ChartTooltip
@@ -212,11 +226,26 @@ export default function Component() {
                                         className="w-[150px]"
                                         nameKey="views"
                                         labelFormatter={(value) => {
-                                            return new Date(value).toLocaleDateString("en-US", {
-                                                month: "short",
-                                                day: "numeric",
-                                                year: "numeric",
-                                            })
+                                            const date = new Date(value);
+                                            switch (period) {
+                                                case 'day':
+                                                    return date.toLocaleDateString("en-US", {
+                                                        month: "short",
+                                                        day: "numeric",
+                                                        year: "numeric",
+                                                    });
+                                                case 'week':
+                                                    const [year, week] = value.split('-W');
+                                                    return `Week ${week} (${year})`;
+                                                case 'month':
+                                                    const [yearMonth] = value.split('-');
+                                                    return new Date(`${yearMonth}-01`).toLocaleDateString("en-US", {
+                                                        month: "short",
+                                                        year: "numeric",
+                                                    });
+                                                default:
+                                                    return '';
+                                            }
                                         }}
                                     />
                                 }

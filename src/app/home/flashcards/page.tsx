@@ -17,7 +17,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import WordChart from './WordChart';
-import { ChartConfig } from '@/components/ui/chart';
 
 interface GroupedSubtitles {
     [key: string]: Subtitle[];
@@ -104,7 +103,7 @@ export default function FlashcardPage() {
 
                 if (filter === 'not-started') return progress === 0 && hasWords;
                 if (filter === 'in-progress') return progress > 0 && progress < 100 && hasWords;
-                if (filter === 'completed') return getProgressPercentage(data, 4) === 100 && hasWords;
+                if (filter === 'completed') return getProgressPercentage(data, 5) === 100 && hasWords;
                 if (filter === 'due') return dueWords > 0;
                 return hasWords && matchesSearch;
             })

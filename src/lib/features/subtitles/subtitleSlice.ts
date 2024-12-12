@@ -4,7 +4,6 @@ import { loadAutoScrollState } from '@/lib/utils';
 
 
 interface HardWord {
-    learnState?: number;
     word: string | undefined;
     translation?: string;
     pos?: string;
@@ -48,16 +47,7 @@ export const calculateNextReviewDate = (
     console.log("Next Review Date (Local):", nextReviewDate.toLocaleString());
     return nextReviewDate;
 };
-// export const updateHardWordsAsync = createAsyncThunk(
-//     'subtitles/updateHardWordsAsync',
-//     async ({ SubtitleId, hardWords }) => {
-//       const response = await axios.post('/api/hardWords/update', {
-//         SubtitleId,
-//         hardWords,
-//       });
-//       return response.data;
-//     }
-//   );
+
 export interface SubtitlesState {
     subtitles: Subtitle[];
     selectedSubtitle: String | null;
@@ -146,17 +136,11 @@ const subtitlesSlice = createSlice({
                     // Update dueDate
                     hardWord.dueDate = calculateNextReviewDate(hardWord.repetitions);
         
-                    // Optionally update learnState based on repetitions
-                    hardWord.learnState = Math.min(
-                        (hardWord.repetitions / 5) * 100, // Scale repetitions to a percentage
-                        100
-                    );
-        
+                    
                     console.log('Updated Word SRS:', {
                         word,
                         repetitions: hardWord.repetitions,
                         dueDate: hardWord.dueDate,
-                        learnState: hardWord.learnState,
                     });
                 }
                 

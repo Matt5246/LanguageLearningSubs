@@ -7,28 +7,26 @@ export async function POST(req: NextRequest | Request) {
     const body = await req.json();
     const { name, email, password } = body;
 
-    if (!name || !email || !password) {
-        return new NextResponse("Missing name, email or password", { status: 400 })
+    if (!name) {
+        return new NextResponse("Missing name or password", { status: 400 })
     }
-
+    const data: { name: string; hashedPassword?: string } = {
+        name
+    }
+    if (password) {
+        data.hashedPassword = await bcrypt.hash(password, 10);
+    }
     const exist = await prisma.user.findUnique({
         where: {
             email
         }
     });
-
-    if (exist) {
-        throw new Error('Email already exists')
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-        data: {
-            name,
-            email,
-            hashedPassword
-        }
+    console.log(data)
+    const user = await prisma.user.update({
+        where: {
+            id: exist.id,
+        },
+        data,
     });
 
     return NextResponse.json(user)

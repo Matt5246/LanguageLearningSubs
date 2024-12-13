@@ -52,8 +52,7 @@ export default function Authorization() {
 		try {
 			const result = await signIn('credentials', {
 				...data,
-				redirect: false,
-				callbackUrl: "/home"
+				redirect: true,
 			});
 			if (result?.ok) {
 				window.location.href = "/home";
@@ -83,7 +82,7 @@ export default function Authorization() {
 	};
 	return (
 		<div className="flex justify-center items-center h-screen">
-			<Tabs defaultValue="signup" className="w-[400px]">
+			<Tabs defaultValue="signin" className="w-[400px]">
 				<TabsList className="grid w-full grid-cols-2">
 					<TabsTrigger value="signup">Sign Up</TabsTrigger>
 					<TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -112,7 +111,9 @@ export default function Authorization() {
 						</CardContent>
 						<CardFooter>
 							<Button onClick={signupUser} className="mr-3">Sign Up</Button>
-							<Button variant="outline" onClick={() => signIn("google")}>
+							<Button variant="outline" onClick={() => signIn('google', {
+								redirectTo: '/home',
+							})}>
 								<FcGoogle className="mr-2" /> Sign up with Google
 							</Button>
 

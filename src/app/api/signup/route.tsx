@@ -1,35 +1,44 @@
 
 import bcrypt from 'bcrypt'
 import prisma from '@/lib/prismadb'
-import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest | Request) {
-    const body = await req.json();
-    const { name, email, password } = body;
+export async function POST(req: Request) {
+    const { email, password, name } = await req.json();
 
-    if (!name || !email || !password) {
-        return new NextResponse("Missing name, email or password", { status: 400 })
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser)
+        return new Response(
+            JSON.stringify({ error: 'Email already exists' }),
+            {
+                status: 400,
+            }
+        );
+
+    const [emailPrefix, _domain] = email.split('@');
+
+    if (password.includes(emailPrefix) || password.includes(name)) {
+        return new Response(
+            JSON.stringify({
+                error:
+                    'Password can not contain neither username or part of the email',
+            }),
+            {
+                status: 403,
+            }
+        );
     }
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    const exist = await prisma.user.findUnique({
-        where: {
-            email
-        }
-    });
-
-    if (exist) {
-        throw new Error('Email already exists')
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
+    await prisma.user.create({
         data: {
-            name,
             email,
-            hashedPassword
-        }
+            password: hashedPassword,
+            name,
+        },
     });
 
-    return NextResponse.json(user)
+    return new Response(
+        JSON.stringify({ message: 'User created successfully' }),
+        { status: 201 }
+    );
 }

@@ -22,6 +22,7 @@ import { signIn, useSession } from "next-auth/react"
 import { ToastAction } from "@/components/ui/toast"
 import { useToast } from "@/components/ui/use-toast"
 import { FcGoogle } from "react-icons/fc";
+import { Icons } from "@/components/icons"
 import { redirect } from "next/navigation"
 export default function Authorization() {
 	const [data, setData] = useState({
@@ -89,34 +90,48 @@ export default function Authorization() {
 				</TabsList>
 				<TabsContent value="signup">
 					<Card>
-						<CardHeader>
-							<CardTitle>Sign Up</CardTitle>
+						<CardHeader className="space-y-1">
+							<CardTitle className="text-2xl">Create an account</CardTitle>
 							<CardDescription>
-								Enter your information to sign up. Click sign up when you&apos;re ready.
+								Enter your email below to create your account
 							</CardDescription>
 						</CardHeader>
-						<CardContent className="space-y-2">
-							<div className="space-y-1">
+						<CardContent className="grid gap-4">
+							<div className="grid grid-cols-2 gap-6">
+								<Button variant="outline" >
+									<Icons.gitHub className="w-4 h-4 mr-2" />
+									GitHub
+								</Button>
+								<Button variant="outline" >
+									<Icons.google className="w-4 h-4 mr-2" />
+									Google
+								</Button>
+							</div>
+							<div className="relative">
+								<div className="absolute inset-0 flex items-center">
+									<span className="w-full border-t" />
+								</div>
+								<div className="relative flex justify-center text-xs uppercase">
+									<span className="bg-card px-2 text-muted-foreground">
+										Or continue with
+									</span>
+								</div>
+							</div>
+							<div className="grid gap-2">
 								<Label htmlFor="name">Name</Label>
-								<Input id="name" value={data.name} onChange={e => setData({ ...data, name: e.target.value })} />
+								<Input id="name" placeholder="John Doe" value={data.name} onChange={e => setData({ ...data, name: e.target.value })} />
 							</div>
-							<div className="space-y-1">
+							<div className="grid gap-2">
 								<Label htmlFor="email">Email</Label>
-								<Input id="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
+								<Input id="email" type="email" placeholder="m@example.com" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
 							</div>
-							<div className="space-y-1">
+							<div className="grid gap-2">
 								<Label htmlFor="password">Password</Label>
-								<Input id="password" value={data.password} onChange={e => setData({ ...data, password: e.target.value })} type="password" />
+								<Input id="password" type="password" value={data.password} onChange={e => setData({ ...data, password: e.target.value })} />
 							</div>
 						</CardContent>
 						<CardFooter>
-							<Button onClick={signupUser} className="mr-3">Sign Up</Button>
-							<Button variant="outline" onClick={() => signIn('google', {
-								redirectTo: '/home',
-							})}>
-								<FcGoogle className="mr-2" /> Sign up with Google
-							</Button>
-
+							<Button className="w-full">Create account</Button>
 						</CardFooter>
 					</Card>
 				</TabsContent>
@@ -131,19 +146,15 @@ export default function Authorization() {
 						<CardContent className="space-y-2">
 							<div className="space-y-1">
 								<Label htmlFor="email">Email</Label>
-								<Input id="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
+								<Input id="email" type="email" placeholder="m@example.com" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
 							</div>
 							<div className="space-y-1">
 								<Label htmlFor="password">Password</Label>
 								<Input id="password" value={data.password} onChange={e => setData({ ...data, password: e.target.value })} type="password" />
 							</div>
 						</CardContent>
-						<CardFooter>
-							<Button onClick={signinUser} className="mr-3">Sign In</Button>
-							<Button variant="outline" onClick={() => signIn("google")}>
-								<FcGoogle className="mr-2" /> Sign in with Google
-							</Button>
-
+						<CardFooter className="flex flex-col space-y-2">
+							<Button onClick={signinUser} className="w-full">Sign In</Button>
 						</CardFooter>
 						<CardFooter>
 

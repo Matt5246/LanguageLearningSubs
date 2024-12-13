@@ -2,6 +2,7 @@
 import NextAuth from 'next-auth';
 import { NextAuthConfig, CredentialsSignin } from 'next-auth';
 import Google from 'next-auth/providers/google';
+import GitHub from "next-auth/providers/github";
 import Credentials from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import bcrypt from 'bcrypt';
@@ -51,7 +52,7 @@ const Credential = Credentials({
 });
 
 const config = {
-  providers: [Google, Credential],
+  providers: [Google, GitHub, Credential],
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'database',

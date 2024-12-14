@@ -30,12 +30,10 @@ const TableComponent = forwardRef<
 TableComponent.displayName = "TableComponent";
 
 const TableRowComponent = <TData,>(rows: Row<TData>[], currentIndex: number, autoScrollEnabled: boolean) =>
-    function getTableRow(props: HTMLAttributes<HTMLTableRowElement>) {
-        // @ts-expect-error data-index is a valid attribute
+    function getTableRow(props: HTMLAttributes<HTMLTableRowElement> & { "data-index": number }) {
         const index = props["data-index"];
         const row = rows[index];
         const isActive = index === currentIndex;
-
 
         if (!row) return null;
         if (autoScrollEnabled) {

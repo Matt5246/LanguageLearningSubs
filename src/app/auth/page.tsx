@@ -98,11 +98,12 @@ export default function Authorization() {
 						</CardHeader>
 						<CardContent className="grid gap-4">
 							<div className="grid grid-cols-2 gap-6">
-								<Button variant="outline" >
+								<Button variant="outline" disabled>
 									<Icons.gitHub className="w-4 h-4 mr-2" />
 									GitHub
 								</Button>
-								<Button variant="outline" >
+								<Button variant="outline"
+									onClick={() => signIn('google', { callbackUrl: '/home' })}>
 									<Icons.google className="w-4 h-4 mr-2" />
 									Google
 								</Button>
@@ -155,9 +156,6 @@ export default function Authorization() {
 						</CardContent>
 						<CardFooter className="flex flex-col space-y-2">
 							<Button onClick={signinUser} className="w-full">Sign In</Button>
-						</CardFooter>
-						<CardFooter>
-
 						</CardFooter>
 					</Card>
 				</TabsContent>

@@ -44,13 +44,6 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
     };
     return (
         <div className="overflow-auto h-full">
-            {/* <Button onClick={() =>
-                setFontWeight((prevWeight: string) =>
-                    prevWeight === "font-light" ? "font-bold" : "font-light"
-                )
-            } className="mb-4 float-right">
-                Toggle Font Weight
-            </Button> */}
             {captions && captions.length > 0 ? (
                 <Table>
                     <TableHeader>
@@ -63,7 +56,6 @@ export default function SubtitlesList({ captions, url, userEmail }: { captions: 
                     </TableHeader>
                     <TableBody >
                         {captions.map((subtitle, key) => (
-
                             <TableRow key={key} className={fontWeight}>
                                 <TableCell >{key + 1}</TableCell>
                                 <TableCell >

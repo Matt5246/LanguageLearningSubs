@@ -25,6 +25,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Spinner } from "../ui/spinner";
 
 
 function convertTime(time: number): string {
@@ -268,12 +269,13 @@ const RenderMiddlePopoverContent = (row: any) => {
                     </DrawerContent>
 
 
-                    <h4 className="font-medium leading-none">Subtitle Line:</h4>
+                    <h4 className="font-medium leading-none">Subtitle Line: </h4>
                     <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.text as string}</p>
                     <h4 className="font-medium leading-none">{fullRow?.translation && fullRow?.translation?.length > 1 ? "Translation:" : null}</h4>
                     <p className="text-sm text-muted-foreground select-text m-1">{fullRow?.translation as string}</p>
                     <h3>Select Hard Word:</h3>
                     <ul>
+                        {tokenizedWords.length === 0 && <div className="flex justify-center items-center h-20"><Spinner /></div>}
                         {tokenizedWords.map((word, index) => (
                             <li key={index} onChange={() => setSelectedWord(word)}>
                                 <label className={word === selectedWord ? "text-green-500" : ""}>

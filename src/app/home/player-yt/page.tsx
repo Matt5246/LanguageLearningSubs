@@ -44,16 +44,16 @@ const Home = () => {
         queryKey: ['captions', url],
         queryFn: async () => {
             const response = await axios.post('/api/captions', {
-                youtubeUrl: url
-            },
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
+                youtubeUrl: url, sourceLanguage
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
 
+            console.log(response.data)
             setTitle(response.data.videoDetails.title)
-            if (response.data.deSubtitles.length !== 0) {
+            if (response.data.sourceLangSubtitles !== 0) {
+                return response.data.sourceLangSubtitles;
+            } else if (response.data.deSubtitles.length !== 0) {
                 return response.data.deSubtitles;
             } else if (response.data.enSubtitles.length !== 0) {
                 return response.data.enSubtitles;

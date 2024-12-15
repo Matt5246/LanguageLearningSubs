@@ -84,7 +84,7 @@ function UpdateSubtitles(selectedSubtitle: any) {
                     />
                 </>}
                 {selectedSubtitle?.selectedSubtitle?.episode && <>
-                    <DialogDescription>youtubeUrl</DialogDescription>
+                    <DialogDescription>episode</DialogDescription>
                     <input
                         type="number"
                         value={updatedSubtitle?.episode}

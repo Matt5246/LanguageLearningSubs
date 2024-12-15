@@ -43,7 +43,7 @@ export async function POST(req: Request) {
                 data.episode = episode;
             }
             console.log(updatedSubtitleData[0])
-            const subtitle = await prisma.subtitle.create({
+            await prisma.subtitle.create({
                 data: {
                     ...data,
                     sourceLang: finalSourceLang,
@@ -51,10 +51,10 @@ export async function POST(req: Request) {
                     subtitleData: {
                         createMany: { data: updatedSubtitleData },
                     },
-                }
+                },
             });
-            console.log("successfully added:", subtitle)
-            return NextResponse.json(subtitle)
+            
+            return NextResponse.json(await updatedSubtitleData );
         } catch (error) {
             console.error('Error creating subtitle:', error);
             return NextResponse.json({ error: error });

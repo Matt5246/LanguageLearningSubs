@@ -83,7 +83,7 @@ export default function Home() {
     );
   }
   return (
-    <div className=''>
+    <div className='bg-background '>
       {!selectedSub && (<div className='container mx-auto py-8'><h1 className="text-3xl font-bold mb-6">Subtitle Selection</h1>
         <div className='flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 mb-6'>
           <div className="flex">
@@ -117,7 +117,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className='m-0 sm:m-5'
+            className='m-0 sm:mx-5 pb-8'
           >
             <Card className='border-none'>
               <CardHeader>
@@ -156,9 +156,9 @@ export default function Home() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className='container mx-auto'
+              className='container mx-auto h-full'
             >
-              <Tabs defaultValue="all" className="w-full">
+              <Tabs defaultValue="all" className="w-full h-[84vh]">
                 <TabsList>
                   <TabsTrigger value="all">{isMobile ? 'All' : "All Subtitles"}</TabsTrigger>
                   <TabsTrigger value="recent">{isMobile ? 'Recent' : "Recently Added"}</TabsTrigger>
@@ -167,7 +167,7 @@ export default function Home() {
                 <TabsContent value="all">
                   <ScrollArea className="h-full">
                     {viewMode === 'grid' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mb-5 ">
                         {filteredSubtitles.map(([title, subtitles]) => (
                           <SubtitleCards key={title} groupedSubtitles={{ [title]: subtitles }} />
                         ))}
@@ -181,7 +181,7 @@ export default function Home() {
                 <TabsContent value="recent">
                   <ScrollArea className="h-full">
                     {viewMode === 'grid' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mb-5">
                         {recentlyAddedFiltered.map(([title, subtitles]) => (
                           <SubtitleCards key={title} groupedSubtitles={{ [title]: subtitles }} />
                         ))}
@@ -196,14 +196,16 @@ export default function Home() {
                 <TabsContent value="episode">
                   <ScrollArea className="h-full">
                     {viewMode === 'grid' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mb-5">
                         {episodesFiltered.map(([title, subtitles]) => (
                           <SubtitleCards key={title} groupedSubtitles={{ [title]: subtitles }} />
                         ))}
                       </div>
                     )}
                     {viewMode === 'list' && (
-                      <SubtitleListView groupedSubtitles={groupedSubtitles} />
+                      <div className=''>
+                        <SubtitleListView groupedSubtitles={groupedSubtitles} />
+                      </div>
                     )}
                   </ScrollArea>
                 </TabsContent>

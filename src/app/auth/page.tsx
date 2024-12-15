@@ -62,7 +62,7 @@ export default function Authorization() {
 					description: "Success.",
 				});
 
-			} else {
+			} else if (result?.error) {
 				toast({
 					variant: 'destructive',
 					title: "Something went wrong.",
@@ -132,19 +132,40 @@ export default function Authorization() {
 							</div>
 						</CardContent>
 						<CardFooter>
-							<Button className="w-full">Create account</Button>
+							<Button className="w-full" onClick={signupUser}>Create account</Button>
 						</CardFooter>
 					</Card>
 				</TabsContent>
 				<TabsContent value="signin">
 					<Card>
-						<CardHeader>
-							<CardTitle>Sign In</CardTitle>
+						<CardHeader className="space-y-3">
+							<CardTitle className="text-2xl">Sign In</CardTitle>
 							<CardDescription>
 								Enter your credentials to sign in. Click sign in when you&apos;re ready.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-2">
+							<div className="grid grid-cols-2 gap-6">
+								<Button variant="outline" disabled>
+									<Icons.gitHub className="w-4 h-4 mr-2" />
+									GitHub
+								</Button>
+								<Button variant="outline"
+									onClick={() => signIn('google', { callbackUrl: '/home' })}>
+									<Icons.google className="w-4 h-4 mr-2" />
+									Google
+								</Button>
+							</div>
+							<div className="relative">
+								<div className="absolute inset-0 flex items-center">
+									<span className="w-full border-t" />
+								</div>
+								<div className="relative flex justify-center text-xs uppercase">
+									<span className="bg-card px-2 text-muted-foreground">
+										Or continue with
+									</span>
+								</div>
+							</div>
 							<div className="space-y-1">
 								<Label htmlFor="email">Email</Label>
 								<Input id="email" type="email" placeholder="m@example.com" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} />
@@ -154,7 +175,7 @@ export default function Authorization() {
 								<Input id="password" value={data.password} onChange={e => setData({ ...data, password: e.target.value })} type="password" />
 							</div>
 						</CardContent>
-						<CardFooter className="flex flex-col space-y-2">
+						<CardFooter className="flex">
 							<Button onClick={signinUser} className="w-full">Sign In</Button>
 						</CardFooter>
 					</Card>

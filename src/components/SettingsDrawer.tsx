@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { ToggleAutoScrollButton } from "./ToggleAutoScrollButton";
 
-const SettingsDrawerContent = ({ selectedSub, setTargetLanguage, setSourceLanguage }: { selectedSub: Subtitle | null, setTargetLanguage: (language: string) => void, setSourceLanguage: (language: string) => void }) => {
+const SettingsDrawerContent = ({ setTargetLanguage, setSourceLanguage }: { setTargetLanguage: (language: string) => void, setSourceLanguage: (language: string) => void }) => {
     const [storedTargetLanguage, setStoredTargetLanguage] = useLocalStorage("targetLanguage", "");
     const [storedSourceLanguage, setStoredSourceLanguage] = useLocalStorage("sourceLanguage", "auto");
 

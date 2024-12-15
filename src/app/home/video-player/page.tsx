@@ -379,7 +379,6 @@ const Home = () => {
                     </TabsContent>
                 </Tabs>
                 <SettingsDrawerContent
-                    selectedSub={selectedSub}
                     setTargetLanguage={setTargetLanguage}
                     setSourceLanguage={setSourceLanguage}
                 />

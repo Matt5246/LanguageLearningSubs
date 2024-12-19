@@ -12,7 +12,7 @@ nlp_de = spacy.load('de_core_news_md')
 nlp_ja = spacy.load('ja_core_news_md')
 nlp_en = spacy.load('en_core_web_md')
 nlp_pl = spacy.load('pl_core_news_md')
-# nlp_zh = spacy.load('zh_core_news_md')
+
 
 # Load translation model
 model_name = 'Helsinki-NLP/opus-mt-de-en'
@@ -52,8 +52,6 @@ async def analyze_text(request: AnalyzeTextRequest):
         doc = nlp_en(word)
     elif sourceLang == 'pl':
         doc = nlp_pl(word)
-    # elif sourceLang == 'zh':
-    #     doc = nlp_zh(word)
     elif sourceLang == 'auto':
         doc = nlp_de(word)
     else:

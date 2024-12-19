@@ -24,7 +24,7 @@ export async function POST(req: NextRequest | Request) {
     console.log(data)
     const user = await prisma.user.update({
         where: {
-            id: exist.id,
+            id: exist?.id,
         },
         data,
     });

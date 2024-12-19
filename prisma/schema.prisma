@@ -55,14 +55,6 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// model VerificationToken {
-//   identifier String   @id @default(auto()) @map("_id") @db.ObjectId
-//   token      String   @unique
-//   expires    DateTime
-
-//   @@unique([identifier, token])
-// }
-
 model Subtitle {
   SubtitleId    String         @id @default(auto()) @map("_id") @db.ObjectId
   userId        String         @db.ObjectId
@@ -118,3 +110,11 @@ model Sentence {
   translation String?
   hardWords   HardWord @relation(fields: [sentenceId], references: [id], onDelete: Cascade)
 }
+
+// model VerificationToken {
+//   identifier String   @id @default(auto()) @map("_id") @db.ObjectId
+//   token      String   @unique
+//   expires    DateTime
+
+//   @@unique([identifier, token])
+// }

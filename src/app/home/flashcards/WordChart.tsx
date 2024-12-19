@@ -38,6 +38,7 @@ export default function Component({ data, totalWords }: { data: any, totalWords:
     const chartData = Array.isArray(data) ? data?.map(([subtitleTitle, data], index) => {
         const totalWords = data.reduce((acc: any, s: { hardWords: string | any[] }) => acc + (s.hardWords?.length || 0), 0);
         const fill = index < 5 ? `hsl(var(--chart-${index + 1}))` : `hsl(${Math.random() * 360}, 100%, 75%)`;
+
         return {
             subtitleTitle,
             totalWords,
@@ -55,7 +56,6 @@ export default function Component({ data, totalWords }: { data: any, totalWords:
     return (<>
         {totalWords > 0 &&
             <Card className="flex flex-col min-h-[450px]">
-
                 <HoverCard>
                     <HoverCardTrigger>
                         <CardHeader className="items-center pb-0">
@@ -123,13 +123,12 @@ export default function Component({ data, totalWords }: { data: any, totalWords:
                             </Pie>
                             <ChartLegend
                                 content={<ChartLegendContent nameKey="subtitleTitle" />}
-                                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center truncate max-w-[300px] max-h-[100px] absolute overflow-auto"
+                                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center max-w-[250px] max-h-[120px] absolute overflow-auto "
                             />
                         </PieChart>
-
-
                     </ChartContainer>
                 </CardContent>
+
 
             </Card>}</>
     )

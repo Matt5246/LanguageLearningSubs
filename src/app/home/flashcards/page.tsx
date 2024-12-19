@@ -260,7 +260,7 @@ export default function FlashcardPage() {
                                 <Card className="h-full flex flex-col">
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
-                                            <CardTitle className="text-xl">{subtitleTitle}</CardTitle>
+                                            <CardTitle className="text-xl truncate">{subtitleTitle}</CardTitle>
                                             <div className="flex space-x-2">
                                                 {dueWords > 0 && (
                                                     <Badge variant="default" className="bg-yellow-100 text-yellow-800 whitespace-nowrap">

@@ -201,7 +201,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                                     </motion.div>
                                     <HoverCardContent className="p-4 space-y-2 w-64">
                                         <div className="space-y-1">
-                                            <h4 className="text-sm font-semibold">{file.name}</h4>
+                                            <h4 className="text-sm font-semibold break-words">{file.name}</h4>
                                             <p className="text-xs text-muted-foreground">
                                                 <Calendar className="inline mr-1 h-3 w-3" />
                                                 Modified: {new Date(file.lastModified).toLocaleDateString()}
@@ -244,7 +244,7 @@ const FileBrowser: React.FC<FileBrowserProps> = ({ handleAddSubtitles, onVideoSe
                                         </PopoverTrigger>
                                         <HoverCardContent className="p-4 space-y-2 w-64">
                                             <div className="space-y-1">
-                                                <h4 className="text-sm font-semibold">{file.name}</h4>
+                                                <h4 className="text-sm font-semibold break-words">{file.name}</h4>
                                                 <p className="text-xs text-muted-foreground">
                                                     <Calendar className="inline mr-1 h-3 w-3" />
                                                     Modified: {new Date(file.lastModified).toLocaleDateString()}

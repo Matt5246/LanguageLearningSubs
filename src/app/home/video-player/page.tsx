@@ -96,7 +96,7 @@ const ControlButtons: React.FC<ControlButtonsProps> = ({ selectedSub, handleAddS
                     {titleAndEpisode && (
                         <HoverCardContent className="p-4 shadow-lg rounded-lg">
                             <div className="text-sm">
-                                <span className="font-semibold">{titleAndEpisode?.subtitleTitle}</span>
+                                <span className="font-semibold break-words">{titleAndEpisode?.subtitleTitle}</span>
                                 <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
                                     {titleAndEpisode?.episode && (
                                         <p>Episode: <span className="font-medium">{titleAndEpisode?.episode}</span></p>

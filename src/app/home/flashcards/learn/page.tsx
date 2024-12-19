@@ -168,7 +168,7 @@ export default function FlashCard() {
                     <div className="text-2xl font-bold">
                         {isMobile ? <p className="text-sm bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent truncate max-w-xs whitespace-normal mr-2">
                             {currentCard.subtitleTitle}
-                        </p> : <p className="text-3xl whitespace-nowrap bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                        </p> : <p className="text-3xl whitespace-nowrap bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent truncate max-w-md whitespace-normal">
                             {currentCard.subtitleTitle} Flashcards
                         </p>}
 

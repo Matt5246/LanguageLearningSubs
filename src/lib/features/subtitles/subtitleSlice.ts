@@ -201,6 +201,33 @@ export const updateSubtitleTranslation = (state: any, action: any) => {
         state.subtitles[index].subtitleData = subtitleData;
     }
 };
+export const selectQuizData = createSelector(
+    (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles,
+    (subtitles) => {
+        const now = new Date();
+        return subtitles.flatMap(sub =>
+            (sub.hardWords || []).filter(hw =>
+                // Include words that:
+                // 1. Have no repetitions (new words)
+                // 2. Have a dueDate that's in the past or equal to now
+                (!hw.repetitions || hw.repetitions === 0) || 
+                (hw.dueDate && new Date(hw.dueDate) <= now)
+            )
+        ).sort((a, b) => {
+            // Sort order:
+            // 1. Due words first (by due date)
+            // 2. Then new words
+            // 3. Then waiting words
+            if (!a.repetitions && !b.repetitions) return 0;
+            if (!a.repetitions) return 1;
+            if (!b.repetitions) return -1;
+            if (!a.dueDate && !b.dueDate) return 0;
+            if (!a.dueDate) return 1;
+            if (!b.dueDate) return -1;
+            return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+        });
+    }
+);
 
 export const selectSubtitleStats = createSelector(
     (state: {subtitle: SubtitlesState}) => state.subtitle.subtitles,

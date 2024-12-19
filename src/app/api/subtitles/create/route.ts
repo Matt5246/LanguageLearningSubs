@@ -27,8 +27,7 @@ export async function POST(req: Request) {
                 start: parseFloat(data.start),
                 end: data.end ? parseFloat(data.end) : (parseFloat(data.start) + parseFloat(data.dur))
             }));
-            const finalSourceLang = sourceLang === 'auto' && detectedLanguage ? detectedLanguage : sourceLang;
-
+            
             console.log("Detected language:", detectedLanguage);
             const data: any = {
                 userId,
@@ -46,7 +45,7 @@ export async function POST(req: Request) {
             await prisma.subtitle.create({
                 data: {
                     ...data,
-                    sourceLang: finalSourceLang,
+                    sourceLang: detectedLanguage,
                     targetLang,
                     subtitleData: {
                         createMany: { data: updatedSubtitleData },
@@ -63,7 +62,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Method Not Allowed' });
     }
 }
-async function translateSubtitleData(subtitleData: SubtitleData[], sourceLang: string, targetLang: string) {
+async function translateSubtitleData(subtitleData: SubtitleData[], targetLang: string) {
     try {
         const texts = subtitleData.map(subtitle => subtitle?.text);
         const response = await axios.post("http://127.0.0.1:5000/translate", {

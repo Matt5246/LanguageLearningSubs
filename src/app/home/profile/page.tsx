@@ -27,6 +27,7 @@ import {
 import { EuropeLanguages, AsiaLanguages } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import EditProfilePopover from './editProfilePopover';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const iconMap: Record<string, any> = {
     Star,
@@ -95,9 +96,11 @@ export default function ProfilePage() {
             <div className="max-w-4xl mx-auto">
                 {user && (
                     <div className="mb-8 flex items-center gap-6">
-                        <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
-                            <User2 className="w-12 h-12 text-primary" />
-                        </div>
+
+                        <Avatar className='w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center'>
+                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                            <AvatarFallback>CN</AvatarFallback>
+                        </Avatar>
                         <div>
                             <h1 className="text-3xl font-bold">{User?.name}</h1>
                             <p className="text-muted-foreground">
@@ -135,7 +138,7 @@ export default function ProfilePage() {
                                     <CardHeader className="pb-2">
                                         <CardTitle className="text-sm font-medium flex items-center gap-2">
                                             <BookOpen className="w-4 h-4 text-primary" />
-                                            Words Learned
+                                            Words total
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>

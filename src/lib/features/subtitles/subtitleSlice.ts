@@ -4,6 +4,8 @@ import { loadAutoScrollState } from '@/lib/utils';
 
 
 interface HardWord {
+    id?: string;
+    hardWordId?: string;
     word: string | undefined;
     translation?: string;
     pos?: string;
@@ -110,13 +112,27 @@ const subtitlesSlice = createSlice({
         initializeSubtitles(state, action: PayloadAction<Subtitle[]>) {
             state.subtitles = action.payload;
         },
-        updateHardWords(state, action: PayloadAction<{ SubtitleId: string, hardWords: HardWord[] }>) {
-            const { SubtitleId, hardWords } = action.payload;
-            const subtitle = state.subtitles.find(sub => sub.SubtitleId === SubtitleId);
-            if (subtitle) {
-                subtitle.hardWords = hardWords;
-            }
+        updateHardWords(state, action: PayloadAction<{ hardWords: HardWord[] }>) {
+            const { hardWords } = action.payload;
+            state.subtitles = state.subtitles.map(sub => {
+                if (!sub.hardWords) return sub;
+                
+                const updatedHardWords = sub.hardWords.map(hw => {
+                    const updatedWord = hardWords.find(h => h.id === hw.id);
+                    if (updatedWord) {
+                        return {
+                            ...hw,
+                            repetitions: updatedWord.repetitions,
+                            dueDate: updatedWord.dueDate
+                        };
+                    }
+                    return hw;
+                });
+                
+                return { ...sub, hardWords: updatedHardWords };
+            });
         },
+        
         updateWordSRS(
             state,
             action: PayloadAction<{ SubtitleId: string; word: string; quality: number }>
@@ -146,9 +162,6 @@ const subtitlesSlice = createSlice({
                 
             }
         }
-        
-        
-           
     },
 });
 
@@ -358,5 +371,3 @@ export const selectSRSStats = createSelector(
 );
 
 export default subtitlesSlice.reducer;
-
-

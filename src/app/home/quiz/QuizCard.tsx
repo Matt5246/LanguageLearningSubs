@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Check, X } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -6,28 +6,32 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export interface QuizCardProps {
     word: string
-    translation: string
+    correctAnswer: string
     options?: string[]
-    onSubmit: (isCorrect: boolean, answer: string) => void
+    onSubmit: (selectedTranslation: string) => void
     streak: number
 }
 
-const QuizCard = ({ word, translation, options = [], onSubmit, streak }: QuizCardProps) => {
+const QuizCard = ({ word, correctAnswer, options = [], onSubmit, streak }: QuizCardProps) => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null)
     const [feedback, setFeedback] = useState<'correct' | 'incorrect' | null>(null)
-
+    useEffect(() => {
+        if (feedback) {
+            setFeedback(null)
+            setSelectedOption(null)
+        }
+    }, [options])
     const handleSubmit = (option: string) => {
-        if (feedback) return; // Prevent multiple submissions
+        if (feedback) return; 
         
         setSelectedOption(option)
-        const isCorrect = option.toLowerCase() === translation.toLowerCase()
+        const isCorrect = option.toLowerCase() === correctAnswer.toLowerCase()
         setFeedback(isCorrect ? 'correct' : 'incorrect')
-        onSubmit(isCorrect, option)
+        onSubmit(option)
     }
 
     return (
         <div className="relative">
-            {/* Streak indicator */}
             <div className="absolute -top-4 right-0 bg-primary text-background px-3 py-1 rounded-full text-sm">
                 Streak: {streak}/3
             </div>
@@ -72,7 +76,7 @@ const QuizCard = ({ word, translation, options = [], onSubmit, streak }: QuizCar
                                     </p>
                                 ) : (
                                     <p className="text-red-600 font-medium">
-                                        {translation}
+                                        {correctAnswer}
                                     </p>
                                 )}
                             </motion.div>

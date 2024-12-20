@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { selectQuizData, updateWordSRS, SubtitlesState } from '@/lib/features/subtitles/subtitleSlice'
+import { selectQuizData, updateHardWords, SubtitlesState, calculateNextReviewDate } from '@/lib/features/subtitles/subtitleSlice'
 import { motion, AnimatePresence } from 'framer-motion'
 import QuizCard from './QuizCard'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,8 @@ import { Trophy } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { shuffle } from 'lodash'
+import { Progress } from "@/components/ui/progress"
+import axios from 'axios'
 
 interface WordStreak {
   correctCount: number;
@@ -28,28 +30,51 @@ const QuizPage = () => {
   const [wordCount, setWordCount] = useState<number>(10)
   const [quizStarted, setQuizStarted] = useState(false)
   const [quizData, setQuizData] = useState<any[]>([])
-  const [round, setRound] = useState(1)
+
+
+  const getWordKey = (word: any) => `${word.word}_${word.id}`
+  console.log(allQuizData)
+  useEffect(() => {
+    const saveProgress = async () => {
+      if (quizCompleted) {
+        const learnedWords = quizData
+          .filter(word => streaks[getWordKey(word)]?.isLearned)
+          .map(word => ({
+            id: word.id,
+            word: word.word,
+            dueDate: calculateNextReviewDate(word.repetitions + 1), 
+            repetitions: word.repetitions + 1
+          }))
+   
+        try {
+          await axios.post('/api/hardWords/update', { hardWords: learnedWords })
+          dispatch(updateHardWords({ hardWords: learnedWords }))
+          console.log('Progress saved successfully')
+        } catch (error) {
+          console.error('Error saving progress:', error)
+        }
+      }
+    }
+
+    saveProgress()
+  }, [quizCompleted, quizData, streaks])
 
   const startQuiz = () => {
     if (allQuizData.length === 0) return;
     
-    // First reset everything
     resetQuizState()
     setStreaks({})
-    setRound(1)
     
-    // Then set up new quiz
     const selectedWords = shuffle(allQuizData).slice(0, wordCount)
     setQuizData(selectedWords)
     setQuizStarted(true)
     
-    // Finally, set the first word after a short delay to ensure state is updated
     setTimeout(() => {
       const firstWord = selectedWords[0]
       setCurrentWord(firstWord)
       const correctAnswer = firstWord.translation
-      const otherOptions = getRandomTranslations(correctAnswer)
-      setOptions(shuffle([...otherOptions, correctAnswer]))
+      const otherOptions = getRandomTranslations(correctAnswer!)
+      setOptions(shuffle([...otherOptions, correctAnswer!]))
     }, 0)
   }
 
@@ -67,72 +92,87 @@ const QuizPage = () => {
       .map(word => word.translation!)
   }
 
+  const handleAnswer = (selectedTranslation: string) => {
+    if (!currentWord) return
+
+    const isCorrect = selectedTranslation === currentWord.translation
+    const wordKey = getWordKey(currentWord)
+
+    setStreaks(prev => {
+      const currentStreak = prev[wordKey] || { correctCount: 0, isLearned: false }
+      const newCorrectCount = isCorrect ? currentStreak.correctCount + 1 : 0
+      const newStreak = {
+        correctCount: newCorrectCount,
+        isLearned: newCorrectCount >= 3
+      }
+      
+      const newStreaks = {
+        ...prev,
+        [wordKey]: newStreak
+      }
+
+      const allLearned = quizData.every(word => {
+        const streak = word.id === currentWord.id ? newStreak : newStreaks[getWordKey(word)]
+        return streak?.isLearned
+      })
+
+      if (allLearned) {
+        setTimeout(() => setQuizCompleted(true), 0)
+      }
+      return newStreaks
+    })
+
+    setScore(prev => ({
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      total: prev.total + 1
+    }))
+
+    if (!quizCompleted) {
+      setTimeout(() => setNextWord(), 1500)
+    }
+  }
+
   const setNextWord = () => {
-    // Filter out learned words
-    const unlearned = quizData.filter(word => !streaks[word.word]?.isLearned)
-    
+    const unlearned = quizData.filter(word => !streaks[getWordKey(word)]?.isLearned)
+   
     if (unlearned.length === 0) {
       setQuizCompleted(true)
       return
     }
 
-    // Get current word index
-    const currentIndex = unlearned.findIndex(word => word.word === currentWord?.word)
-    
-    // Get next word (if at end, shuffle and start from beginning)
-    let nextWord
-    if (currentIndex === unlearned.length - 1 || currentIndex === -1) {
-      nextWord = unlearned[0]
-    } else {
-      nextWord = unlearned[currentIndex + 1]
+    if (unlearned.length === 1 && unlearned[0].id === currentWord?.id) {
+      const word = unlearned[0]
+      setCurrentWord({ ...word })  
+      const correctAnswer = word.translation
+      const otherOptions = getRandomTranslations(correctAnswer)
+      setOptions(shuffle([...otherOptions, correctAnswer]))
+      return
     }
-    
-    setCurrentWord(nextWord)
-    
-    // Generate new options
-    const correctAnswer = nextWord.translation
-    const otherOptions = getRandomTranslations(correctAnswer)
-    setOptions(shuffle([...otherOptions, correctAnswer]))
-  }
 
-  const handleAnswer = (isCorrect: boolean, answer: string) => {
-    if (currentWord) {
-      const currentStreak = streaks[currentWord.word] || { correctCount: 0, isLearned: false }
-      const newCorrectCount = isCorrect ? currentStreak.correctCount + 1 : 0
-      const isNowLearned = newCorrectCount >= 3
+    const currentIndex = unlearned.findIndex(word => 
+      currentWord && getWordKey(word) === getWordKey(currentWord)
+    )
+    const nextIndex = (currentIndex + 1) % unlearned.length
+    const nextWord = unlearned[nextIndex]
 
-      setStreaks(prev => ({
-        ...prev,
-        [currentWord.word]: {
-          correctCount: newCorrectCount,
-          isLearned: isNowLearned
-        }
-      }))
-
-      if (isNowLearned && !currentStreak.isLearned) {
-        dispatch(
-          updateWordSRS({
-            SubtitleId: currentWord.SubtitleId,
-            word: currentWord.word,
-            quality: 4
-          })
-        )
-      }
-
-      setScore(prev => ({
-        correct: prev.correct + (isCorrect ? 1 : 0),
-        total: prev.total + 1
-      }))
-
-      // Move to next word after 1.5 seconds
-      setTimeout(() => setNextWord(), 1500)
+    if (nextWord) {
+      setCurrentWord(nextWord)
+      const correctAnswer = nextWord.translation
+      const otherOptions = getRandomTranslations(correctAnswer)
+      setOptions(shuffle([...otherOptions, correctAnswer]))
+    } else if (unlearned.length > 0) {
+      const firstUnlearned = unlearned[0]
+      setCurrentWord(firstUnlearned)
+      const correctAnswer = firstUnlearned.translation
+      const otherOptions = getRandomTranslations(correctAnswer)
+      setOptions(shuffle([...otherOptions, correctAnswer]))
     }
   }
 
   const restartQuiz = () => {
     setQuizStarted(false)
+
     setStreaks({})
-    setRound(1)
     resetQuizState()
   }
 
@@ -197,8 +237,12 @@ const QuizPage = () => {
     )
   }
 
-  const currentStreak = currentWord ? streaks[currentWord.word] || { correctCount: 0, isLearned: false } : null
-  const remainingWords = quizData.filter(word => !streaks[word.word]?.isLearned).length
+  const totalWords = quizData.length; 
+  const learnedWords = Object.values(streaks).filter(streak => streak.isLearned).length; 
+  const progress = (learnedWords / totalWords) * 100;
+
+  const currentStreak = currentWord ? streaks[getWordKey(currentWord)] || { correctCount: 0, isLearned: false } : null
+  const remainingWords = quizData.filter(word => !streaks[getWordKey(word)]?.isLearned).length
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -206,14 +250,15 @@ const QuizPage = () => {
         <div className="text-center mb-4">
           <p className="text-sm text-gray-500">Remaining words: {remainingWords}</p>
         </div>
-
+        <Progress value={progress} className="w-full" />
+        <div className="round-count">Learned: {learnedWords}/{totalWords}</div>
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             {currentWord && (
               <QuizCard
-                key={currentWord.word}
+                key={getWordKey(currentWord)}
                 word={currentWord.word}
-                translation={currentWord.translation}
+                correctAnswer={currentWord.translation}
                 options={options}
                 onSubmit={handleAnswer}
                 streak={currentStreak?.correctCount || 0}

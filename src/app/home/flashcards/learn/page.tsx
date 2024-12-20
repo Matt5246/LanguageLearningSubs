@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from '@/hooks/useMobile';
 import { useOnKeyPress } from '@/hooks/useOnKeyPress';
-import { calculateNextReviewDate, selectSRSFlashcards, updateHardWords, updateWordSRS } from '@/lib/features/subtitles/subtitleSlice';
+import { calculateNextReviewDate, selectSRSFlashcards, updateWordSRS } from '@/lib/features/subtitles/subtitleSlice';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ChevronLeft, ChevronRight, Clock, Laugh, Repeat } from "lucide-react";
 import Link from "next/link";

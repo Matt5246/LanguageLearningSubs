@@ -4,20 +4,14 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import axios from 'axios'
-import VideoPlayer from "@/components/VideoPlayer"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer"
 import { Card, CardContent } from "@/components/ui/card"
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { useToast } from "@/components/ui/use-toast"
 import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown"
-import { DataTable } from "@/components/Subtitles/SubtitlesListTanstack"
-import { AddSubtitlesButton } from "@/components/AddSubtitlesButton"
 import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton"
-import { GearButton } from "@/components/SettingsButton"
 import TranslateSubtitle from "../subtitles/TranslateSubtitle"
 import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
 import FileBrowser from "./fileBrowser"
@@ -26,95 +20,11 @@ import { useIsMobile } from '@/hooks/useMobile'
 import { SubtitlesState, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'
 import { getSubs } from "@/components/NavBar"
 import mkvExtract from "@/lib/mkvExtract"
-import { Save, Subtitles, Upload } from "lucide-react"
+import { ControlButtons, ControlButtonsProps, SubtitleArea, VideoUploadArea } from "./VideoControls"
+import { Button } from "@/components/ui/button"
+import { isValidYouTubeUrl } from "../player-yt/page"
+import { ToastAction } from "@/components/ui/toast"
 
-interface VideoUploadAreaProps {
-    onDrop: (event: React.DragEvent<HTMLDivElement>) => void;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    videoFile: File | null;
-    url: string;
-}
-interface SubtitleAreaProps {
-    subtitleConverted: Caption[];
-    height: string;
-}
-interface ControlButtonsProps {
-    selectedSub: Subtitle | null;
-    handleAddSubtitles: (subtitleConverted: any, updateTitle: any) => void;
-    refetch2: () => void;
-    isFetching: boolean;
-    titleAndEpisode: { subtitleTitle: string; episode: string | null } | undefined;
-    subtitleConverted: any;
-}
-
-const VideoUploadArea: React.FC<VideoUploadAreaProps> = ({ onDrop, onChange, videoFile, url }) => (
-    <div
-        className={`relative h-full ${videoFile ? 'border-2 border-dashed border-gray-300' : 'border-none'}  rounded-lg flex items-center justify-center`}
-        onDrop={onDrop}
-        onDragOver={(e) => e.preventDefault()}
-    >
-        {!videoFile && !url ? (
-            <div className="text-center">
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                <p className="mt-1 text-sm text-gray-600">Drag and drop your video here or</p>
-                <Input
-                    type="file"
-                    className="mt-2 mx-auto w-64"
-                    onChange={onChange}
-                />
-            </div>
-        ) : (
-            <VideoPlayer url={url} track={[]} />
-        )}
-    </div>
-)
-
-const SubtitleArea: React.FC<SubtitleAreaProps> = ({ subtitleConverted, height }) => (
-    subtitleConverted?.length > 0 ? (
-        <DataTable captions={subtitleConverted as Caption[]} height={height} />
-    ) : (
-        <div className="flex flex-col items-center justify-center h-full min-h-[64px]">
-
-            <Subtitles className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-center text-gray-600">No subtitles detected. Add subtitles or select a video with embedded subtitles.</p>
-        </div>
-    )
-)
-
-const ControlButtons: React.FC<ControlButtonsProps> = ({ selectedSub, handleAddSubtitles, refetch2, isFetching, titleAndEpisode, subtitleConverted }) => (
-    <div className="flex gap-2">
-        {!selectedSub && (
-            <>
-                <AddSubtitlesButton handleAddSubtitles={handleAddSubtitles} />
-                <HoverCard>
-                    <HoverCardTrigger>
-                        <Button onClick={() => refetch2()} disabled={isFetching}>
-                            <Save className="w-4 h-4 mr-2" />
-                            {isFetching ? 'Saving...' : 'Save Subtitles'}
-                        </Button>
-                    </HoverCardTrigger>
-                    {titleAndEpisode && (
-                        <HoverCardContent className="p-4 shadow-lg rounded-lg">
-                            <div className="text-sm">
-                                <span className="font-semibold break-words">{titleAndEpisode?.subtitleTitle}</span>
-                                <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
-                                    {titleAndEpisode?.episode && (
-                                        <p>Episode: <span className="font-medium">{titleAndEpisode?.episode}</span></p>
-                                    )}
-                                    <p>Rows: <span className="font-medium">{subtitleConverted?.length}</span></p>
-                                </div>
-                            </div>
-                        </HoverCardContent>
-                    )}
-                </HoverCard>
-                <DrawerTrigger asChild>
-                    <GearButton />
-                </DrawerTrigger>
-            </>
-        )}
-
-    </div>
-)
 
 const Home = () => {
     const dispatch = useDispatch();
@@ -135,7 +45,8 @@ const Home = () => {
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [videoTitle, setVideoTitle] = useState<string>("")
     const [url, setUrl] = useState<string>('');
-
+    const cachedSubtitle = subtitlesData.find((subtitle) => subtitle.youtubeUrl === url);
+    console.log('targetLanguage:', targetLanguage);
     const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
         const file = event.dataTransfer.files[0];
@@ -160,7 +71,67 @@ const Home = () => {
             })
         }
     };
+    ////////////////////////////youtube only code//////////////////////////////////
+    const { data, error, isLoading, refetch } = useQuery({
+        queryKey: ['captions', url],
+        queryFn: async () => {
+            const response = await axios.post('/api/captions', {
+                youtubeUrl: url, sourceLanguage
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
 
+            console.log('response:', response);
+            setTitleAndEpisode({ subtitleTitle: response.data.videoDetails.title, episode: null })
+            if (Array.isArray(response.data.sourceLangSubtitles) && response.data.sourceLangSubtitles.length !== 0) {
+                setSubtitleConverted(response.data.sourceLangSubtitles);
+                return response.data.sourceLangSubtitles;
+            } else if (response.data.deSubtitles.length !== 0) {
+                setSubtitleConverted(response.data.deSubtitles);
+                return response.data.deSubtitles;
+            } else if (response.data.enSubtitles.length !== 0) {
+                setSubtitleConverted(response.data.enSubtitles);
+                return response.data.enSubtitles;
+            } else {
+                setSubtitleConverted(response.data.videoDetails.subtitles);
+                return response.data.videoDetails.subtitles;
+            }
+        },
+        enabled: false,
+        retry: true,
+        staleTime: 60000,
+    })
+    useEffect(() => {
+        const readClipboardText = async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (isValidYouTubeUrl(text) && text !== url) {
+                    toast({
+                        title: "Found YouTube URL",
+                        description: "Use URL from clipboard.",
+                        action: (
+                            <ToastAction altText="Use URL" onClick={() => setUrl(text)}>
+                                Use
+                            </ToastAction>
+                        ),
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        readClipboardText();
+        if (url === "") {
+            setSubtitleConverted([])
+        }
+        if (url && isValidYouTubeUrl(url) && !selectedSub) {
+            console.log('URL:', url);
+            refetch();
+        }
+
+
+    }, [url, toast, refetch]);
+    ////////////////////////////youtube only code end//////////////////////////////////
     const { isFetching, refetch: refetch2 } = useQuery({
         queryKey: ['saveCaptions'],
         queryFn: async () => {
@@ -168,13 +139,25 @@ const Home = () => {
                 if (subtitleConverted.length === 0) {
                     throw new Error('Subtitle text not found.');
                 }
-                const subtitle = {
+                const subtitle: {
+                    email: string | null | undefined;
+                    subtitleData: any;
+                    subtitleTitle?: string;
+                    episode?: string | null;
+                    sourceLang: string;
+                    targetLang: string | null;
+                    hardWords: never[];
+                    youtubeUrl?: string;
+                } = {
                     email: userEmail,
                     subtitleData: subtitleConverted,
                     ...titleAndEpisode,
                     sourceLang: sourceLanguage || 'auto',
                     targetLang: targetLanguage || null,
                     hardWords: [],
+                }
+                if (isValidYouTubeUrl(url)) {
+                    subtitle.youtubeUrl = url;
                 }
                 if (!userEmail) {
                     throw new Error('User email not found in session.');
@@ -208,11 +191,15 @@ const Home = () => {
     useEffect(() => {
         if (selectedSub?.subtitleData) {
             if (selectedSub?.youtubeUrl !== null) {
+                setVideoTitle(selectedSub?.subtitleTitle as string);
                 setUrl(selectedSub?.youtubeUrl as string);
+            } else {
+                setVideoTitle(selectedSub?.subtitleTitle as string);
             }
             setSubtitleConverted(selectedSub?.subtitleData)
         } else {
             setUrl("")
+            setVideoTitle("");
             setVideoFile(null)
             setSubtitleConverted(null)
         }
@@ -240,13 +227,14 @@ const Home = () => {
                     <TabsContent value="video">
                         <Card className="">
                             <CardContent className={`p-3 ${isMobile ? "h-[500px]" : "h-[900px]"} `}>
-                                <div className="flex space-y-4 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4 mb-2">
+                                <div className="flex flex-wrap items-center gap-4 mb-2">
                                     <SubtitlesDropDown data={subtitlesData as any[]} />
                                     {!videoTitle && !url.startsWith('blob:') ? (
-                                        <Input type="text" value={url} disabled placeholder="Your video URL" className="hidden sm:inline flex-1" />
+                                        <Input type="text" value={url} disabled={!!selectedSub} onChange={(event) => setUrl(event.target.value)} placeholder="Your video URL" className="flex-1 hidden sm:inline" />
                                     ) : (
-                                        <div className="flex-grow text-center hidden sm:inline">{videoTitle}</div>
+                                        <div className="flex-grow text-center">{videoTitle}</div>
                                     )}
+
                                     {userEmail ? (
                                         <ControlButtons
                                             selectedSub={selectedSub}
@@ -260,7 +248,7 @@ const Home = () => {
                                         <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
                                     )}
                                 </div>
-                                <div className={`${isMobile ? "h-[430px]" : "h-[830px]"} `}>
+                                <div className={`${isMobile ? "h-[310px]" : "h-[830px]"} `}>
                                     <VideoUploadArea
                                         onDrop={handleDrop}
                                         onChange={(e) => {
@@ -280,7 +268,7 @@ const Home = () => {
                     </TabsContent>
                     <TabsContent value="subtitles">
                         <Card className={`h-[500px] ${subtitleConverted?.length > 0 ? 'border-none' : ''}`}>
-                            <SubtitleArea subtitleConverted={subtitleConverted} height='500px' />
+                            <SubtitleArea subtitleConverted={cachedSubtitle ? cachedSubtitle.subtitleData : subtitleConverted} height='500px' />
                         </Card>
                     </TabsContent>
                     <TabsContent value="both">
@@ -289,24 +277,27 @@ const Home = () => {
                                 <Card>
                                     <CardContent className="p-3">
                                         <div className="flex flex-col space-y-4 mb-2">
-                                            <SubtitlesDropDown data={subtitlesData as any[]} />
-                                            {!videoTitle && !url.startsWith('blob:') ? (
-                                                <Input type="text" value={url} disabled placeholder="Your video URL" className="w-[300px] hidden sm:inline" />
-                                            ) : (
-                                                <div className="text-center">{videoTitle}</div>
-                                            )}
-                                            {userEmail ? (
-                                                <ControlButtons
-                                                    selectedSub={selectedSub}
-                                                    handleAddSubtitles={handleAddSubtitlesButton}
-                                                    refetch2={refetch2}
-                                                    isFetching={isFetching}
-                                                    titleAndEpisode={titleAndEpisode}
-                                                    subtitleConverted={subtitleConverted}
-                                                />
-                                            ) : (
-                                                <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
-                                            )}
+                                            <div className="flex flex-wrap items-center gap-4 mb-2">
+                                                <SubtitlesDropDown data={subtitlesData as any[]} />
+                                                {!videoTitle && !url.startsWith('blob:') ? (
+                                                    <Input type="text" value={url} disabled={!!selectedSub} onChange={(event) => setUrl(event.target.value)} placeholder="Your video URL" className="flex-1 hidden sm:inline" />
+                                                ) : (
+                                                    <div className="flex-grow text-center">{videoTitle}</div>
+                                                )}
+
+                                                {userEmail ? (
+                                                    <ControlButtons
+                                                        selectedSub={selectedSub}
+                                                        handleAddSubtitles={handleAddSubtitlesButton}
+                                                        refetch2={refetch2}
+                                                        isFetching={isFetching}
+                                                        titleAndEpisode={titleAndEpisode}
+                                                        subtitleConverted={subtitleConverted}
+                                                    />
+                                                ) : (
+                                                    <span className="text-sm text-muted-foreground">Log in to save subtitles</span>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="h-[300px]">
                                             <VideoUploadArea
@@ -325,7 +316,7 @@ const Home = () => {
                                         </div>
                                     </CardContent>
                                 </Card>
-                                <SubtitleArea subtitleConverted={subtitleConverted} height='500px' />
+                                <SubtitleArea subtitleConverted={cachedSubtitle ? cachedSubtitle.subtitleData : subtitleConverted} height='500px' />
                             </div>
                         ) : (
                             <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
@@ -334,7 +325,7 @@ const Home = () => {
                                         <div className="flex flex-wrap items-center gap-4 mb-2">
                                             <SubtitlesDropDown data={subtitlesData as any[]} />
                                             {!videoTitle && !url.startsWith('blob:') ? (
-                                                <Input type="text" value={url} disabled placeholder="Your video URL" className="flex-1 hidden sm:inline" />
+                                                <Input type="text" value={url} disabled={!!selectedSub} onChange={(event) => setUrl(event.target.value)} placeholder="Your video URL" className="flex-1 hidden sm:inline" />
                                             ) : (
                                                 <div className="flex-grow text-center">{videoTitle}</div>
                                             )}
@@ -371,7 +362,7 @@ const Home = () => {
                                 </ResizablePanel>
                                 <ResizableHandle withHandle />
                                 <ResizablePanel defaultSize={35}>
-                                    <SubtitleArea subtitleConverted={subtitleConverted} height='1000px' />
+                                    <SubtitleArea subtitleConverted={cachedSubtitle ? cachedSubtitle.subtitleData : subtitleConverted} height='1000px' />
                                 </ResizablePanel>
 
                             </ResizablePanelGroup>

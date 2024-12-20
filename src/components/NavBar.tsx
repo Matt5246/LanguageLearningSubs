@@ -22,16 +22,16 @@ import { initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'; //
 
 const components: { title: string; href: string; description: string }[] = [
     {
-        title: "YOUTUBE video player",
-        href: "/home/player-yt",
-        description:
-            "A page where you can watch your youTube videos.",
-    },
-    {
-        title: "Saved video player",
+        title: "Video player",
         href: "/home/video-player",
         description:
             "A page where you can watch your saved videos with subtitles, and from your drive.",
+    },
+    {
+        title: "Quiz",
+        href: "/home/quiz",
+        description:
+            "A page where you can practice words doing quiz.",
     },
     {
         title: "Subtitles",
@@ -43,7 +43,7 @@ const components: { title: string; href: string; description: string }[] = [
         title: "Flashcards",
         href: "/home/flashcards",
         description:
-            "A page where you can train your knowledge.",
+            "A page where you can train your knowledge with flashcards.",
     },
     {
         title: "Progress tracking",

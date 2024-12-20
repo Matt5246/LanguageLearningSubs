@@ -19,8 +19,8 @@ export async function POST(req: Request) {
             const userId = user.id
 
             const { translatedSubtitleData, detectedLanguage } = targetLang
-                ? await translateSubtitleData(subtitleData, sourceLang, targetLang)
-                : await translateSubtitleData(subtitleData, sourceLang, 'en');
+                ? await translateSubtitleData(subtitleData,  targetLang)
+                : await translateSubtitleData(subtitleData,  'en');
             const updatedSubtitleData = subtitleData.map((data: any, index: number) => ({
                 text: data?.text,
                 translation: translatedSubtitleData[index] ? translatedSubtitleData[index] : undefined,

@@ -44,7 +44,7 @@ export function SubtitlesDropDown({ data }: { data: Subtitle[] }) {
             <TooltipProvider>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="min-w-[150px] max-w-[250px] justify-start overflow-hidden">
+                        <Button variant="outline" className="min-w-[150px] max-w-[250px] justify-start overflow-hidden w-full">
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <span className="whitespace-nowrap overflow-hidden overflow-ellipsis">

@@ -22,7 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from 'axios';
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-const isValidYouTubeUrl = (url: string) => {
+export const isValidYouTubeUrl = (url: string) => {
     const youtubeRegex = /^(https?\:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/)[\w\-]+/;
     return youtubeRegex.test(url);
 };
@@ -51,7 +51,7 @@ const Home = () => {
 
             console.log(response.data)
             setTitle(response.data.videoDetails.title)
-            if (response.data.sourceLangSubtitles !== 0) {
+            if (Array.isArray(response.data.sourceLangSubtitles) && response.data.sourceLangSubtitles.length !== 0) {
                 return response.data.sourceLangSubtitles;
             } else if (response.data.deSubtitles.length !== 0) {
                 return response.data.deSubtitles;

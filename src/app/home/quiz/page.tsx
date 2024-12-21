@@ -205,6 +205,9 @@ const QuizPage = () => {
                 No words available. Add some words to your vocabulary first.
               </p>
             )}
+             <p className="text-sm text-gray-600 text-center">
+              <span className="font-semibold">{allQuizData.length}</span> words in your vocabulary, <span className="font-semibold">{Object.values(streaks).filter(streak => streak.isLearned).length}</span> words learned.
+            </p>
           </div>
         </Card>
       </div>
@@ -248,10 +251,9 @@ const QuizPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center space-y-6">
         <div className="text-center mb-4">
-          <p className="text-sm text-gray-500">Remaining words: {remainingWords}</p>
+        <div className="text-sm text-gray-600">Learned: {learnedWords}/{totalWords}</div>
         </div>
-        <Progress value={progress} className="w-full" />
-        <div className="round-count">Learned: {learnedWords}/{totalWords}</div>
+        <Progress value={progress} className="w-full" />      
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             {currentWord && (

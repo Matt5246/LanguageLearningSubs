@@ -103,7 +103,7 @@ const QuizCard = ({ word, correctAnswer, options = [], onSubmit, streak }: QuizC
 
                 <div className="mt-6">
                     <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                        <span>Progress</span>
+                        <span>Word progress</span>
                         <span>{streak}/3</span>
                     </div>
                     <Progress value={(streak / 3) * 100} className="h-2" />

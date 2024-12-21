@@ -103,7 +103,7 @@ export default function FlashcardPage() {
 
                 if (filter === 'not-started') return progress === 0 && hasWords;
                 if (filter === 'in-progress') return progress > 0 && progress < 100 && hasWords;
-                if (filter === 'completed') return getProgressPercentage(data, 5) === 100 && hasWords;
+                if (filter === 'completed') return getProgressPercentage(data, 3) === 100 && hasWords;
                 if (filter === 'due') return dueWords > 0;
                 return hasWords && matchesSearch;
             })
@@ -247,8 +247,8 @@ export default function FlashcardPage() {
                     {filteredAndSortedSubtitles.map(([subtitleTitle, data], index) => {
                         const dueWords = getDueWordsCount(data);
                         const totalWords = data.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
-                        const masteredWords = data.reduce((acc, s) => acc + (s.hardWords?.filter(w => w?.repetitions > 4)?.length || 0), 0);
-
+                        const masteredWords = data.reduce((acc, s) => acc + (s.hardWords?.filter(w => w?.repetitions > 2)?.length || 0), 0);
+                        const learned = data.every(s => s.hardWords?.every(w => w?.repetitions >= 5));
                         return (
                             <motion.div
                                 key={subtitleTitle}
@@ -294,7 +294,7 @@ export default function FlashcardPage() {
                                                         const isWaitingForReview = dueDate && dueDate > now;
                                                         const isDue = dueDate && dueDate <= now;
                                                         const isNotStudied = !word || !word.repetitions || word.repetitions === 0;
-                                                        const isMastered = word?.repetitions > 4;
+                                                        const isMastered = word?.repetitions > 2;
 
                                                         return (
                                                             <div
@@ -309,16 +309,28 @@ export default function FlashcardPage() {
                                                                 <div className="flex space-x-2">
                                                                     <HoverCard>
                                                                         <HoverCardTrigger>
-                                                                            {isWaitingForReview && (<Clock className={`h-4 w-4 ${word?.repetitions < 3 ? 'text-blue-500' : 'text-orange-500'}`} />)}
-                                                                            {isDue && (<Star className={`h-4 w-4 ${word?.repetitions < 3 ? 'text-yellow-500' : 'text-orange-500'}`} />)}
-                                                                            {isMastered && (<Trophy className="h-4 w-4 text-green-500" />)}
-                                                                            {isNotStudied && (<BookOpen className="h-4 w-4 text-blue-500" />)}
+                                                                            <div className="flex items-center space-x-2">
+                                                                                {isWaitingForReview && word?.repetitions < 5 && (<Clock className={`h-4 w-4 ${word?.repetitions < 2 ? 'text-blue-500' : 'text-orange-500'}`} />)}
+                                                                                {isDue && word?.repetitions < 5 && (<Star className={`h-4 w-4 ${word?.repetitions < 2 ? 'text-yellow-500' : 'text-orange-500'}`} />)}
+                                                                                {isMastered && (<Trophy className={`h-4 w-4 ${word?.repetitions > 4 ? 'text-yellow-500' : 'text-green-500'}`} />)}
+                                                                                {isNotStudied && (<BookOpen className="h-4 w-4 text-blue-500" />)}
+                                                                            </div>
                                                                         </HoverCardTrigger>
                                                                         <HoverCardContent className="w-auto p-2 text-sm">
-                                                                            {word?.repetitions && (
-                                                                                <div>Repetitions: {word.repetitions}</div>
+                                                                            {isWaitingForReview && (
+                                                                                <div className="text-muted-foreground font-bold">
+                                                                                    Waiting for review
+                                                                                </div>
                                                                             )}
-                                                                            {word?.dueDate && <p className='text-xs'>{getDueDate(word.dueDate)}</p>}
+                                                                            {isDue && (
+                                                                                <div className="text-muted-foreground font-bold">
+                                                                                    Ready for review
+                                                                                </div>
+                                                                            )}
+                                                                            {word?.repetitions && (
+                                                                                <div className="text-muted-foreground">Repetitions: {word.repetitions}</div>
+                                                                            )}
+                                                                            {word?.dueDate && <p className='text-xs text-muted-foreground'>{getDueDate(word.dueDate)}</p>}
                                                                         </HoverCardContent>
                                                                     </HoverCard>
                                                                 </div>
@@ -335,6 +347,7 @@ export default function FlashcardPage() {
                                             <Link href="/home/flashcards/learn">
                                                 <Button
                                                     variant="default"
+                                                    disabled={learned}
                                                     onClick={() => handleLearnButtonClick(data[0].SubtitleId!)}
                                                     className="space-x-2"
                                                 >

@@ -179,7 +179,7 @@ function WordsLearnedCard({ totalWords, trend, goal, setGoal }: { totalWords: nu
     return (
         <ProgressCard
             icon={<Book className="h-6 w-6 text-primary" />}
-            title="Words Learned"
+            title="Words Added"
             value={totalWords}
             goal={goal}
             setGoal={setGoal}

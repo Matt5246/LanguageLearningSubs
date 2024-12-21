@@ -6,12 +6,7 @@ import { BookOpen, Youtube, PlayCircle, User2, FileText, Brain, Languages, BookM
 
 
 const features = [
-  {
-    icon: <Youtube className="w-12 h-12 text-primary/80" />,
-    title: "YouTube Player",
-    description: "Learn from YouTube videos with interactive subtitles",
-    href: "/home/player-yt"
-  },
+  
   {
     icon: <PlayCircle className="w-12 h-12 text-primary/80" />,
     title: "Video Player",
@@ -19,9 +14,15 @@ const features = [
     href: "/home/video-player"
   },
   {
+    icon: <FileText className="w-12 h-12 text-primary/80" />,
+    title: "Quiz",
+    description: "Review vocabulary with quizzes",
+    href: "/home/quiz"
+  },
+  {
     icon: <Brain className="w-12 h-12 text-primary/80" />,
     title: "Flashcards",
-    description: "Review vocabulary with spaced repetition",
+    description: "Review vocabulary with flashcards",
     href: "/home/flashcards"
   },
   {
@@ -63,7 +64,7 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href="/home/player-yt">
+              <Link href="/home/video-player">
                 <Youtube className="mr-2 h-5 w-5" />
                 Try Now
               </Link>

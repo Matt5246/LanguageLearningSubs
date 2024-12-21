@@ -42,10 +42,10 @@ const QuizPage = () => {
           .map(word => ({
             id: word.id,
             word: word.word,
-            dueDate: calculateNextReviewDate(word.repetitions + 1), 
+            dueDate: calculateNextReviewDate(word.repetitions + 1),
             repetitions: word.repetitions + 1
           }))
-   
+
         try {
           await axios.post('/api/hardWords/update', { hardWords: learnedWords })
           dispatch(updateHardWords({ hardWords: learnedWords }))
@@ -61,14 +61,14 @@ const QuizPage = () => {
 
   const startQuiz = () => {
     if (allQuizData.length === 0) return;
-    
+
     resetQuizState()
     setStreaks({})
-    
+
     const selectedWords = shuffle(allQuizData).slice(0, wordCount)
     setQuizData(selectedWords)
     setQuizStarted(true)
-    
+
     setTimeout(() => {
       const firstWord = selectedWords[0]
       setCurrentWord(firstWord)
@@ -105,7 +105,7 @@ const QuizPage = () => {
         correctCount: newCorrectCount,
         isLearned: newCorrectCount >= 3
       }
-      
+
       const newStreaks = {
         ...prev,
         [wordKey]: newStreak
@@ -134,7 +134,7 @@ const QuizPage = () => {
 
   const setNextWord = () => {
     const unlearned = quizData.filter(word => !streaks[getWordKey(word)]?.isLearned)
-   
+
     if (unlearned.length === 0) {
       setQuizCompleted(true)
       return
@@ -142,14 +142,14 @@ const QuizPage = () => {
 
     if (unlearned.length === 1 && unlearned[0].id === currentWord?.id) {
       const word = unlearned[0]
-      setCurrentWord({ ...word })  
+      setCurrentWord({ ...word })
       const correctAnswer = word.translation
       const otherOptions = getRandomTranslations(correctAnswer)
       setOptions(shuffle([...otherOptions, correctAnswer]))
       return
     }
 
-    const currentIndex = unlearned.findIndex(word => 
+    const currentIndex = unlearned.findIndex(word =>
       currentWord && getWordKey(word) === getWordKey(currentWord)
     )
     const nextIndex = (currentIndex + 1) % unlearned.length
@@ -193,8 +193,8 @@ const QuizPage = () => {
                 className="w-full"
               />
             </div>
-            <Button 
-              onClick={startQuiz} 
+            <Button
+              onClick={startQuiz}
               className="w-full"
               disabled={allQuizData.length === 0}
             >
@@ -214,7 +214,7 @@ const QuizPage = () => {
   if (quizCompleted) {
     const percentage = Math.round((score.correct / score.total) * 100)
     const learnedWordsCount = Object.values(streaks).filter(s => s.isLearned).length
-    
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -237,8 +237,8 @@ const QuizPage = () => {
     )
   }
 
-  const totalWords = quizData.length; 
-  const learnedWords = Object.values(streaks).filter(streak => streak.isLearned).length; 
+  const totalWords = quizData.length;
+  const learnedWords = Object.values(streaks).filter(streak => streak.isLearned).length;
   const progress = (learnedWords / totalWords) * 100;
 
   const currentStreak = currentWord ? streaks[getWordKey(currentWord)] || { correctCount: 0, isLearned: false } : null

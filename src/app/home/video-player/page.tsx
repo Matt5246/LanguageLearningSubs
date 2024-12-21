@@ -1,29 +1,28 @@
 'use client'
-import { useState, useEffect } from "react"
-import { useSelector, useDispatch } from 'react-redux'
-import { useQuery } from "@tanstack/react-query"
-import { useSession } from "next-auth/react"
-import axios from 'axios'
+import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
+import { getSubs } from "@/components/NavBar"
+import SettingsDrawerContent from "@/components/SettingsDrawer"
+import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton"
+import { Card, CardContent } from "@/components/ui/card"
+import { Drawer } from "@/components/ui/drawer"
 import { Input } from "@/components/ui/input"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Drawer, DrawerTrigger } from "@/components/ui/drawer"
-import { Card, CardContent } from "@/components/ui/card"
-import { useToast } from "@/components/ui/use-toast"
-import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown"
-import { ToggleAutoScrollButton } from "@/components/ToggleAutoScrollButton"
-import TranslateSubtitle from "../subtitles/TranslateSubtitle"
-import SwapTranslationButton from '@/app/home/subtitles/SwapTranslationButton'
-import FileBrowser from "./fileBrowser"
-import SettingsDrawerContent from "@/components/SettingsDrawer"
-import { useIsMobile } from '@/hooks/useMobile'
-import { SubtitlesState, initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'
-import { getSubs } from "@/components/NavBar"
-import mkvExtract from "@/lib/mkvExtract"
-import { ControlButtons, ControlButtonsProps, SubtitleArea, VideoUploadArea } from "./VideoControls"
-import { Button } from "@/components/ui/button"
-import { isValidYouTubeUrl } from "../player-yt/page"
 import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/components/ui/use-toast"
+import { useIsMobile } from '@/hooks/useMobile'
+import { initializeSubtitles } from '@/lib/features/subtitles/subtitleSlice'
+import mkvExtract from "@/lib/mkvExtract"
+import { useQuery } from "@tanstack/react-query"
+import axios from 'axios'
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from 'react-redux'
+import { isValidYouTubeUrl } from "../player-yt/page"
+import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown"
+import TranslateSubtitle from "../subtitles/TranslateSubtitle"
+import FileBrowser from "./fileBrowser"
+import { ControlButtons, SubtitleArea, VideoUploadArea } from "./VideoControls"
 
 
 const Home = () => {
@@ -71,7 +70,6 @@ const Home = () => {
             })
         }
     };
-    ////////////////////////////youtube only code//////////////////////////////////
     const { data, error, isLoading, refetch } = useQuery({
         queryKey: ['captions', url],
         queryFn: async () => {
@@ -131,7 +129,6 @@ const Home = () => {
 
 
     }, [url, toast, refetch]);
-    ////////////////////////////youtube only code end//////////////////////////////////
     const { isFetching, refetch: refetch2 } = useQuery({
         queryKey: ['saveCaptions'],
         queryFn: async () => {

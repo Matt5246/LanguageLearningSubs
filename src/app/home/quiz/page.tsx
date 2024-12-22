@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectQuizData, updateHardWords, SubtitlesState, calculateNextReviewDate } from '@/lib/features/subtitles/subtitleSlice'
+import { WordTable } from './WordTable'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { motion, AnimatePresence } from 'framer-motion'
 import QuizCard from './QuizCard'
 import { Button } from '@/components/ui/button'
@@ -12,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { shuffle } from 'lodash'
 import { Progress } from "@/components/ui/progress"
 import axios from 'axios'
+import { Badge } from '@/components/ui/badge'
 
 interface WordStreak {
   correctCount: number;
@@ -30,6 +33,7 @@ const QuizPage = () => {
   const [wordCount, setWordCount] = useState<number>(10)
   const [quizStarted, setQuizStarted] = useState(false)
   const [quizData, setQuizData] = useState<any[]>([])
+  const [selectedWords, setSelectedWords] = useState<string[]>([])
 
 
   const getWordKey = (word: any) => `${word.word}_${word.id}`
@@ -64,20 +68,22 @@ const QuizPage = () => {
 
     resetQuizState()
     setStreaks({})
-
-    const selectedWords = shuffle(allQuizData).slice(0, wordCount)
-    setQuizData(selectedWords)
+    const wordsToQuiz = selectedWords.length > 0 
+      ? allQuizData.filter(word => selectedWords.includes(word.word!))
+      : allQuizData.slice(0, wordCount);
+    
+    setQuizData(shuffle(wordsToQuiz))
     setQuizStarted(true)
-
+    // setScore({ correct: 0, total: 0 })
+    // setQuizCompleted(false)
     setTimeout(() => {
-      const firstWord = selectedWords[0]
+      const firstWord = wordsToQuiz[0]
       setCurrentWord(firstWord)
       const correctAnswer = firstWord.translation
       const otherOptions = getRandomTranslations(correctAnswer!)
       setOptions(shuffle([...otherOptions, correctAnswer!]))
     }, 0)
   }
-
   const resetQuizState = () => {
     setScore({ correct: 0, total: 0 })
     setQuizCompleted(false)
@@ -178,38 +184,65 @@ const QuizPage = () => {
 
   if (!quizStarted) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="p-6 w-full max-w-md">
-          <h2 className="text-xl font-semibold mb-4 text-center">Quiz Settings</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-gray-600 block mb-2">
-                Number of words to learn (max {allQuizData.length})
-              </label>
-              <Input
-                type="number"
-                value={wordCount}
-                onChange={(e) => setWordCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), allQuizData.length))}
-                className="w-full"
-              />
-            </div>
-            <Button
-              onClick={startQuiz}
-              className="w-full"
-              disabled={allQuizData.length === 0}
-            >
-              Start Quiz
-            </Button>
-            {allQuizData.length === 0 && (
-              <p className="text-sm text-red-500 text-center">
-                No words available. Add some words to your vocabulary first.
-              </p>
-            )}
-             <p className="text-sm text-gray-600 text-center">
-              <span className="font-semibold">{allQuizData.length}</span> words in your vocabulary, <span className="font-semibold">{Object.values(streaks).filter(streak => streak.isLearned).length}</span> words learned.
-            </p>
-          </div>
-        </Card>
+      <div className="container mx-auto py-8">
+        <Tabs defaultValue="settings" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="settings">Quiz Settings</TabsTrigger>
+            <TabsTrigger value="words">Word List</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="settings">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Quiz Settings</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm text-gray-600 block mb-2">
+                    Number of words to learn (max {allQuizData.length})
+                  </label>
+                  <Input
+                    type="number"
+                    value={wordCount}
+                    onChange={(e) => setWordCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), allQuizData.length))}
+                    className="w-full"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-gray-600">
+                    Selected words: <Badge variant="secondary">{selectedWords.length}</Badge>
+                  </p>
+                  {selectedWords.length > 0 && (
+                    <Button variant="outline" onClick={() => setSelectedWords([])}>
+                      Clear Selection
+                    </Button>
+                  )}
+                </div>
+                <Button
+                  onClick={startQuiz}
+                  className="w-full"
+                  disabled={allQuizData.length === 0}
+                >
+                  Start Quiz {selectedWords.length > 0 ? `with ${selectedWords.length} words` : ''}
+                </Button>
+                {allQuizData.length === 0 && (
+                  <p className="text-sm text-red-500 text-center">
+                    No words available. Add some words to your vocabulary first.
+                  </p>
+                )}
+                <p className="text-sm text-gray-600 text-center">
+                  <span className="font-semibold">{allQuizData.length}</span> words in your vocabulary
+                </p>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="words">
+            <WordTable 
+              words={allQuizData} 
+              selectedWords={selectedWords}
+              onSelectionChange={setSelectedWords}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     )
   }

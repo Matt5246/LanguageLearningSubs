@@ -364,7 +364,7 @@ export const selectSRSStats = createSelector(
                 (hw.dueDate && new Date(hw.dueDate) <= now)
             ).length,
             // Changed mastery threshold to 5 repetitions
-            masteredWords: allWords.filter(hw => hw.repetitions >= 3).length,
+            masteredWords: allWords.filter(hw => hw.repetitions >= 4).length,
             wordsWithSRS: allWords.filter(hw => hw.repetitions > 0).length,
         };
     }

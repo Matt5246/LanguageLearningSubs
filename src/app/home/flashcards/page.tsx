@@ -247,7 +247,7 @@ export default function FlashcardPage() {
                     {filteredAndSortedSubtitles.map(([subtitleTitle, data], index) => {
                         const dueWords = getDueWordsCount(data);
                         const totalWords = data.reduce((acc, s) => acc + (s.hardWords?.length || 0), 0);
-                        const masteredWords = data.reduce((acc, s) => acc + (s.hardWords?.filter(w => w?.repetitions > 2)?.length || 0), 0);
+                        const masteredWords = data.reduce((acc, s) => acc + (s.hardWords?.filter(w => w?.repetitions > 3)?.length || 0), 0);
                         const learned = data.every(s => s.hardWords?.every(w => w?.repetitions >= 5));
                         return (
                             <motion.div
@@ -294,7 +294,7 @@ export default function FlashcardPage() {
                                                         const isWaitingForReview = dueDate && dueDate > now;
                                                         const isDue = dueDate && dueDate <= now;
                                                         const isNotStudied = !word || !word.repetitions || word.repetitions === 0;
-                                                        const isMastered = word?.repetitions > 2;
+                                                        const isMastered = word?.repetitions > 3;
 
                                                         return (
                                                             <div

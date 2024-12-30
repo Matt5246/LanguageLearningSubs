@@ -6,7 +6,7 @@ import { BookOpen, Youtube, PlayCircle, User2, FileText, Brain, Languages, BookM
 
 
 const features = [
-  
+
   {
     icon: <PlayCircle className="w-12 h-12 text-primary/80" />,
     title: "Video Player",
@@ -58,7 +58,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button asChild size="lg">
-              <Link href="/docs">
+              <Link href="/home/docs">
                 <BookOpen className="mr-2 h-5 w-5" />
                 Get Started
               </Link>

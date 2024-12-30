@@ -98,7 +98,7 @@ export default function Authorization() {
 						</CardHeader>
 						<CardContent className="grid gap-4">
 							<div className="grid grid-cols-2 gap-6">
-								<Button variant="outline" disabled>
+								<Button variant="outline" onClick={() => signIn('github', { callbackUrl: '/home' })}>
 									<Icons.gitHub className="w-4 h-4 mr-2" />
 									GitHub
 								</Button>
@@ -146,7 +146,7 @@ export default function Authorization() {
 						</CardHeader>
 						<CardContent className="space-y-2">
 							<div className="grid grid-cols-2 gap-6">
-								<Button variant="outline" disabled>
+								<Button variant="outline" onClick={() => signIn('github', { callbackUrl: '/home' })}>
 									<Icons.gitHub className="w-4 h-4 mr-2" />
 									GitHub
 								</Button>

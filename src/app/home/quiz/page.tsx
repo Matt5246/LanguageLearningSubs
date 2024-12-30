@@ -74,8 +74,6 @@ const QuizPage = () => {
     
     setQuizData(shuffle(wordsToQuiz))
     setQuizStarted(true)
-    // setScore({ correct: 0, total: 0 })
-    // setQuizCompleted(false)
     setTimeout(() => {
       const firstWord = wordsToQuiz[0]
       setCurrentWord(firstWord)
@@ -197,11 +195,12 @@ const QuizPage = () => {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm text-gray-600 block mb-2">
-                    Number of words to learn (max {allQuizData.length})
+                    Pick the number of words to learn (max {allQuizData.length}) or select specific words from Word List
                   </label>
                   <Input
                     type="number"
                     value={wordCount}
+                    disabled={selectedWords.length > 0}
                     onChange={(e) => setWordCount(Math.min(Math.max(1, parseInt(e.target.value) || 1), allQuizData.length))}
                     className="w-full"
                   />

@@ -59,7 +59,7 @@ export default function Home() {
             />
             <HistoryList />
             <CardsMetric />
-            <RecentVideos videos={videos} />
+            {/* <RecentVideos videos={videos} /> */}
         </div>
     );
 }

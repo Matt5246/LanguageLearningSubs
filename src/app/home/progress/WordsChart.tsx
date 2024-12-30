@@ -105,88 +105,16 @@ export default function Component() {
                         <button onClick={() => setPeriod('month')} className={period === 'month' ? 'font-extrabold' : ''}>Month</button>
                     </div>
                 </div>
-                {!chartType ? <ChartContainer
-                    config={chartConfig}
-                    className="aspect-auto h-[250px] w-full"
-                >
-                    <BarChart
-                        accessibilityLayer
-                        data={chartData}
-                        margin={{
-                            left: 12,
-                            right: 12,
-                        }}
-                    >
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="date"
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                            minTickGap={32}
-                            tickFormatter={(value) => {
-                                const date = new Date(value);
-                                switch (period) {
-                                    case 'day':
-                                        return date.toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                        });
-                                    case 'week':
-                                        const [year, week] = value.split('-W');
-                                        return `Week ${week} (${year})`;
-                                    case 'month':
-                                        const [yearMonth] = value.split('-');
-                                        return new Date(`${yearMonth}-01`).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            year: "numeric",
-                                        });
-                                    default:
-                                        return '';
-                                }
-                            }}
-                        />
-                        <ChartTooltip
-                            content={
-                                <ChartTooltipContent
-                                    className="w-[150px]"
-                                    nameKey="views"
-                                    labelFormatter={(value) => {
-                                        const date = new Date(value);
-                                        switch (period) {
-                                            case 'day':
-                                                return date.toLocaleDateString("en-US", {
-                                                    month: "short",
-                                                    day: "numeric",
-                                                    year: "numeric",
-                                                });
-                                            case 'week':
-                                                const [year, week] = value.split('-W');
-                                                return `Week ${week} (${year})`;
-                                            case 'month':
-                                                const [yearMonth] = value.split('-');
-                                                return new Date(`${yearMonth}-01`).toLocaleDateString("en-US", {
-                                                    month: "short",
-                                                    year: "numeric",
-                                                });
-                                            default:
-                                                return '';
-                                        }
-                                    }}
-                                />
-                            }
-                        />
-                        <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
-                    </BarChart>
-                </ChartContainer> :
-                    <ChartContainer
+                <div className="relative mt-1.5">
+                    {!chartType ? <ChartContainer
                         config={chartConfig}
                         className="aspect-auto h-[250px] w-full"
                     >
-                        <LineChart
+                        <BarChart
                             accessibilityLayer
                             data={chartData}
                             margin={{
+                                top: 12,
                                 left: 12,
                                 right: 12,
                             }}
@@ -250,20 +178,96 @@ export default function Component() {
                                     />
                                 }
                             />
-                            <Line
-                                dataKey={activeChart}
-                                type="monotone"
-                                stroke={`var(--color-${activeChart})`}
-                                strokeWidth={2}
-                                dot={{
-                                    fill: "hsl(var(--background))",
+                            <Bar dataKey={activeChart} fill={`var(--color-${activeChart})`} />
+                        </BarChart>
+                    </ChartContainer> :
+                        <ChartContainer
+                            config={chartConfig}
+                            className="aspect-auto h-[250px] w-full"
+                        >
+                            <LineChart
+                                accessibilityLayer
+                                data={chartData}
+                                margin={{
+                                    top: 12,
+                                    left: 12,
+                                    right: 12,
                                 }}
-                                activeDot={{
-                                    r: 6,
-                                }}
-                            />
-                        </LineChart>
-                    </ChartContainer>}
+                            >
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="date"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    minTickGap={32}
+                                    tickFormatter={(value) => {
+                                        const date = new Date(value);
+                                        switch (period) {
+                                            case 'day':
+                                                return date.toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    day: "numeric",
+                                                });
+                                            case 'week':
+                                                const [year, week] = value.split('-W');
+                                                return `Week ${week} (${year})`;
+                                            case 'month':
+                                                const [yearMonth] = value.split('-');
+                                                return new Date(`${yearMonth}-01`).toLocaleDateString("en-US", {
+                                                    month: "short",
+                                                    year: "numeric",
+                                                });
+                                            default:
+                                                return '';
+                                        }
+                                    }}
+                                />
+                                <ChartTooltip
+                                    content={
+                                        <ChartTooltipContent
+                                            className="w-[150px]"
+                                            nameKey="views"
+                                            labelFormatter={(value) => {
+                                                const date = new Date(value);
+                                                switch (period) {
+                                                    case 'day':
+                                                        return date.toLocaleDateString("en-US", {
+                                                            month: "short",
+                                                            day: "numeric",
+                                                            year: "numeric",
+                                                        });
+                                                    case 'week':
+                                                        const [year, week] = value.split('-W');
+                                                        return `Week ${week} (${year})`;
+                                                    case 'month':
+                                                        const [yearMonth] = value.split('-');
+                                                        return new Date(`${yearMonth}-01`).toLocaleDateString("en-US", {
+                                                            month: "short",
+                                                            year: "numeric",
+                                                        });
+                                                    default:
+                                                        return '';
+                                                }
+                                            }}
+                                        />
+                                    }
+                                />
+                                <Line
+                                    dataKey={activeChart}
+                                    type="monotone"
+                                    stroke={`var(--color-${activeChart})`}
+                                    strokeWidth={2}
+                                    dot={{
+                                        fill: "hsl(var(--background))",
+                                    }}
+                                    activeDot={{
+                                        r: 6,
+                                    }}
+                                />
+                            </LineChart>
+                        </ChartContainer>}
+                </div>
             </CardContent>
         </Card>
     );

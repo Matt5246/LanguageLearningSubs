@@ -9,6 +9,7 @@ import HistoryList from './HistoryList';
 import ProgressHeader from './ProgressHeader';
 import RecentVideos, { Video } from './RecentVideos';
 import Chart from './WordsChart';
+import PosChart from './PosChart';
 
 export default function Home() {
     const subtitles: Subtitle[] = useSelector(
@@ -59,6 +60,7 @@ export default function Home() {
             />
             <HistoryList />
             <CardsMetric />
+            {/* <PosChart data={allHardWords} /> */}
             {/* <RecentVideos videos={videos} /> */}
         </div>
     );

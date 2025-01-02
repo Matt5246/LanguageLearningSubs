@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
-import { primaryTranslationServiceURL, fallbackTranslationServiceURL } from '@/lib/utils'
+import { primaryTranslationServiceURL } from '@/lib/utils'
 const prisma = new PrismaClient();
 
 interface SubtitleData {
@@ -27,40 +27,19 @@ export async function POST(req: Request) {
 
         const { userId, youtubeUrl, subtitleTitle, subtitleData, text, target, source, SubtitleId } = data;
 
-        let translatedSubtitleData: string[];
-        try {
+        const translationResponse = await fetch(primaryTranslationServiceURL, {
+            method: "POST",
+            body: JSON.stringify({
+            q: text,
+            source: source || "auto",
+            target: target || "en",
+            format: "text"
+            }),
+            headers: { "Content-Type": "application/json" }
+        });
 
-            const translationResponse = await fetch(primaryTranslationServiceURL, {
-                method: "POST",
-                body: JSON.stringify({
-                    q: text,
-                    source: source || "auto",
-                    target: target || "en",
-                    format: "text"
-                }),
-                headers: { "Content-Type": "application/json" }
-            });
-
-            const result = await translationResponse.json();
-            translatedSubtitleData = result.translatedText;
-        } catch (primaryTranslationError) {
-            console.error('Error from primary translation service:', primaryTranslationError);
-            console.log('Falling back to the alternative translation service...');
-
-            const fallbackTranslationResponse = await fetch(fallbackTranslationServiceURL, {
-                method: "POST",
-                body: JSON.stringify({
-                    q: text,
-                    source: source || "auto",
-                    target: target || "en",
-                    format: "text"
-                }),
-                headers: { "Content-Type": "application/json" }
-            });
-            const fallbackResult = await fallbackTranslationResponse.json();
-            translatedSubtitleData = fallbackResult.translatedText;
-            console.log(translatedSubtitleData)
-        }
+        const result = await translationResponse.json();
+        const translatedSubtitleData: string[] = result.translatedText;
 
         const existingSubtitle = await prisma.subtitle.findFirst({
             where: { userId, SubtitleId },
@@ -82,7 +61,7 @@ export async function POST(req: Request) {
             start: parseFloat(subtitle.start),
         }));
 
-        console.log(combinedSubtitles[1]);
+        console.log(combinedSubtitles[0]);
 
         if (existingSubtitle) {
             const updatedSubtitle = await prisma.subtitle.update({

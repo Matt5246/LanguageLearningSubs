@@ -18,7 +18,7 @@ import axios from 'axios'
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from 'react-redux'
-import { isValidYouTubeUrl } from "../player-yt/page"
+import { isValidYouTubeUrl } from '@/lib/utils'
 import { SubtitlesDropDown } from "../subtitles/SubtitlesDropDown"
 import TranslateSubtitle from "../subtitles/TranslateSubtitle"
 import FileBrowser from "./fileBrowser"

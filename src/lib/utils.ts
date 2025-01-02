@@ -6,7 +6,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const primaryTranslationServiceURL = "http://127.0.0.1:5000/translate";
-export const fallbackTranslationServiceURL = "https://translate.argosopentech.com/";
 
 export const EuropeLanguages = [  
   { value: "bg", label: "Bulgarian" },
@@ -59,4 +58,8 @@ export const getWeekNumber = (date: Date): string => {
   const days = Math.floor((date.valueOf() - startDate.valueOf()) / (24 * 60 * 60 * 1000));
   const weekNumber = Math.ceil((days + 1) / 7);
   return `${date.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+};
+export const isValidYouTubeUrl = (url: string) => {
+  const youtubeRegex = /^(https?\:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/)[\w\-]+/;
+  return youtubeRegex.test(url);
 };

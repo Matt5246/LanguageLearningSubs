@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import axios from 'axios';
-import { primaryTranslationServiceURL, fallbackTranslationServiceURL } from '@/lib/utils'
+import { primaryTranslationServiceURL } from '@/lib/utils'
 
 const prisma = new PrismaClient();
 async function fetchLemmaAndPOS(word: string, sourceLang: string) {

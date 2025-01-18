@@ -33,13 +33,13 @@ export async function POST(req: Request) {
                 userId,
                 subtitleTitle
             };
-            console.log("data:", data)
+            
 
             if (youtubeUrl) {
                 data.youtubeUrl = youtubeUrl;
             }
             if (episode) {
-                data.episode = episode;
+                data.episode = parseInt(episode, 10);
             }
             console.log(updatedSubtitleData[0])
             await prisma.subtitle.create({

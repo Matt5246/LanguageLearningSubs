@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactPlayer from 'react-player/lazy';
 import { useDispatch, useSelector } from 'react-redux';
-import { setPlayedSeconds } from '@/lib/features/subtitles/subtitleSlice';
+import { selectedSubtitle, setPlayedSeconds } from '@/lib/features/subtitles/subtitleSlice';
 
 
 interface VideoPlayerProps {
@@ -15,11 +15,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, track, light }) => {
     const dispatch = useDispatch();
     const [isReady, setIsReady] = useState(false);
     const [playing, setPlaying] = useState(false);
+    const selectedSub: Subtitle | undefined = useSelector(selectedSubtitle);
     const playerRef = useRef<any>(null);
     const isBlobUrl = (url: string) => url.startsWith('blob:');
     const autoScrollEnabled = useSelector((state: any) => state.subtitle.autoScrollEnabled);
-    const { originalVTTUrl, translationVTTUrl, mixedVTTUrl } = convertToVTT(track || [{ start: 0, end: 2, text: "No subtitles available" }]);
-
+    const { originalVTTUrl, translationVTTUrl, mixedVTTUrl } = convertToVTT(selectedSub?.subtitleData || track || [{ start: 0, end: 2, text: "No subtitles available" }]);
     const subtitleTracks = [
         { kind: 'subtitles', src: originalVTTUrl, srcLang: 'en', label: 'Original' },
         { kind: 'subtitles', src: translationVTTUrl, srcLang: 'en', label: 'Translation' },

@@ -19,8 +19,6 @@ import "@/styles/mdx.css"
 
 export function ThemeCustomizer() {
     const [mounted, setMounted] = React.useState(false)
-    const { setTheme: setMode, resolvedTheme: mode } = useTheme()
-    const [config, setConfig] = useConfig()
 
     React.useEffect(() => {
         setMounted(true)

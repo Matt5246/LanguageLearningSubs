@@ -28,7 +28,7 @@ export default function Component() {
     const [period, setPeriod] = useState<'day' | 'week' | 'month'>('day');
     const chartData = useSelector(state => selectChartData(state, period));
     const [chartType, setChartType] = useState(false)
-
+    console.log(chartData)
     if (!chartData) {
         return (
             <h1 className="text-2xl font-bold mt-9 ml-9">Checking for data

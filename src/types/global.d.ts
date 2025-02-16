@@ -38,11 +38,13 @@ interface Subtitle {
 }
 
 interface SubtitleData {
+    id?: number;
     word?: string;
     text?: string;
     translation?: string;
     end?: number | float;
     start?: number | float;
+    subtitleDataId?: string;
 }
 
 interface HardWord {

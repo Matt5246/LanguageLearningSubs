@@ -15,12 +15,11 @@ export default function Home() {
     const subtitles: Subtitle[] = useSelector(
         (state: { subtitle: { subtitles: Subtitle[] } }) => state.subtitle.subtitles
     );
-    const allHardWords = subtitles.flatMap(subtitle => subtitle.hardWords || []);
     const stats = useSelector(selectSubtitleStats);
     const [isLoaded, setIsLoaded] = useState(false);
     const videos: Video[] = useMemo(() => {
-        if (subtitles.length === 0 || (subtitles as any).error) return [];
-        return subtitles?.map(subtitle => ({
+        if (!Array.isArray(subtitles) || subtitles.length === 0 || (subtitles as any).error) return [];
+        return subtitles.map(subtitle => ({
             subtitleTitle: subtitle.subtitleTitle || '',
             youtubeUrl: subtitle.youtubeUrl || '',
             hardWords: subtitle.hardWords || [],

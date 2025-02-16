@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useDispatch } from "react-redux";
+import { fetchAndInitializeSubtitles } from "@/components/NavBar";
 
 
 interface DeleteWordDrawerProps {
@@ -14,6 +16,7 @@ interface DeleteWordDrawerProps {
 
 const DeleteWord: React.FC<DeleteWordDrawerProps> = ({ hardWord }) => {
     const { toast } = useToast();
+    const dispatch = useDispatch();
     const { data: session, status } = useSession();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const email = session?.user?.email
@@ -26,6 +29,7 @@ const DeleteWord: React.FC<DeleteWordDrawerProps> = ({ hardWord }) => {
                 title: "Deleted",
                 description: "The word was successfully deleted.",
             });
+            fetchAndInitializeSubtitles(email, dispatch);
         } catch (error) {
             console.error('Error deleting word:', error);
             toast({

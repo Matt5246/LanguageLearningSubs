@@ -13,6 +13,10 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import DeleteWord from "./DeleteWord";
+import { useSession } from "next-auth/react";
+import { updateHardWords } from "@/lib/features/subtitles/subtitleSlice";
+import { fetchAndInitializeSubtitles, getSubs } from "@/components/NavBar";
+import { useDispatch } from "react-redux";
 
 interface EditWordDrawerProps {
     wordData: any;
@@ -20,6 +24,9 @@ interface EditWordDrawerProps {
 }
 
 const EditWord: React.FC<EditWordDrawerProps> = ({ wordData, onSave }) => {
+    const { data: session } = useSession();
+    const email = session?.user?.email;
+    const dispatch = useDispatch();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingWord, setEditingWord] = useState(wordData);
     const { toast } = useToast();
@@ -36,6 +43,7 @@ const EditWord: React.FC<EditWordDrawerProps> = ({ wordData, onSave }) => {
                 title: "Success",
                 description: "Word updated successfully!",
             });
+            fetchAndInitializeSubtitles(email, dispatch);
         } catch (error) {
             console.error('Error updating word:', error);
             toast({

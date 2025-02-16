@@ -15,6 +15,7 @@ import { shuffle } from 'lodash'
 import { Progress } from "@/components/ui/progress"
 import axios from 'axios'
 import { Badge } from '@/components/ui/badge'
+import { fetchAndInitializeSubtitles } from '@/components/NavBar'
 
 interface WordStreak {
   correctCount: number;
@@ -23,6 +24,7 @@ interface WordStreak {
 
 const QuizPage = () => {
   const dispatch = useDispatch()
+  const { email } = useSelector((state: { user: { email: string } }) => state.user)
   const allQuizData = useSelector(selectQuizData)
   const { subtitles } = useSelector((state: { subtitle: SubtitlesState }) => state.subtitle)
   const [currentWord, setCurrentWord] = useState<any | null>(null)
@@ -37,7 +39,6 @@ const QuizPage = () => {
 
 
   const getWordKey = (word: any) => `${word.word}_${word.id}`
-  console.log(allQuizData)
   useEffect(() => {
     const saveProgress = async () => {
       if (quizCompleted) {
@@ -54,6 +55,7 @@ const QuizPage = () => {
           await axios.post('/api/hardWords/update', { hardWords: learnedWords })
           dispatch(updateHardWords({ hardWords: learnedWords }))
           console.log('Progress saved successfully')
+          // fetchAndInitializeSubtitles(email, dispatch)
         } catch (error) {
           console.error('Error saving progress:', error)
         }
@@ -68,10 +70,10 @@ const QuizPage = () => {
 
     resetQuizState()
     setStreaks({})
-    const wordsToQuiz = selectedWords.length > 0 
+    const wordsToQuiz = selectedWords.length > 0
       ? allQuizData.filter(word => selectedWords.includes(word.word!))
       : allQuizData.slice(0, wordCount);
-    
+
     setQuizData(shuffle(wordsToQuiz))
     setQuizStarted(true)
     setTimeout(() => {
@@ -235,8 +237,8 @@ const QuizPage = () => {
           </TabsContent>
 
           <TabsContent value="words">
-            <WordTable 
-              words={allQuizData} 
+            <WordTable
+              words={allQuizData}
               selectedWords={selectedWords}
               onSelectionChange={setSelectedWords}
             />
@@ -283,9 +285,9 @@ const QuizPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center space-y-6">
         <div className="text-center mb-4">
-        <div className="text-sm text-gray-600">Learned: {learnedWords}/{totalWords}</div>
+          <div className="text-sm text-gray-600">Learned: {learnedWords}/{totalWords}</div>
         </div>
-        <Progress value={progress} className="w-full" />      
+        <Progress value={progress} className="w-full" />
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             {currentWord && (

@@ -21,6 +21,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getDueDate } from "@/lib/utils";
 import { Angry, ThumbsUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useSession } from "next-auth/react";
+import { fetchAndInitializeSubtitles } from "@/components/NavBar";
 
 export default function FlashCard() {
     const dispatch = useDispatch();
@@ -33,7 +35,8 @@ export default function FlashCard() {
     const [studyMode, setStudyMode] = useState<'flashcard' | 'write' | 'context'>('flashcard');
     const [filteredCards, setFilteredCards] = useState(srsFlashcards.filter((card: any) => card.SubtitleId === selectedSubId));
     const [initialFilteredCards, setInitialFilteredCards] = useState(filteredCards);
-
+    const { data: session } = useSession();
+    const email = session?.user?.email;
     useEffect(() => {
         setInitialFilteredCards(filteredCards);
     }, []);
@@ -63,6 +66,7 @@ export default function FlashCard() {
                 description: `You've learned ${initialFilteredCards?.length} words successfully.`,
             });
             setFilteredCards([]);
+            fetchAndInitializeSubtitles(email, dispatch);
         } catch (error) {
             console.error('Error updating words:', error);
             toast({

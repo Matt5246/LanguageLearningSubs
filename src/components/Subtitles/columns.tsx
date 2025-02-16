@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import axios from 'axios'
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { toast } from "sonner"
@@ -26,6 +26,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Spinner } from "../ui/spinner";
+import { updateSubtitle, updateSubtitleRow } from "@/lib/features/subtitles/subtitleSlice";
 
 
 function convertTime(time: number): string {
@@ -124,6 +125,7 @@ async function fetchTokenizedWords(text: string) {
     }
 }
 const RenderMiddlePopoverContent = (row: any) => {
+    const dispatch = useDispatch();
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const [tokenizedWords, setTokenizedWords] = useState<string[]>([]);
     const fullRow = row.row.row.original as Caption;
@@ -184,6 +186,26 @@ const RenderMiddlePopoverContent = (row: any) => {
                 end,
             });
             toast("Sentence updated successfully");
+            const subtitleData: SubtitleData = {
+                id: fullRow?.id,
+                text: sentence,
+                translation: sentenceTranslation,
+                start,
+                end,
+                subtitleDataId: fullRow?.subtitleDataId,
+            };
+            console.log('selectedSubtitle', {
+                SubtitleId: selectedSubtitle?.SubtitleId ?? '',
+                rowIndex: fullRow?.id,
+                subtitleData,
+                fullRow,
+                subtitleDataId: fullRow?.subtitleDataId,
+            });
+            dispatch(updateSubtitleRow({
+                SubtitleId: selectedSubtitle?.SubtitleId ?? '',
+                subtitleDataId: fullRow?.subtitleDataId ?? '',
+                subtitleData,
+            }));
         } catch (error) {
             console.error('Error editing sentence:', error);
             toast("Error updating sentence");

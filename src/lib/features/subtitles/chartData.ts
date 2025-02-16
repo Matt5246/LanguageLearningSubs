@@ -2,7 +2,6 @@ import { SubtitlesState } from './subtitleSlice';
 import { createSelector } from '@reduxjs/toolkit';
 import { getWeekNumber } from '@/lib/utils';
 
-
 const generateChartData = (
     allHardWords: HardWord[],
     period: 'day' | 'week' | 'month'
@@ -48,10 +47,14 @@ export const selectChartData = createSelector(
     (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles,
     (_: any, period: 'day' | 'week' | 'month') => period,
     (subtitles, period) => {
+        if (!Array.isArray(subtitles)) {
+            return [];
+        }
         const allHardWords = subtitles.reduce(
             (acc: HardWord[], subtitle) => [...acc, ...(subtitle.hardWords as HardWord[] || [])],
             []
         );
+        console.log('allHardWords', allHardWords);
         return generateChartData(allHardWords, period);
     }
 );

@@ -99,7 +99,7 @@ function TranslateSubtitle(selectedSubtitle: any) {
                 </DialogHeader>
 
                 <DialogDescription>Subtitle title:</DialogDescription>
-                {selectedSubtitle?.selectedSubtitle?.subtitleTitle}
+                <div className='select-text'>{selectedSubtitle?.selectedSubtitle?.subtitleTitle}</div>
                 <DialogDescription>Target language:</DialogDescription>
                 <Select onValueChange={setTargetLanguage} defaultValue={targetLanguage}>
                     <SelectTrigger className="w-[180px]">
@@ -150,7 +150,7 @@ function TranslateSubtitle(selectedSubtitle: any) {
                 {selectedSubtitle?.selectedSubtitle?.subtitleData?.length}
 
                 {selectedSubtitle?.selectedSubtitle?.youtubeUrl && <DialogDescription>Subtitle URL:</DialogDescription>}
-                {selectedSubtitle?.selectedSubtitle?.youtubeUrl}
+                <div className='select-text'>{selectedSubtitle?.selectedSubtitle?.youtubeUrl}</div>
                 <DialogFooter>
                     <Button variant="default" disabled={isFetching} className='mt-2' onClick={() => refetch()}>
                         {isFetching ? 'Updating...' : 'Translate'}

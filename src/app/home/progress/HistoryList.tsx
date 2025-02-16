@@ -43,7 +43,7 @@ export default function HistoryList({ initialVisibleCount = 15, incrementCount =
     const [showFilters, setShowFilters] = useState(false)
     const [sortOption, setSortOption] = useState("dateDesc")
 
-    const historyData: HistoryItem[] = subtitlesData.flatMap((subtitle) => {
+    const historyData: HistoryItem[] = Array.isArray(subtitlesData) ? subtitlesData.flatMap((subtitle) => {
         const hardWordsItems: HardWordHistoryItem[] = subtitle.hardWords?.map((hardWord) => ({
             type: "hardWord",
             word: hardWord.word || "",
@@ -59,7 +59,7 @@ export default function HistoryList({ initialVisibleCount = 15, incrementCount =
         }
 
         return [subtitleItem, ...hardWordsItems]
-    })
+    }) : []
 
     const filteredHistory = historyData
         .filter(item => {

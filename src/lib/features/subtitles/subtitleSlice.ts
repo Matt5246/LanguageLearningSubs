@@ -37,6 +37,7 @@ interface SubtitleData {
     translation?: string;
     end?: number | GLfloat;
     start?: number | GLfloat;
+    subtitleDataId?: string;
 }
 
 export const calculateNextReviewDate = (
@@ -86,6 +87,18 @@ const subtitlesSlice = createSlice({
             if (index !== -1) {
                 state.subtitles[index] = { ...state.subtitles[index], ...action.payload };
             }
+        },
+        updateSubtitleRow(state, action: PayloadAction<{ SubtitleId: string; subtitleDataId: string; subtitleData: SubtitleData }>) {
+            const { SubtitleId, subtitleDataId, subtitleData } = action.payload;
+            const index = state.subtitles.findIndex(sub => sub.SubtitleId === SubtitleId);
+            if (index !== -1 && state.subtitles[index].subtitleData) {
+                const dataIdx = state.subtitles[index].subtitleData.findIndex(data => data.subtitleDataId === subtitleDataId);
+                console.log('Data Index:', dataIdx, 'Subtitle Data:',  state.subtitles[index].subtitleData);
+                if (dataIdx !== -1) {
+                    state.subtitles[index].subtitleData[dataIdx] = { ...state.subtitles[index].subtitleData[dataIdx], ...subtitleData };
+                }
+            }
+            
         },
         setSelectedSubtitle(state, action: PayloadAction<string | null>) {
             state.selectedSubtitle = action.payload;
@@ -172,6 +185,7 @@ export const {
     clearSubtitles,
     getSubtitle,
     updateSubtitle,
+    updateSubtitleRow,
     initializeSubtitles,
     deleteSubtitle,
     setSelectedSubtitle,
@@ -218,13 +232,17 @@ export const selectQuizData = createSelector(
     (state: { subtitle: SubtitlesState }) => state.subtitle.subtitles,
     (subtitles) => {
         const now = new Date();
+        if (!Array.isArray(subtitles) || subtitles.length === 0) {
+            return [];
+        }
+
         return subtitles.flatMap(sub =>
             (sub.hardWords || []).filter(hw =>
-                // Include words that:
-                // 1. Have no repetitions (new words)
-                // 2. Have a dueDate that's in the past or equal to now
-                (!hw.repetitions || hw.repetitions === 0) || 
-                (hw.dueDate && new Date(hw.dueDate) <= now)
+            // Include words that:
+            // 1. Have no repetitions (new words)
+            // 2. Have a dueDate that's in the past or equal to now
+            (!hw.repetitions || hw.repetitions === 0) || 
+            (hw.dueDate && new Date(hw.dueDate) <= now)
             )
         ).sort((a, b) => {
             // Sort order:
@@ -245,7 +263,7 @@ export const selectQuizData = createSelector(
 export const selectSubtitleStats = createSelector(
     (state: {subtitle: SubtitlesState}) => state.subtitle.subtitles,
     (subtitles) => {
-        if (!subtitles || subtitles.length === 0) {
+        if (!Array.isArray(subtitles) || subtitles.length === 0) {
             return {
                 totalSubtitles: 0,
                 totalWords: 0,

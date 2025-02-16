@@ -76,16 +76,12 @@ export default function Navigation() {
             dispatch(logout());
         }
         if (status === 'authenticated' && session) {
-            getSubs(email ?? "")
-                .then((subtitles) => {
-                    dispatch(initializeSubtitles(subtitles));
-                })
-                .catch((error) => {
-                    console.error('Error fetching subtitles:', error);
-                });
+
+            fetchAndInitializeSubtitles(email, dispatch);
         }
 
     }, [status]);
+
     return (
         <NavigationMenu>
             <NavigationMenuList>
@@ -174,6 +170,16 @@ const ListItem = React.forwardRef<
     )
 })
 ListItem.displayName = "ListItem"
+
+export function fetchAndInitializeSubtitles(email: string, dispatch: any) {
+    getSubs(email ?? "")
+        .then((subtitles) => {
+            dispatch(initializeSubtitles(subtitles));
+        })
+        .catch((error) => {
+            console.error('Error fetching subtitles:', error);
+        });
+}
 export async function getSubs(email: String) {
     try {
         if (email) {

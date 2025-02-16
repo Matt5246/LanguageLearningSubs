@@ -22,7 +22,7 @@ export async function POST(req: Request) {
                 learnState,
             };
 
-            if (learnState === 100 && !existingHardWord.learnedAt) {
+            if (repetitions >= 3 && !existingHardWord.learnedAt) {
                 updateData.learnedAt = new Date();
             }
             if (dueDate && repetitions) {

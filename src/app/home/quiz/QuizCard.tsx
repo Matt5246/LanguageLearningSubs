@@ -31,7 +31,7 @@ const QuizCard = ({ word, correctAnswer, options = [], onSubmit, streak }: QuizC
         if (feedback) return
 
         setSelectedOption(option)
-        const isCorrect = option.toLowerCase() === correctAnswer.toLowerCase()
+        const isCorrect = option?.toLowerCase() === correctAnswer?.toLowerCase()
         setFeedback(isCorrect ? 'correct' : 'incorrect')
         onSubmit(option)
     }
